@@ -14,22 +14,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware - temporarily disabled for development
   // await setupAuth(app);
 
-  // Auth routes - Development mode with mock user
-  app.get('/api/auth/user', async (req: any, res) => {
+  // Email/Password Auth routes
+  app.post('/api/auth/login', async (req, res) => {
     try {
-      // For development, return a mock authenticated user
-      const mockUser = {
-        id: "38362161",
-        email: "onuma@fgcsg.com",
-        firstName: "Demo",
-        lastName: "User",
-        role: "admin",
-        department: "management",
-        title: "System Administrator",
-        isActive: true,
-        createdAt: new Date().toISOString(),
-      };
-      res.json(mockUser);
+      const { email, password } = req.body;
+      
+      // Simple hardcoded admin credentials for demo
+      // In production, this should use proper password hashing and database storage
+      if (email === "admin@fgcsg.com" && password === "admin123") {
+        const adminUser = {
+          id: "admin-001",
+          email: "admin@fgcsg.com",
+          firstName: "Admin",
+          lastName: "User",
+          role: "admin",
+          department: "management",
+          title: "System Administrator",
+          isActive: true,
+          profileImageUrl: null
+        };
+        
+        // Set session
+        (req as any).session.user = adminUser;
+        res.json(adminUser);
+      } else {
+        res.status(401).json({ message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.post('/api/auth/logout', (req, res) => {
+    (req as any).session.destroy((err: any) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  app.get('/api/auth/user', async (req, res) => {
+    try {
+      const user = (req as any).session?.user;
+      if (!user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { LoginModal } from "@/components/auth/login-modal";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { Menu, X, User } from "lucide-react";
@@ -15,6 +16,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
   const [location] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const t = useTranslation(language);
 
   const navItems = [
@@ -32,8 +34,13 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
     window.location.href = "/api/login";
   };
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.reload();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -93,7 +100,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                         data-testid="button-management"
                       >
                         <User className="h-4 w-4" />
-                        <span>Admin</span>
+                        <span>Admin Login</span>
                       </Button>
                     </Link>
                     <Button
@@ -107,12 +114,14 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   </div>
                 ) : (
                   <Button
-                    onClick={handleLogin}
-                    className="felicity-bg text-primary-foreground hover:opacity-90"
+                    onClick={() => setShowLoginModal(true)}
+                    variant="outline"
                     size="sm"
-                    data-testid="button-login"
+                    className="flex items-center space-x-1"
+                    data-testid="button-admin-login"
                   >
-                    {t.nav.login}
+                    <User className="h-4 w-4" />
+                    <span>Admin Login</span>
                   </Button>
                 )}
               </>
@@ -155,6 +164,14 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           </div>
         )}
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => window.location.reload()}
+        language={language}
+      />
     </nav>
   );
 }
