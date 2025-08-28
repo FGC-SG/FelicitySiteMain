@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { apiRequest } from "@/lib/queryClient";
@@ -177,12 +178,22 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
             <Label htmlFor="company">
               {language === "en" ? "Company" : "会社名"} *
             </Label>
-            <Input
-              id="company"
-              {...form.register("company")}
-              placeholder={language === "en" ? "Enter company name" : "会社名を入力"}
-              data-testid="input-member-company"
-            />
+            <Select
+              value={form.watch("company")}
+              onValueChange={(value) => form.setValue("company", value)}
+            >
+              <SelectTrigger data-testid="select-member-company">
+                <SelectValue placeholder={language === "en" ? "Select company" : "会社を選択"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Felicity Global Capital Pte. Ltd.">
+                  Felicity Global Capital Pte. Ltd.
+                </SelectItem>
+                <SelectItem value="Felicity Capital Co., Ltd.">
+                  Felicity Capital Co., Ltd.
+                </SelectItem>
+              </SelectContent>
+            </Select>
             {form.formState.errors.company && (
               <p className="text-sm text-destructive">{form.formState.errors.company.message}</p>
             )}
