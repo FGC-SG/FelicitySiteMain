@@ -30,7 +30,7 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
 
   const deleteNewsMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/news/${id}`, "DELETE");
+      return apiRequest("DELETE", `/api/news/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/news"] });
@@ -65,7 +65,7 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
 
   const updateNewsMutation = useMutation({
     mutationFn: async (data: { id: string; updates: Partial<NewsArticle> }) => {
-      return apiRequest(`/api/news/${data.id}`, "PUT", data.updates);
+      return apiRequest("PUT", `/api/news/${data.id}`, data.updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/news"] });
