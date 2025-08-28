@@ -14,6 +14,9 @@ const editNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   content: z.string().min(1, "Content is required"),
+  titleJa: z.string().optional(),
+  descriptionJa: z.string().optional(),
+  contentJa: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   language: z.enum(["en", "ja"]),
   publishedAt: z.string().min(1, "Announcement date is required"),
@@ -36,6 +39,9 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
       title: article.title,
       description: article.description || "",
       content: article.content || "",
+      titleJa: article.titleJa || "",
+      descriptionJa: article.descriptionJa || "",
+      contentJa: article.contentJa || "",
       category: article.category,
       language: article.language as "en" | "ja",
       publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -206,6 +212,76 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
               </FormItem>
             )}
           />
+
+          {/* Japanese Translation Section */}
+          <div className="border-t pt-6 mt-6">
+            <h4 className="text-lg font-semibold mb-4 text-blue-600">
+              {language === "en" ? "Japanese Translation (Optional)" : "日本語翻訳（任意）"}
+            </h4>
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="titleJa"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel data-testid="label-title-ja">
+                      {language === "en" ? "Japanese Title" : "日本語タイトル"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder={language === "en" ? "Enter Japanese title" : "日本語タイトルを入力"}
+                        data-testid="input-title-ja"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="descriptionJa"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel data-testid="label-description-ja">
+                      {language === "en" ? "Japanese Description" : "日本語説明"}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder={language === "en" ? "Brief Japanese description" : "日本語の簡単な説明"}
+                        rows={3}
+                        data-testid="textarea-description-ja"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contentJa"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel data-testid="label-content-ja">
+                      {language === "en" ? "Japanese Content" : "日本語内容"}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder={language === "en" ? "Full Japanese article content" : "日本語記事の全文"}
+                        rows={8}
+                        data-testid="textarea-content-ja"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
 
           <div className="flex gap-4 pt-4">
             <Button
