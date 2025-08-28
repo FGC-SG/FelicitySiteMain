@@ -103,6 +103,11 @@ export default function MemberManagementPage() {
     return null; // Will redirect to login
   }
 
+  // Check if current user is superadmin
+  const isSuperadmin = (user as any)?.email === "onuma@fgcsg.com" || 
+                       (user as any)?.role === "superadmin" || 
+                       (user as any)?.role === "admin";
+
   return (
     <div className="min-h-screen bg-background font-sans">
       <Navigation language={language} onLanguageChange={setLanguage} />
@@ -124,16 +129,18 @@ export default function MemberManagementPage() {
             </div>
 
             {/* Add Member Button */}
-            <div className="mb-8 flex justify-center">
-              <Button 
-                onClick={() => setShowAddMember(true)}
-                className="gap-2"
-                data-testid="button-add-member"
-              >
-                <Plus className="h-4 w-4" />
-                {language === "en" ? "Add New Member" : "新しいメンバーを追加"}
-              </Button>
-            </div>
+            {isSuperadmin && (
+              <div className="mb-8 flex justify-center">
+                <Button 
+                  onClick={() => setShowAddMember(true)}
+                  className="gap-2"
+                  data-testid="button-add-member"
+                >
+                  <Plus className="h-4 w-4" />
+                  {language === "en" ? "Add New Member" : "新しいメンバーを追加"}
+                </Button>
+              </div>
+            )}
 
             {/* Members Grid */}
             {membersLoading ? (
@@ -184,28 +191,30 @@ export default function MemberManagementPage() {
                           </p>
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="flex-1"
-                          data-testid={`button-edit-member-${member.id}`}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          {language === "en" ? "Edit" : "編集"}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDeleteMember(member.id, member.name)}
-                          disabled={deleteMemberMutation.isPending}
-                          className="flex-1"
-                          data-testid={`button-delete-member-${member.id}`}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          {language === "en" ? "Delete" : "削除"}
-                        </Button>
-                      </div>
+                      {isSuperadmin && (
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex-1"
+                            data-testid={`button-edit-member-${member.id}`}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            {language === "en" ? "Edit" : "編集"}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDeleteMember(member.id, member.name)}
+                            disabled={deleteMemberMutation.isPending}
+                            className="flex-1"
+                            data-testid={`button-delete-member-${member.id}`}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            {language === "en" ? "Delete" : "削除"}
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}

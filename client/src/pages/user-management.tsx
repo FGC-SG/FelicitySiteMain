@@ -130,7 +130,9 @@ export default function UserManagementPage() {
   }
 
   // Check if current user is superadmin
-  const isSuperadmin = (currentUser as any)?.email === "onuma@fgcsg.com" || (currentUser as any)?.role === "superadmin";
+  const isSuperadmin = (currentUser as any)?.email === "onuma@fgcsg.com" || 
+                       (currentUser as any)?.role === "superadmin" || 
+                       (currentUser as any)?.role === "admin";
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -151,7 +153,7 @@ export default function UserManagementPage() {
 
   // Get unique roles for filtering - restrict to only new roles
   const allowedRoles = ["superadmin", "user"];
-  const uniqueRoles = Array.from(new Set((users as User[]).map((user: User) => user.role).filter(role => allowedRoles.includes(role || "user"))));
+  const uniqueRoles = Array.from(new Set((users as User[]).map((user: User) => user.role || "user").filter(role => allowedRoles.includes(role))));
 
   return (
     <div className="min-h-screen bg-background font-sans">

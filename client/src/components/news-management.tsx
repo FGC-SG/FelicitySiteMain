@@ -25,7 +25,9 @@ export function NewsManagement({ language, onClose, currentUser }: NewsManagemen
   const queryClient = useQueryClient();
   
   // Check if current user is superadmin
-  const isSuperadmin = currentUser?.role === "Superadmin" || currentUser?.role === "superadmin";
+  const isSuperadmin = currentUser?.role === "Superadmin" || 
+                       currentUser?.role === "superadmin" || 
+                       currentUser?.role === "admin";
 
   // Fetch news articles
   const { data: newsArticles, isLoading } = useQuery({
