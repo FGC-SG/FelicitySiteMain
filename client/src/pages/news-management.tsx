@@ -79,7 +79,7 @@ export default function NewsManagementPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <Navigation language={language} setLanguage={setLanguage} />
+      <Navigation language={language} onLanguageChange={setLanguage} />
       
       <main className="pt-20">
         {/* Hero Section */}
