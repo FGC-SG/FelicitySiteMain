@@ -1,81 +1,53 @@
-import { User, InsertUser, Session, InsertSession, Contact, InsertContact } from "@shared/schema";
+import {
+  users,
+  contactSubmissions,
+  type User,
+  type UpsertUser,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
+// Interface for storage operations
 export interface IStorage {
   // User operations
-  createUser(user: InsertUser): Promise<User>;
-  getUserByEmail(email: string): Promise<User | null>;
-  getUserById(id: string): Promise<User | null>;
-  
-  // Session operations
-  createSession(session: InsertSession): Promise<Session>;
-  getSessionByToken(token: string): Promise<Session | null>;
-  deleteSession(token: string): Promise<void>;
-  
-  // Contact operations
-  createContact(contact: InsertContact): Promise<Contact>;
-  getAllContacts(): Promise<Contact[]>;
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  // Other operations
 }
 
-export class MemStorage implements IStorage {
-  private users: User[] = [];
-  private sessions: Session[] = [];
-  private contacts: Contact[] = [];
+export class DatabaseStorage implements IStorage {
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
 
-  async createUser(user: InsertUser): Promise<User> {
-    const newUser: User = {
-      ...user,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date(),
-    };
-    this.users.push(newUser);
-    return newUser;
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    return this.users.find(user => user.email === email) || null;
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return this.users.find(user => user.id === id) || null;
+  async createContactSubmission(submission: any): Promise<any> {
+    const [result] = await db.insert(contactSubmissions).values(submission).returning();
+    return result;
   }
 
-  async createSession(session: InsertSession): Promise<Session> {
-    const newSession: Session = {
-      ...session,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date(),
-    };
-    this.sessions.push(newSession);
-    return newSession;
-  }
-
-  async getSessionByToken(token: string): Promise<Session | null> {
-    const session = this.sessions.find(s => s.token === token);
-    if (session && session.expiresAt > new Date()) {
-      return session;
-    }
-    if (session) {
-      // Remove expired session
-      this.sessions = this.sessions.filter(s => s.token !== token);
-    }
-    return null;
-  }
-
-  async deleteSession(token: string): Promise<void> {
-    this.sessions = this.sessions.filter(s => s.token !== token);
-  }
-
-  async createContact(contact: InsertContact): Promise<Contact> {
-    const newContact: Contact = {
-      ...contact,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date(),
-    };
-    this.contacts.push(newContact);
-    return newContact;
-  }
-
-  async getAllContacts(): Promise<Contact[]> {
-    return this.contacts;
+  async getContactSubmissions(): Promise<any[]> {
+    return await db.select().from(contactSubmissions);
   }
 }
+
+export const storage = new DatabaseStorage();

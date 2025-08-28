@@ -1,0 +1,141 @@
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useAuth } from "@/hooks/useAuth";
+import { useTranslation, type Language } from "@/lib/i18n";
+import { Menu, X } from "lucide-react";
+
+interface NavigationProps {
+  language: Language;
+  onLanguageChange: (lang: Language) => void;
+}
+
+export function Navigation({ language, onLanguageChange }: NavigationProps) {
+  const [location] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const t = useTranslation(language);
+
+  const navItems = [
+    { href: "#home", label: t.nav.home },
+    { href: "#about", label: t.nav.about },
+    { href: "#news", label: t.nav.news },
+    { href: "#contact", label: t.nav.contact },
+  ];
+
+  const handleNavClick = (href: string) => {
+    setIsMobileMenuOpen(false);
+    if (href.startsWith("#")) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  const handleLogin = () => {
+    window.location.href = "/api/login";
+  };
+
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
+  };
+
+  return (
+    <nav className="glass-effect border-b border-border sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/">
+              <div className="flex items-center space-x-3 cursor-pointer">
+                <img 
+                  src="/src/assets/logo_color_1756362140059.jpg"
+                  alt="Felicity Global Capital"
+                  className="h-8 w-auto"
+                  data-testid="img-logo"
+                />
+                <div className="felicity-primary text-xl font-bold tracking-wide">
+                  FELICITY
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-8">
+              {navItems.map((item) => (
+                <button
+                  key={item.href}
+                  onClick={() => handleNavClick(item.href)}
+                  className={`px-3 py-2 text-sm font-medium transition-colors ${
+                    item.href === "#home"
+                      ? "felicity-primary"
+                      : "text-muted-foreground hover:felicity-primary"
+                  }`}
+                  data-testid={`nav-${item.href.slice(1)}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Language & Auth */}
+          <div className="flex items-center space-x-4">
+            <LanguageSwitcher
+              currentLanguage={language}
+              onLanguageChange={onLanguageChange}
+            />
+            {!isLoading && (
+              <Button
+                onClick={isAuthenticated ? handleLogout : handleLogin}
+                className="felicity-bg text-primary-foreground hover:opacity-90"
+                size="sm"
+                data-testid={isAuthenticated ? "button-logout" : "button-login"}
+              >
+                {isAuthenticated ? t.nav.logout : t.nav.login}
+              </Button>
+            )}
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              data-testid="button-mobile-menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {navItems.map((item) => (
+                <button
+                  key={item.href}
+                  onClick={() => handleNavClick(item.href)}
+                  className="block px-3 py-2 text-base font-medium text-muted-foreground hover:felicity-primary w-full text-left"
+                  data-testid={`mobile-nav-${item.href.slice(1)}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+}
