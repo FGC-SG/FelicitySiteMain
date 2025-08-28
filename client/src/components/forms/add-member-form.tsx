@@ -50,7 +50,7 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
 
   const createMemberMutation = useMutation({
     mutationFn: async (data: MemberFormData & { photoUrl?: string }) => {
-      const response = await apiRequest("/api/members", "POST", data);
+      const response = await apiRequest("POST", "/api/members", data);
       return response.json();
     },
     onSuccess: () => {
@@ -77,7 +77,7 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
   });
 
   const handleGetUploadParameters = async () => {
-    const response = await apiRequest("/api/objects/upload", "POST");
+    const response = await apiRequest("POST", "/api/objects/upload");
     const data = await response.json();
     return {
       method: "PUT" as const,
