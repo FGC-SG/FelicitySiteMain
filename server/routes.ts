@@ -144,16 +144,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const englishNews = news.filter(article => article.language === 'en');
       const japaneseNews = news.filter(article => article.language === 'ja');
       
-      // Generate Japanese translations for English articles
+      // Generate Japanese translations for ALL English articles
       const translatedNews = [];
       for (const article of englishNews) {
-        try {
-          const translation = await translateNewsArticle(article);
-          translatedNews.push(translation);
-        } catch (error) {
-          console.error(`Error translating article ${article.id}:`, error);
-          // Skip this translation but continue with others
-        }
+        const translation = await translateNewsArticle(article);
+        translatedNews.push(translation);
       }
       
       // Combine original articles with translations

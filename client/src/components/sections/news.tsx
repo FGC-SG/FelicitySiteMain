@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Newspaper, Calendar, User, Eye, ArrowRight, X } from "lucide-react";
 
 interface NewsProps {
@@ -232,9 +232,12 @@ export function News({ language }: NewsProps) {
           {selectedArticle && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold mb-4 pr-8">
+                <DialogTitle className="text-2xl font-bold mb-2 pr-8">
                   {selectedArticle.title}
                 </DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mb-4">
+                  {language === "en" ? "Full article content" : "完全な記事内容"}
+                </DialogDescription>
                 <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
                   <X className="h-4 w-4" />
                   <span className="sr-only">Close</span>

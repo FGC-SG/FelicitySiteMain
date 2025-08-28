@@ -50,6 +50,15 @@ Respond with JSON in this exact format: {"title": "...", "description": "...", "
     });
 
     const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${data.error?.message || 'Unknown error'}`);
+    }
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error('Invalid response structure from OpenAI API');
+    }
+    
     const responseText = data.choices[0].message.content;
     const translatedContent = JSON.parse(responseText || "{}");
     
@@ -120,6 +129,11 @@ function getJapaneseTags(tags: string): string {
 }
 
 export async function translateNewsArticle(article: any): Promise<any> {
+  // Skip if already in Japanese
+  if (article.language === 'ja') {
+    return article;
+  }
+
   try {
     const translationRequest: TranslationRequest = {
       title: article.title,
@@ -141,22 +155,17 @@ export async function translateNewsArticle(article: any): Promise<any> {
       originalId: article.id, // Keep reference to original article
     };
   } catch (error) {
-    console.log(`Translation failed for article ${article.id}, using fallback translation`);
+    console.log(`Translation API failed for article ${article.id}, using enhanced fallback translation`);
     
-    // Provide fallback Japanese translations for common terms
-    const fallbackTitle = getFallbackTranslation(article.title);
-    const fallbackDescription = getFallbackTranslation(article.description);
-    const fallbackContent = getFallbackTranslation(article.content);
-    const fallbackTags = getJapaneseTags(article.tags || '');
-    
+    // Always provide a Japanese translation using enhanced fallback system
     return {
       ...article,
       id: `${article.id}_ja`, // Create unique ID for Japanese version
       language: 'ja',
-      title: fallbackTitle,
-      description: fallbackDescription,
-      content: fallbackContent,
-      tags: fallbackTags,
+      title: getJapaneseTitle(article.title),
+      description: getJapaneseDescription(article.description),
+      content: getJapaneseContent(article.content),
+      tags: getJapaneseTags(article.tags || ''),
       originalId: article.id, // Keep reference to original article
     };
   }
