@@ -38,7 +38,7 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
       email: "",
       firstName: "",
       lastName: "",
-      role: "",
+      role: "user",
     },
   });
 
@@ -90,11 +90,8 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
   };
 
   const roles = [
-    { value: "admin", label: language === "en" ? "Administrator" : "管理者" },
-    { value: "manager", label: language === "en" ? "Manager" : "マネージャー" },
-    { value: "member", label: language === "en" ? "Member" : "メンバー" },
-    { value: "analyst", label: language === "en" ? "Analyst" : "アナリスト" },
-    { value: "viewer", label: language === "en" ? "Viewer" : "閲覧者" },
+    { value: "superadmin", label: language === "en" ? "Superadmin" : "スーパー管理者" },
+    { value: "user", label: language === "en" ? "User" : "ユーザー" },
   ];
 
 

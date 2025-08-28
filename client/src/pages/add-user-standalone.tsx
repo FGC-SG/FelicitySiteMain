@@ -44,10 +44,10 @@ export default function AddUserStandalonePage() {
     return null; // Will redirect to login
   }
 
-  // Check if current user is superuser
-  const isSuperuser = (currentUser as any)?.email === "onuma@fgcsg.com" || (currentUser as any)?.role === "superuser";
+  // Check if current user is superadmin
+  const isSuperadmin = (currentUser as any)?.email === "onuma@fgcsg.com" || (currentUser as any)?.role === "superadmin";
 
-  if (!isSuperuser) {
+  if (!isSuperadmin) {
     return (
       <div className="min-h-screen bg-background font-sans flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -57,8 +57,8 @@ export default function AddUserStandalonePage() {
             </CardTitle>
             <CardDescription className="text-center">
               {language === "en" 
-                ? "You need superuser privileges to add users."
-                : "ユーザーを追加するにはスーパーユーザー権限が必要です。"
+                ? "You need superadmin privileges to add users."
+                : "ユーザーを追加するにはスーパー管理者権限が必要です。"
               }
             </CardDescription>
           </CardHeader>

@@ -117,15 +117,13 @@ export default function UserManagementPage() {
     return null; // Will redirect to login
   }
 
-  // Check if current user is superuser
-  const isSuperuser = (currentUser as any)?.email === "onuma@fgcsg.com" || (currentUser as any)?.role === "superuser";
+  // Check if current user is superadmin
+  const isSuperadmin = (currentUser as any)?.email === "onuma@fgcsg.com" || (currentUser as any)?.role === "superadmin";
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case "superuser": return "bg-red-100 text-red-800";
-      case "admin": return "bg-purple-100 text-purple-800";
-      case "manager": return "bg-blue-100 text-blue-800";
-      case "member": return "bg-green-100 text-green-800";
+      case "superadmin": return "bg-red-100 text-red-800";
+      case "user": return "bg-blue-100 text-blue-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
@@ -139,7 +137,9 @@ export default function UserManagementPage() {
     return matchesSearch && matchesRole;
   });
 
-  const uniqueRoles = Array.from(new Set((users as User[]).map((user: User) => user.role).filter(Boolean)));
+  // Get unique roles for filtering - restrict to only new roles
+  const allowedRoles = ["superadmin", "user"];
+  const uniqueRoles = Array.from(new Set((users as User[]).map((user: User) => user.role).filter(role => allowedRoles.includes(role || "user"))));
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -162,10 +162,10 @@ export default function UserManagementPage() {
                   : "チームメンバー、役割、権限を管理"
                 }
               </p>
-              {isSuperuser && (
-                <Badge variant="secondary" className="text-primary" data-testid="badge-superuser-status">
+              {isSuperadmin && (
+                <Badge variant="secondary" className="text-primary" data-testid="badge-superadmin-status">
                   <Shield className="h-4 w-4 mr-1" />
-                  {language === "en" ? "Superuser Access" : "スーパーユーザーアクセス"}
+                  {language === "en" ? "Superadmin Access" : "スーパー管理者アクセス"}
                 </Badge>
               )}
             </div>
@@ -206,7 +206,7 @@ export default function UserManagementPage() {
 
               </div>
 
-              {isSuperuser && (
+              {isSuperadmin && (
                 <Button 
                   onClick={() => window.open("/add-user", "_blank", "width=1200,height=800,scrollbars=yes,resizable=yes")}
                   data-testid="button-add-new-user"
@@ -243,7 +243,7 @@ export default function UserManagementPage() {
                         <TableHead>{language === "en" ? "User" : "ユーザー"}</TableHead>
                         <TableHead>{language === "en" ? "Role" : "役割"}</TableHead>
                         <TableHead>{language === "en" ? "Joined" : "参加日"}</TableHead>
-                        {isSuperuser && <TableHead>{language === "en" ? "Actions" : "アクション"}</TableHead>}
+                        {isSuperadmin && <TableHead>{language === "en" ? "Actions" : "アクション"}</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -270,8 +270,8 @@ export default function UserManagementPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={getRoleColor(user.role || "member")} data-testid={`user-role-${user.id}`}>
-                              {user.role || "member"}
+                            <Badge className={getRoleColor(user.role || "user")} data-testid={`user-role-${user.id}`}>
+                              {user.role || "user"}
                             </Badge>
                           </TableCell>
                           <TableCell data-testid={`user-joined-${user.id}`}>
@@ -279,7 +279,7 @@ export default function UserManagementPage() {
                               language === "en" ? "en-US" : "ja-JP"
                             )}
                           </TableCell>
-                          {isSuperuser && (
+                          {isSuperadmin && (
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 <Button 
@@ -334,18 +334,16 @@ export default function UserManagementPage() {
                 <div>
                   <Label htmlFor="edit-role">{language === "en" ? "Role" : "役割"}</Label>
                   <Select 
-                    value={editingUser.role || "member"} 
+                    value={editingUser.role || "user"} 
                     onValueChange={(value) => setEditingUser({...editingUser, role: value})}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="user">User</SelectItem>
                       {(currentUser as any)?.email === "onuma@fgcsg.com" && (
-                        <SelectItem value="superuser">Superuser</SelectItem>
+                        <SelectItem value="superadmin">Superadmin</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
