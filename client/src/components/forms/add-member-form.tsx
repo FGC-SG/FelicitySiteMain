@@ -88,7 +88,18 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
-      setPhotoUrl((uploadedFile as any).uploadURL || "");
+      const uploadURL = (uploadedFile as any).uploadURL || "";
+      
+      // Normalize the photo URL to use local object serving path
+      try {
+        const response = await apiRequest("PUT", "/api/member-photos", { photoURL: uploadURL });
+        const data = await response.json();
+        setPhotoUrl(data.objectPath);
+      } catch (error) {
+        console.error("Error normalizing photo URL:", error);
+        setPhotoUrl(uploadURL); // Fallback to original URL
+      }
+      
       setIsUploading(false);
       toast({
         title: language === "en" ? "Success" : "成功",
