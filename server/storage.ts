@@ -3,6 +3,7 @@ import {
   contactSubmissions,
   newsArticles,
   members,
+  userInvitations,
   type User,
   type UpsertUser,
   type ContactSubmission,
@@ -11,6 +12,8 @@ import {
   type InsertNewsArticle,
   type Member,
   type InsertMember,
+  type UserInvitation,
+  type InsertUserInvitation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -42,6 +45,13 @@ export interface IStorage {
   getAllMembers(): Promise<Member[]>;
   updateMember(id: string, memberData: Partial<InsertMember>): Promise<Member>;
   deleteMember(id: string): Promise<void>;
+  
+  // User invitation operations
+  createInvitation(invitationData: InsertUserInvitation): Promise<UserInvitation>;
+  getInvitations(): Promise<UserInvitation[]>;
+  getInvitationByToken(token: string): Promise<UserInvitation | undefined>;
+  acceptInvitation(token: string, password: string): Promise<User>;
+  deleteInvitation(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -158,6 +168,64 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMember(id: string): Promise<void> {
     await db.delete(members).where(eq(members.id, id));
+  }
+
+  // User invitation operations
+  async createInvitation(invitationData: InsertUserInvitation): Promise<UserInvitation> {
+    const inviteWithToken = {
+      ...invitationData,
+      invitationToken: this.generateInvitationToken(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    };
+    const [invitation] = await db.insert(userInvitations).values(inviteWithToken).returning();
+    return invitation;
+  }
+
+  async getInvitations(): Promise<UserInvitation[]> {
+    return await db.select().from(userInvitations).orderBy(desc(userInvitations.createdAt));
+  }
+
+  async getInvitationByToken(token: string): Promise<UserInvitation | undefined> {
+    const [invitation] = await db.select().from(userInvitations).where(eq(userInvitations.invitationToken, token));
+    return invitation;
+  }
+
+  async acceptInvitation(token: string, password: string): Promise<User> {
+    const invitation = await this.getInvitationByToken(token);
+    if (!invitation || invitation.status !== "pending" || new Date() > invitation.expiresAt!) {
+      throw new Error("Invalid or expired invitation");
+    }
+
+    // Create the user account
+    const userData: UpsertUser = {
+      email: invitation.email,
+      firstName: invitation.firstName,
+      lastName: invitation.lastName,
+      role: invitation.role,
+      password: password, // This will be hashed in the route handler
+    };
+
+    const user = await this.createUser(userData);
+
+    // Mark invitation as accepted
+    await db
+      .update(userInvitations)
+      .set({ 
+        status: "accepted",
+        acceptedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(userInvitations.invitationToken, token));
+
+    return user;
+  }
+
+  async deleteInvitation(id: string): Promise<void> {
+    await db.delete(userInvitations).where(eq(userInvitations.id, id));
+  }
+
+  private generateInvitationToken(): string {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36);
   }
 }
 

@@ -321,6 +321,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User invitation routes
+  app.post('/api/invitations', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for sending invitations" });
+      }
+
+      const invitationData = {
+        ...req.body,
+        invitedById: sessionUser.id,
+      };
+
+      const invitation = await storage.createInvitation(invitationData);
+      
+      // In a real application, you would send an email here
+      // For now, we'll just return the invitation with the token for testing
+      res.json({
+        message: "Invitation sent successfully",
+        invitationId: invitation.id,
+        // In production, don't expose the token in the response
+        invitationLink: `${req.protocol}://${req.get('host')}/accept-invitation?token=${invitation.invitationToken}`
+      });
+    } catch (error) {
+      console.error("Error creating invitation:", error);
+      res.status(500).json({ message: "Failed to send invitation" });
+    }
+  });
+
+  app.get('/api/invitations', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required" });
+      }
+
+      const invitations = await storage.getInvitations();
+      res.json(invitations);
+    } catch (error) {
+      console.error("Error fetching invitations:", error);
+      res.status(500).json({ message: "Failed to fetch invitations" });
+    }
+  });
+
+  app.get('/api/invitations/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const invitation = await storage.getInvitationByToken(token);
+      
+      if (!invitation) {
+        return res.status(404).json({ message: "Invitation not found" });
+      }
+
+      if (invitation.status !== "pending") {
+        return res.status(400).json({ message: "Invitation already used" });
+      }
+
+      if (new Date() > invitation.expiresAt!) {
+        return res.status(400).json({ message: "Invitation expired" });
+      }
+
+      // Return invitation details without sensitive information
+      res.json({
+        email: invitation.email,
+        firstName: invitation.firstName,
+        lastName: invitation.lastName,
+        role: invitation.role,
+      });
+    } catch (error) {
+      console.error("Error fetching invitation:", error);
+      res.status(500).json({ message: "Failed to fetch invitation" });
+    }
+  });
+
+  app.post('/api/invitations/:token/accept', async (req: any, res) => {
+    try {
+      const { token } = req.params;
+      const { password } = req.body;
+
+      if (!password) {
+        return res.status(400).json({ message: "Password is required" });
+      }
+
+      // Hash password before storing
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      const user = await storage.acceptInvitation(token, hashedPassword);
+      
+      res.json({ 
+        message: "Account created successfully",
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        }
+      });
+    } catch (error) {
+      console.error("Error accepting invitation:", error);
+      res.status(400).json({ message: error.message || "Failed to accept invitation" });
+    }
+  });
+
   // Object storage routes for photo upload
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;

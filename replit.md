@@ -29,6 +29,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Fixed role logic to properly recognize "admin" as superuser for Edit/Delete access control
 - 2025-08-28: Implemented complete user editing with firstName, lastName, email, and role fields
 - 2025-08-28: Added proper role-based access control for member management Edit/Delete functions
+- 2025-08-28: Implemented One-Click User Invitation System with email invitations, automatic account setup, and secure token-based invitation flow
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

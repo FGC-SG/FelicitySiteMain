@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AddUserForm } from "@/components/forms/add-user-form";
-import { Users, UserPlus, Shield, Edit, Trash2, Search, Filter } from "lucide-react";
+import { Users, UserPlus, Shield, Edit, Trash2, Search, Filter, Mail, Send } from "lucide-react";
 
 interface User {
   id: string;
@@ -36,6 +36,13 @@ export default function UserManagementPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [inviteForm, setInviteForm] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    role: "user"
+  });
   const { user: currentUser, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -111,6 +118,38 @@ export default function UserManagementPage() {
       toast({
         title: language === "en" ? "Error" : "エラー",
         description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Send invitation mutation
+  const sendInvitationMutation = useMutation({
+    mutationFn: async (invitationData: typeof inviteForm) => {
+      return await apiRequest("POST", "/api/invitations", invitationData);
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: language === "en" ? "Invitation Sent" : "招待が送信されました",
+        description: language === "en" 
+          ? "User invitation has been sent successfully. Invitation link copied to clipboard."
+          : "ユーザー招待が正常に送信されました。招待リンクがクリップボードにコピーされました。",
+      });
+      
+      // Copy invitation link to clipboard
+      if (data.invitationLink && navigator.clipboard) {
+        navigator.clipboard.writeText(data.invitationLink);
+      }
+      
+      setShowInviteDialog(false);
+      setInviteForm({ email: "", firstName: "", lastName: "", role: "user" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" 
+          ? "Failed to send invitation." 
+          : "招待の送信に失敗しました。",
         variant: "destructive",
       });
     },
@@ -223,13 +262,23 @@ export default function UserManagementPage() {
               </div>
 
               {isSuperadmin && (
-                <Button 
-                  onClick={() => window.open("/add-user", "_blank", "width=1200,height=800,scrollbars=yes,resizable=yes")}
-                  data-testid="button-add-new-user"
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  {language === "en" ? "Add User" : "ユーザー追加"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowInviteDialog(true)}
+                    data-testid="button-invite-user"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    {language === "en" ? "Invite User" : "ユーザーを招待"}
+                  </Button>
+                  <Button 
+                    onClick={() => window.open("/add-user", "_blank", "width=1200,height=800,scrollbars=yes,resizable=yes")}
+                    data-testid="button-add-new-user"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {language === "en" ? "Add User" : "ユーザー追加"}
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -330,6 +379,95 @@ export default function UserManagementPage() {
         </section>
 
 
+
+        {/* Invite User Dialog */}
+        <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {language === "en" ? "Invite New User" : "新しいユーザーを招待"}
+              </DialogTitle>
+              <DialogDescription>
+                {language === "en" 
+                  ? "Send an invitation email to add a new user to the system"
+                  : "システムに新しいユーザーを追加するための招待メールを送信"
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="invite-email">{language === "en" ? "Email Address" : "メールアドレス"}</Label>
+                <Input
+                  id="invite-email"
+                  type="email"
+                  value={inviteForm.email}
+                  onChange={(e) => setInviteForm({...inviteForm, email: e.target.value})}
+                  placeholder={language === "en" ? "Enter email address" : "メールアドレスを入力"}
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="invite-firstName">{language === "en" ? "First Name" : "名"}</Label>
+                  <Input
+                    id="invite-firstName"
+                    value={inviteForm.firstName}
+                    onChange={(e) => setInviteForm({...inviteForm, firstName: e.target.value})}
+                    placeholder={language === "en" ? "First name" : "名"}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="invite-lastName">{language === "en" ? "Last Name" : "姓"}</Label>
+                  <Input
+                    id="invite-lastName"
+                    value={inviteForm.lastName}
+                    onChange={(e) => setInviteForm({...inviteForm, lastName: e.target.value})}
+                    placeholder={language === "en" ? "Last name" : "姓"}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="invite-role">{language === "en" ? "Role" : "役割"}</Label>
+                <Select 
+                  value={inviteForm.role} 
+                  onValueChange={(value) => setInviteForm({...inviteForm, role: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="superadmin">Superadmin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
+                  {language === "en" ? "Cancel" : "キャンセル"}
+                </Button>
+                <Button 
+                  onClick={() => sendInvitationMutation.mutate(inviteForm)}
+                  disabled={sendInvitationMutation.isPending || !inviteForm.email}
+                >
+                  {sendInvitationMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      {language === "en" ? "Sending..." : "送信中..."}
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      {language === "en" ? "Send Invitation" : "招待を送信"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Edit User Dialog */}
         {editingUser && (

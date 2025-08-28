@@ -97,3 +97,29 @@ export type NewsArticle = typeof newsArticles.$inferSelect;
 export type InsertNewsArticle = typeof newsArticles.$inferInsert;
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+
+// User invitations table for one-click invitation system
+export const userInvitations = pgTable("user_invitations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").notNull(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  role: varchar("role").notNull().default("user"),
+  invitedById: varchar("invited_by_id").notNull().references(() => users.id),
+  invitationToken: varchar("invitation_token").notNull().unique(),
+  status: varchar("status").notNull().default("pending"), // pending, accepted, expired
+  expiresAt: timestamp("expires_at").notNull(),
+  acceptedAt: timestamp("accepted_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type UserInvitation = typeof userInvitations.$inferSelect;
+export type InsertUserInvitation = typeof userInvitations.$inferInsert;
+
+export const insertUserInvitationSchema = createInsertSchema(userInvitations).pick({
+  email: true,
+  firstName: true,
+  lastName: true,
+  role: true,
+});

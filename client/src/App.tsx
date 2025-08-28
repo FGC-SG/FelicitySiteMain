@@ -14,6 +14,7 @@ import NewsManagement from "@/pages/news-management";
 import UserManagement from "@/pages/user-management";
 import MemberManagement from "@/pages/member-management";
 import AddUserStandalone from "@/pages/add-user-standalone";
+import AcceptInvitation from "@/pages/accept-invitation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/user-management" component={UserManagement} />
       <Route path="/member-management" component={MemberManagement} />
       <Route path="/add-user" component={AddUserStandalone} />
+      <Route path="/accept-invitation" component={AcceptInvitation} />
       <Route component={NotFound} />
     </Switch>
   );
