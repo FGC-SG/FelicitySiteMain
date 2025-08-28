@@ -123,23 +123,83 @@ function getJapaneseTags(tags: string): string {
 }
 
 export async function translateNewsArticle(article: any): Promise<any> {
-  const translationRequest: TranslationRequest = {
-    title: article.title,
-    description: article.description,
-    content: article.content,
-    tags: article.tags,
-  };
+  try {
+    const translationRequest: TranslationRequest = {
+      title: article.title,
+      description: article.description,
+      content: article.content,
+      tags: article.tags,
+    };
 
-  const translation = await translateToJapanese(translationRequest);
+    const translation = await translateToJapanese(translationRequest);
 
-  return {
-    ...article,
-    id: `${article.id}_ja`, // Create unique ID for Japanese version
-    language: 'ja',
-    title: translation.title,
-    description: translation.description,
-    content: translation.content,
-    tags: translation.tags,
-    originalId: article.id, // Keep reference to original article
+    return {
+      ...article,
+      id: `${article.id}_ja`, // Create unique ID for Japanese version
+      language: 'ja',
+      title: translation.title,
+      description: translation.description,
+      content: translation.content,
+      tags: translation.tags,
+      originalId: article.id, // Keep reference to original article
+    };
+  } catch (error) {
+    console.log(`Translation failed for article ${article.id}, using fallback translation`);
+    
+    // Provide fallback Japanese translations for common terms
+    const fallbackTitle = getFallbackTranslation(article.title);
+    const fallbackDescription = getFallbackTranslation(article.description);
+    const fallbackContent = getFallbackTranslation(article.content);
+    const fallbackTags = getJapaneseTags(article.tags || '');
+    
+    return {
+      ...article,
+      id: `${article.id}_ja`, // Create unique ID for Japanese version
+      language: 'ja',
+      title: fallbackTitle,
+      description: fallbackDescription,
+      content: fallbackContent,
+      tags: fallbackTags,
+      originalId: article.id, // Keep reference to original article
+    };
+  }
+}
+
+// Fallback translation function for when API is unavailable
+function getFallbackTranslation(text: string): string {
+  if (!text) return '';
+  
+  // Basic keyword replacement for financial terms
+  const translations: { [key: string]: string } = {
+    'Felicity Global Capital': 'フェリシティグローバルキャピタル',
+    'investment': '投資',
+    'portfolio': 'ポートフォリオ',
+    'growth': '成長',
+    'capital': '資本',
+    'fund': 'ファンド',
+    'market': '市場',
+    'strategy': '戦略',
+    'partnership': 'パートナーシップ',
+    'company': '会社',
+    'business': 'ビジネス',
+    'financial': '金融',
+    'Asia': 'アジア',
+    'Singapore': 'シンガポール',
+    'Indonesia': 'インドネシア',
+    'million': '百万',
+    'billion': '十億',
+    'acquisition': '買収',
+    'expansion': '拡張'
   };
+  
+  let translatedText = text;
+  
+  // Replace key terms
+  Object.entries(translations).forEach(([english, japanese]) => {
+    const regex = new RegExp(`\\b${english}\\b`, 'gi');
+    translatedText = translatedText.replace(regex, japanese);
+  });
+  
+  // Add note about fallback translation
+  return `${translatedText}\n\n（翻訳サービスが一時的に利用できないため、基本的な翻訳を提供しています）`;
 }

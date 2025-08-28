@@ -129,7 +129,16 @@ export function News({ language }: NewsProps) {
         ) : newsArticles && newsArticles.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {newsArticles
-              .filter((article: NewsArticle) => article.language === language)
+              .filter((article: NewsArticle) => {
+                // Show articles that match the current language
+                // For Japanese: prefer AI-translated versions, fallback to English if no translation
+                if (language === "jp") {
+                  return article.language === "ja";
+                } else {
+                  // For English: show English articles only
+                  return article.language === "en";
+                }
+              })
               .map((article: NewsArticle) => (
                 <Card key={article.id} className="hover:shadow-lg transition-shadow" data-testid={`news-card-${article.id}`}>
                   <CardHeader>
