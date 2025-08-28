@@ -28,6 +28,7 @@ const portfolioFormSchema = z.object({
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
   country: z.string().min(1, "Country is required"),
   businessType: z.string().min(1, "Business type is required"),
+  website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   succession: z.boolean().default(false),
   description: z.string().min(10, "Description must be at least 10 characters"),
 });
@@ -53,6 +54,7 @@ export default function PortfolioManagementPage() {
       investmentType: "growthequity",
       country: "",
       businessType: "",
+      website: "",
       succession: false,
       description: "",
     },
@@ -170,6 +172,7 @@ export default function PortfolioManagementPage() {
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
       businessType: portfolio.businessType,
+      website: portfolio.website ?? "",
       succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
     });
@@ -1320,6 +1323,24 @@ export default function PortfolioManagementPage() {
                               </FormItem>
                             )}
                           />
+                          <FormField
+                            control={form.control}
+                            name="website"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Company URL</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="url"
+                                    placeholder="https://example.com"
+                                    data-testid="input-website" 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
                         <FormField
                           control={form.control}
@@ -1418,6 +1439,20 @@ export default function PortfolioManagementPage() {
                           {portfolio.businessType}
                         </span>
                       </div>
+                      {portfolio.website && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Website:</span>
+                          <a 
+                            href={portfolio.website.startsWith('http') ? portfolio.website : `https://${portfolio.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 text-sm underline"
+                            data-testid={`link-website-${portfolio.id}`}
+                          >
+                            Visit Website
+                          </a>
+                        </div>
+                      )}
                       {portfolio.succession && (
                         <Badge variant="secondary" className="text-xs" data-testid={`badge-succession-${portfolio.id}`}>
                           Succession
