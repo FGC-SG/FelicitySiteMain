@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddMemberForm } from "@/components/forms/add-member-form";
+import { EditMemberForm } from "@/components/forms/edit-member-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -17,6 +18,7 @@ import { Users, Edit, Trash2, Plus } from "lucide-react";
 export default function MemberManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddMember, setShowAddMember] = useState(false);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -196,6 +198,7 @@ export default function MemberManagementPage() {
                           <Button 
                             variant="outline" 
                             size="sm"
+                            onClick={() => setEditingMember(member)}
                             className="flex-1"
                             data-testid={`button-edit-member-${member.id}`}
                           >
@@ -272,6 +275,43 @@ export default function MemberManagementPage() {
                     });
                   }}
                   onCancel={() => setShowAddMember(false)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Member Form Modal */}
+        {editingMember && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">
+                    {language === "en" ? "Edit Team Member" : "チームメンバーを編集"}
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingMember(null)}
+                    data-testid="button-close-edit-member-form"
+                  >
+                    {language === "en" ? "Close" : "閉じる"}
+                  </Button>
+                </div>
+                <EditMemberForm
+                  member={editingMember}
+                  language={language}
+                  onSuccess={() => {
+                    setEditingMember(null);
+                    toast({
+                      title: language === "en" ? "Success" : "成功",
+                      description: language === "en" 
+                        ? "Member has been updated successfully." 
+                        : "メンバーが正常に更新されました。",
+                    });
+                  }}
+                  onCancel={() => setEditingMember(null)}
                 />
               </div>
             </div>
