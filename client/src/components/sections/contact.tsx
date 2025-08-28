@@ -1,5 +1,5 @@
 import { useTranslation, type Language } from "@/lib/i18n";
-import { Phone } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 
 interface ContactProps {
   language: Language;
@@ -34,6 +34,10 @@ export function Contact({ language }: ContactProps) {
                   <Phone className="felicity-primary mr-3 h-4 w-4" />
                   <span data-testid="text-singapore-office-phone">+65-6890-0730</span>
                 </div>
+                <div className="flex items-center">
+                  <Mail className="felicity-primary mr-3 h-4 w-4" />
+                  <span data-testid="text-singapore-office-email">info@fgcsg.com</span>
+                </div>
               </div>
             </div>
 
@@ -48,6 +52,10 @@ export function Contact({ language }: ContactProps) {
                 <div className="flex items-center">
                   <Phone className="felicity-primary mr-3 h-4 w-4" />
                   <span data-testid="text-tokyo-office-phone">+81-3-5375-1025</span>
+                </div>
+                <div className="flex items-center">
+                  <Mail className="felicity-primary mr-3 h-4 w-4" />
+                  <span data-testid="text-tokyo-office-email">info@fgcsg.com</span>
                 </div>
               </div>
             </div>
