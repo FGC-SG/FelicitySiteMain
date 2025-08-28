@@ -20,25 +20,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
-      // Keep original hardcoded admin credentials for backwards compatibility
-      if (email === "fc" && password === "0729") {
-        const adminUser = {
-          id: "admin-001",
-          email: "admin@fgcsg.com",
-          firstName: "Admin",
-          lastName: "User",
-          role: "admin",
-          department: "management",
-          title: "System Administrator",
-          isActive: true,
-          profileImageUrl: null
-        };
-        
-        // Set session
-        (req as any).session.user = adminUser;
-        return res.json(adminUser);
-      }
-      
       // Check database users with proper bcrypt comparison
       try {
         const user = await storage.getUserByEmail(email);
