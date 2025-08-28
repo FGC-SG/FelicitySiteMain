@@ -1,5 +1,5 @@
 import { useTranslation, type Language } from "@/lib/i18n";
-import { Linkedin, Twitter } from "lucide-react";
+
 
 interface FooterProps {
   language: Language;
@@ -24,22 +24,7 @@ export function Footer({ language }: FooterProps) {
             <p className="text-muted-foreground leading-relaxed mb-4">
               {t.footer.description}
             </p>
-            <div className="flex space-x-4">
-              <a
-                href="#"
-                className="text-muted-foreground hover:felicity-primary transition-colors"
-                data-testid="link-linkedin"
-              >
-                <Linkedin className="h-5 w-5" />
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:felicity-primary transition-colors"
-                data-testid="link-twitter"
-              >
-                <Twitter className="h-5 w-5" />
-              </a>
-            </div>
+            
           </div>
 
           <div>
