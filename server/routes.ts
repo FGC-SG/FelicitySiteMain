@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertContactSubmissionSchema } from "@shared/schema";
@@ -214,7 +215,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Hash password if provided
       if (updateData.password) {
-        const bcrypt = require('bcrypt');
         const saltRounds = 10;
         updateData.password = await bcrypt.hash(updateData.password, saltRounds);
       }
