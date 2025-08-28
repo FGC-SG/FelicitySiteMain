@@ -48,7 +48,7 @@ export default function ManagementPage() {
 
   const managementSections = [
     {
-      title: "Team Management",
+      title: "User Management",
       description: "Manage team members and organizational structure",
       icon: Users,
       color: "bg-blue-500",
