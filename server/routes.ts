@@ -16,32 +16,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware - temporarily disabled for development
   // await setupAuth(app);
 
+  // Health check and diagnostics
+  app.get('/api/health', async (req, res) => {
+    try {
+      // Test database connectivity
+      const news = await storage.getNewsArticles();
+      const portfolios = await storage.getAllPortfolios();
+      const users = await storage.getAllUsers();
+      
+      res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        database: {
+          connected: true,
+          newsCount: news.length,
+          portfolioCount: portfolios.length,
+          userCount: users.length
+        },
+        session: {
+          user: (req as any).session?.user || null
+        }
+      });
+    } catch (error) {
+      console.error("Health check failed:", error);
+      res.status(500).json({
+        status: 'unhealthy',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Email/Password Auth routes
   app.post('/api/auth/login', async (req, res) => {
     try {
       const { email, password } = req.body;
       
+      console.log(`Login attempt for email: ${email}`);
+      
       // Check database users with proper bcrypt comparison
       try {
         const user = await storage.getUserByEmail(email);
         if (!user) {
+          console.log(`User not found: ${email}`);
+          return res.status(401).json({ message: "Invalid credentials" });
+        }
+        
+        console.log(`User found: ${email}, checking password`);
+        
+        if (!user.password) {
+          console.log(`No password set for user: ${email}`);
           return res.status(401).json({ message: "Invalid credentials" });
         }
         
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
+          console.log(`Password mismatch for user: ${email}`);
           return res.status(401).json({ message: "Invalid credentials" });
+        }
+        
+        console.log(`Login successful for user: ${email}`);
+        
+        // Check if user is active
+        if (user.isActive === false) {
+          console.log(`Inactive user attempted login: ${email}`);
+          return res.status(401).json({ message: "Account deactivated" });
         }
         
         // Convert database user to session format
         const sessionUser = {
           id: user.id.toString(),
           email: user.email,
-          firstName: user.firstName || user.first_name,
-          lastName: user.lastName || user.last_name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           role: user.role,
-          department: user.department,
-          title: user.title,
           isActive: user.isActive,
           profileImageUrl: user.profileImageUrl
         };
@@ -129,7 +178,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/news', async (req, res) => {
     try {
+      console.log("Fetching news articles...");
       const news = await storage.getNewsArticles();
+      console.log(`Retrieved ${news.length} news articles`);
       res.json(news);
     } catch (error) {
       console.error("Error fetching news articles:", error);
@@ -362,7 +413,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio management routes
   app.get('/api/portfolios', async (req, res) => {
     try {
+      console.log("Fetching portfolios...");
       const portfolios = await storage.getAllPortfolios();
+      console.log(`Retrieved ${portfolios.length} portfolios`);
       res.json(portfolios);
     } catch (error) {
       console.error("Error fetching portfolios:", error);
@@ -554,14 +607,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ 
         user: sessionUser,
-        message: "Account created successfully",
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-        }
+        message: "Account created successfully"
       });
     } catch (error) {
       console.error("Error accepting invitation:", error);
