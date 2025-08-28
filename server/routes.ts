@@ -20,12 +20,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
-      // Simple hardcoded admin credentials for demo
-      // In production, this should use proper password hashing and database storage
-      // Using the same credentials from the original website extraction (fc:0729)
-      if ((email === "admin@fgcsg.com" && password === "admin123") || 
-          (email === "fc" && password === "0729") ||
-          (email === "onuma@fgcsg.com" && password === "0729")) {
+      // Keep original hardcoded admin credentials for backwards compatibility
+      if (email === "fc" && password === "0729") {
         const adminUser = {
           id: "admin-001",
           email: "admin@fgcsg.com",
@@ -40,9 +36,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Set session
         (req as any).session.user = adminUser;
-        res.json(adminUser);
-      } else {
-        res.status(401).json({ message: "Invalid credentials" });
+        return res.json(adminUser);
+      }
+      
+      // Check database users with proper bcrypt comparison
+      try {
+        const user = await storage.getUserByEmail(email);
+        if (!user) {
+          return res.status(401).json({ message: "Invalid credentials" });
+        }
+        
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+          return res.status(401).json({ message: "Invalid credentials" });
+        }
+        
+        // Convert database user to session format
+        const sessionUser = {
+          id: user.id.toString(),
+          email: user.email,
+          firstName: user.firstName || user.first_name,
+          lastName: user.lastName || user.last_name,
+          role: user.role,
+          department: user.department,
+          title: user.title,
+          isActive: user.isActive,
+          profileImageUrl: user.profileImageUrl
+        };
+        
+        // Set session
+        (req as any).session.user = sessionUser;
+        res.json(sessionUser);
+      } catch (dbError) {
+        console.error("Database error during login:", dbError);
+        return res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
       console.error("Error during login:", error);
