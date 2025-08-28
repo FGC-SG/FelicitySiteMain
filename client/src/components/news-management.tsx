@@ -100,9 +100,11 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
   });
 
   const handleDeleteNews = (id: string, title: string) => {
-    if (confirm(language === "en" 
-      ? `Are you sure you want to delete "${title}"?` 
-      : `「${title}」を削除してもよろしいですか？`)) {
+    if (window.confirm(
+      language === "en" 
+        ? `Are you sure you want to delete "${title}"? This action cannot be undone.`
+        : `「${title}」を削除してもよろしいですか？この操作は元に戻せません。`
+    )) {
       deleteNewsMutation.mutate(id);
     }
   };
