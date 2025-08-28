@@ -46,6 +46,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Replaced country text input with standardized dropdown selection covering major Asian markets and global regions
 - 2025-08-28: Implemented comprehensive GICS (Global Industry Classification Standard) multi-layer industry selection system with 11 sectors, 25+ industry groups, 74+ industries, and 163+ sub-industries in cascading dropdown format
 - 2025-08-28: Added Company URL field to portfolio management system with URL validation, display in portfolio cards, and clickable website links
+- 2025-08-28: Switched from GPT-5 to GPT-4o for AI translation service as requested by user
+- 2025-08-28: Enhanced translation error handling with graceful fallback for quota exceeded scenarios
+- 2025-08-28: Fixed news filtering to properly display AI-translated Japanese articles with appropriate language mapping
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
