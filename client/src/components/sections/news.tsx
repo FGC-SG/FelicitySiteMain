@@ -28,13 +28,25 @@ export function News({ language }: NewsProps) {
   const { data: newsArticles, isLoading, error } = useQuery({
     queryKey: ["/api/news-with-translations"],
     queryFn: async () => {
-      const response = await fetch("/api/news-with-translations", {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch news articles with translations");
+      try {
+        const response = await fetch("/api/news-with-translations", {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Translation service unavailable, falling back to original articles");
+        }
+        return await response.json();
+      } catch (error) {
+        // Fallback to regular news if translation fails
+        console.log("Using fallback news endpoint due to translation service issue");
+        const fallbackResponse = await fetch("/api/news", {
+          credentials: "include",
+        });
+        if (!fallbackResponse.ok) {
+          throw new Error("Failed to fetch news articles");
+        }
+        return await fallbackResponse.json();
       }
-      return await response.json();
     },
   });
 
