@@ -49,16 +49,13 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/">
-              <div className="flex items-center space-x-3 cursor-pointer">
+              <div className="flex items-center cursor-pointer">
                 <img 
                   src="/src/assets/logo_color_1756362140059.jpg"
                   alt="Felicity Global Capital"
                   className="h-8 w-auto"
                   data-testid="img-logo"
                 />
-                <div className="felicity-primary text-xl font-bold tracking-wide">
-                  FELICITY
-                </div>
               </div>
             </Link>
           </div>
