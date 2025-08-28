@@ -1,4 +1,5 @@
 import { useTranslation, type Language } from "@/lib/i18n";
+import { useLocation } from "wouter";
 
 
 interface FooterProps {
@@ -7,11 +8,18 @@ interface FooterProps {
 
 export function Footer({ language }: FooterProps) {
   const t = useTranslation(language);
+  const [, navigate] = useLocation();
 
-  const handleNavClick = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+  const handleNavClick = (path: string) => {
+    if (path.startsWith('#')) {
+      // Handle anchor links for same-page scrolling
+      const element = document.querySelector(path);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Handle route navigation
+      navigate(path);
     }
   };
 
@@ -32,7 +40,7 @@ export function Footer({ language }: FooterProps) {
             <ul className="space-y-2 text-sm">
               <li>
                 <button
-                  onClick={() => handleNavClick("#about")}
+                  onClick={() => handleNavClick("/about")}
                   className="text-muted-foreground hover:felicity-primary transition-colors"
                   data-testid="footer-link-about"
                 >
@@ -41,7 +49,7 @@ export function Footer({ language }: FooterProps) {
               </li>
               <li>
                 <button
-                  onClick={() => handleNavClick("#news")}
+                  onClick={() => handleNavClick("/news")}
                   className="text-muted-foreground hover:felicity-primary transition-colors"
                   data-testid="footer-link-news"
                 >
@@ -50,7 +58,7 @@ export function Footer({ language }: FooterProps) {
               </li>
               <li>
                 <button
-                  onClick={() => handleNavClick("#contact")}
+                  onClick={() => handleNavClick("/contact")}
                   className="text-muted-foreground hover:felicity-primary transition-colors"
                   data-testid="footer-link-contact"
                 >
