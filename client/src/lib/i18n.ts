@@ -75,6 +75,20 @@ export interface TranslationStrings {
     businessHours: string;
     businessHoursTime: string;
   };
+  members: {
+    title: string;
+    subtitle: string;
+    positions: {
+      groupRepresentative: string;
+      chairman: string;
+      ceo: string;
+    };
+    bios: {
+      fujita: string;
+      takano: string;
+      kaneda: string;
+    };
+  };
   footer: {
     description: string;
     quickLinks: string;
@@ -166,6 +180,20 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       quickLinks: "Quick Links",
       contact: "Contact",
       copyright: "© 2025 Felicity Global Capital Pte. Ltd. All rights reserved."
+    },
+    members: {
+      title: "Our Leadership Team",
+      subtitle: "Meet the professionals driving strategic growth across Asia-Pacific and Japan",
+      positions: {
+        groupRepresentative: "Group Representative",
+        chairman: "Chairman",
+        ceo: "President & CEO"
+      },
+      bios: {
+        fujita: "Leading Felicity Global Capital's strategic vision across Asia-Pacific markets with extensive experience in investment management and business development.",
+        takano: "Overseeing the Singapore operations with deep expertise in Southeast Asian markets and cross-border investment strategies.",
+        kaneda: "Directing Japanese operations with focus on business succession investments and domestic market opportunities."
+      }
     }
   },
   jp: {
@@ -250,6 +278,20 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       quickLinks: "クイックリンク",
       contact: "お問い合わせ",
       copyright: "© 2025 Felicity Global Capital Pte. Ltd. All rights reserved."
+    },
+    members: {
+      title: "リーダーシップチーム",
+      subtitle: "アジア太平洋地域と日本での戦略的成長を推進する専門家チーム",
+      positions: {
+        groupRepresentative: "グループ代表",
+        chairman: "代表",
+        ceo: "代表取締役"
+      },
+      bios: {
+        fujita: "投資管理とビジネス開発における豊富な経験を持ち、アジア太平洋市場でのFelicity Global Capitalの戦略的ビジョンをリードしています。",
+        takano: "東南アジア市場とクロスボーダー投資戦略の深い専門知識を持ち、シンガポール事業を監督しています。",
+        kaneda: "事業承継投資と国内市場機会に焦点を当て、日本事業を指揮しています。"
+      }
     }
   }
 };
