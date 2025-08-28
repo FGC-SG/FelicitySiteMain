@@ -46,7 +46,7 @@ export function Hero({ language }: HeroProps) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               onClick={handleLearnMore}
-              className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="bg-white/90 backdrop-blur-sm text-primary px-8 py-3 rounded-lg font-semibold hover:bg-white transition-colors shadow-lg"
               size="lg"
               data-testid="button-learn-more"
             >
