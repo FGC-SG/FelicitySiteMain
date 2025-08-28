@@ -172,21 +172,38 @@ export default function ManagementPage() {
 
         {/* Add News Form Modal */}
         {showAddNews && (
-          <section className="py-20 bg-muted/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <AddNewsForm
-                language={language}
-                onSuccess={() => {
-                  setShowAddNews(false);
-                  toast({
-                    title: "Success",
-                    description: "News article has been added successfully.",
-                  });
-                }}
-                onCancel={() => setShowAddNews(false)}
-              />
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">
+                    {language === "en" ? "Add News Article" : "ニュース記事を追加"}
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddNews(false)}
+                    data-testid="button-close-news-form"
+                  >
+                    {language === "en" ? "Close" : "閉じる"}
+                  </Button>
+                </div>
+                <AddNewsForm
+                  language={language}
+                  onSuccess={() => {
+                    setShowAddNews(false);
+                    toast({
+                      title: language === "en" ? "Success" : "成功",
+                      description: language === "en" 
+                        ? "News article has been added successfully." 
+                        : "ニュース記事が正常に追加されました。",
+                    });
+                  }}
+                  onCancel={() => setShowAddNews(false)}
+                />
+              </div>
             </div>
-          </section>
+          </div>
         )}
 
 
