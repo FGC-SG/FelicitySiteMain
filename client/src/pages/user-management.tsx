@@ -222,7 +222,7 @@ export default function UserManagementPage() {
 
               {isSuperuser && (
                 <Button 
-                  onClick={() => setShowAddUser(true)}
+                  onClick={() => window.open("/add-user", "_blank", "width=1200,height=800,scrollbars=yes,resizable=yes")}
                   data-testid="button-add-new-user"
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
@@ -331,25 +331,7 @@ export default function UserManagementPage() {
           </div>
         </section>
 
-        {/* Add User Form Modal */}
-        {showAddUser && (
-          <section className="py-20 bg-muted/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <AddUserForm
-                language={language}
-                onSuccess={() => {
-                  setShowAddUser(false);
-                  queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-                  toast({
-                    title: "Success",
-                    description: "User has been created successfully.",
-                  });
-                }}
-                onCancel={() => setShowAddUser(false)}
-              />
-            </div>
-          </section>
-        )}
+
 
         {/* Edit User Dialog */}
         {editingUser && (

@@ -12,6 +12,7 @@ import Contact from "@/pages/contact";
 import Management from "@/pages/management";
 import NewsManagement from "@/pages/news-management";
 import UserManagement from "@/pages/user-management";
+import AddUserStandalone from "@/pages/add-user-standalone";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/management" component={Management} />
       <Route path="/news-management" component={NewsManagement} />
       <Route path="/user-management" component={UserManagement} />
+      <Route path="/add-user" component={AddUserStandalone} />
       <Route component={NotFound} />
     </Switch>
   );
