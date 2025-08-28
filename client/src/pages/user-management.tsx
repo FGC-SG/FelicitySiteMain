@@ -62,7 +62,7 @@ export default function UserManagementPage() {
   // Update user role mutation
   const updateUserMutation = useMutation({
     mutationFn: async ({ userId, updates }: { userId: string; updates: Partial<User> }) => {
-      return await apiRequest(`/api/users/${userId}`, "PUT", updates);
+      return await apiRequest("PUT", `/api/users/${userId}`, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
@@ -84,7 +84,7 @@ export default function UserManagementPage() {
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      return await apiRequest(`/api/users/${userId}`, "DELETE");
+      return await apiRequest("DELETE", `/api/users/${userId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
