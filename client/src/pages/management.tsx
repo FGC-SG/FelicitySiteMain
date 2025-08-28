@@ -8,15 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
-import { AddUserForm } from "@/components/forms/add-user-form";
-import { UsersTable } from "@/components/tables/users-table";
-import { Users, FileText, TrendingUp, Settings } from "lucide-react";
+import { Users, FileText } from "lucide-react";
 
 export default function ManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddNews, setShowAddNews] = useState(false);
-  const [showAddUser, setShowAddUser] = useState(false);
-  const [showUsersList, setShowUsersList] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
@@ -56,28 +52,16 @@ export default function ManagementPage() {
       description: "Manage team members and organizational structure",
       icon: Users,
       color: "bg-blue-500",
-      stats: "5 Members"
+      stats: "5 Members",
+      action: () => window.location.href = "/user-management"
     },
     {
       title: "Content Management",
       description: "Update website content and news articles",
       icon: FileText,
       color: "bg-green-500",
-      stats: "12 Articles"
-    },
-    {
-      title: "Analytics & Reports",
-      description: "View performance metrics and investment data",
-      icon: TrendingUp,
-      color: "bg-purple-500",
-      stats: "Real-time"
-    },
-    {
-      title: "System Settings",
-      description: "Configure system preferences and security",
-      icon: Settings,
-      color: "bg-orange-500",
-      stats: "Updated"
+      stats: "12 Articles",
+      action: () => setShowAddNews(true)
     }
   ];
 
@@ -114,9 +98,14 @@ export default function ManagementPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
               {managementSections.map((section, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer" data-testid={`card-management-${index}`}>
+                <Card 
+                  key={index} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={section.action}
+                  data-testid={`card-management-${index}`}
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div className={`p-2 rounded-lg ${section.color}`}>
@@ -139,40 +128,7 @@ export default function ManagementPage() {
               ))}
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-card rounded-xl p-8 border border-border">
-              <h3 className="text-2xl font-bold felicity-primary mb-6" data-testid="text-quick-actions-title">
-                Quick Actions
-              </h3>
-              <div className="grid md:grid-cols-3 gap-4">
-                <Button 
-                  className="h-auto p-6 flex-col space-y-2" 
-                  onClick={() => window.location.href = "/news-management"}
-                  data-testid="button-add-news"
-                >
-                  <FileText className="h-6 w-6" />
-                  <span>Add News Article</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-auto p-6 flex-col space-y-2" 
-                  onClick={() => setShowAddUser(true)}
-                  data-testid="button-add-user"
-                >
-                  <Users className="h-6 w-6" />
-                  <span>User management</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-auto p-6 flex-col space-y-2" 
-                  onClick={() => window.location.href = "/user-management"}
-                  data-testid="button-user-management"
-                >
-                  <TrendingUp className="h-6 w-6" />
-                  <span>User Management</span>
-                </Button>
-              </div>
-            </div>
+            {/* Quick Actions - Removed, functionality integrated into cards above */}
 
             {/* User Info Section */}
             <div className="mt-12 bg-muted/30 rounded-xl p-6">
@@ -233,42 +189,7 @@ export default function ManagementPage() {
           </section>
         )}
 
-        {/* Add User Form Modal */}
-        {showAddUser && (
-          <section className="py-20 bg-muted/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <AddUserForm
-                language={language}
-                onSuccess={() => {
-                  setShowAddUser(false);
-                  toast({
-                    title: "Success",
-                    description: "User has been created successfully.",
-                  });
-                }}
-                onCancel={() => setShowAddUser(false)}
-              />
-            </div>
-          </section>
-        )}
 
-        {/* Users List Modal */}
-        {showUsersList && (
-          <section className="py-20 bg-muted/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-end mb-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowUsersList(false)}
-                  data-testid="button-close-users-list"
-                >
-                  {language === "en" ? "Close" : "閉じる"}
-                </Button>
-              </div>
-              <UsersTable language={language} />
-            </div>
-          </section>
-        )}
       </main>
       <Footer language={language} />
     </div>

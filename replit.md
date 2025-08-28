@@ -10,6 +10,10 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Added comprehensive member management system with login/logout functionality
 - 2025-08-28: Implemented "Add News Article" function with bilingual form validation
 - 2025-08-28: Created "Add User" function with role-based access control and department management
+- 2025-08-28: Simplified role system to only "Superadmin" and "User" roles
+- 2025-08-28: Streamlined management portal to only include Team Management and Content Management sections
+- 2025-08-28: Removed Analytics & Reports and System Settings from management dashboard
+- 2025-08-28: Migrated Add News Article functionality to Content Management section
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
