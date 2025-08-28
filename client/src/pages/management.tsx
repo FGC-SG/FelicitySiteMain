@@ -9,12 +9,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { Users, FileText } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { type User } from "@shared/schema";
 
 export default function ManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddNews, setShowAddNews] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
+
+  // Fetch users count
+  const { data: users } = useQuery({
+    queryKey: ["/api/users"],
+    enabled: isAuthenticated,
+  });
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -52,7 +60,7 @@ export default function ManagementPage() {
       description: "Manage team members and organizational structure",
       icon: Users,
       color: "bg-blue-500",
-      stats: "5 Members",
+      stats: `${(users as User[])?.length || 0} Users`,
       action: () => window.location.href = "/user-management"
     },
     {
