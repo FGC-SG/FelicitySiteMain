@@ -27,21 +27,7 @@ export default function Home() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  // Parallax effect
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.pageYOffset;
-      const parallaxElements = document.querySelectorAll('.parallax-bg');
-      
-      parallaxElements.forEach(element => {
-        const speed = 0.5;
-        (element as HTMLElement).style.transform = `translateY(${scrolled * speed}px)`;
-      });
-    };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
 
 

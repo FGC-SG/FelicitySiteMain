@@ -9,10 +9,7 @@ export function Hero({ language }: HeroProps) {
   const t = useTranslation(language);
 
   const handleLearnMore = () => {
-    const element = document.querySelector("#about");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    window.location.href = "/about";
   };
 
   const handleInvestmentApproach = () => {
@@ -25,9 +22,12 @@ export function Hero({ language }: HeroProps) {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center parallax-bg"
+      className="relative min-h-screen flex items-center"
       style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')"
+        backgroundImage: "url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover"
       }}
     >
       {/* Singapore Marina Bay skyline with modern skyscrapers featuring iconic buildings */}
