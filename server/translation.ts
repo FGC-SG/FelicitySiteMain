@@ -41,16 +41,12 @@ Respond with JSON in this exact format: {"title": "...", "description": "...", "
       model: "gpt-4o",
       messages: [
         {
-          role: "system",
-          content: "You are a professional translator specializing in financial and business content. Translate English to Japanese while maintaining professional terminology and tone. Always respond with valid JSON in the exact same structure as the input."
-        },
-        {
-          role: "user",
+          role: "user", 
           content: prompt
         }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.3 // Lower temperature for more consistent translations
+      temperature: 0.3
     });
 
     const responseText = response.choices[0].message.content;
