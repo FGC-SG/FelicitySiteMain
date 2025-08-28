@@ -1,11 +1,4 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { apiRequest } from "@/lib/queryClient";
 import { Phone } from "lucide-react";
 
 interface ContactProps {
@@ -13,40 +6,7 @@ interface ContactProps {
 }
 
 export function Contact({ language }: ContactProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const t = useTranslation(language);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      firstName: formData.get("firstName") as string,
-      lastName: formData.get("lastName") as string,
-      email: formData.get("email") as string,
-      company: formData.get("company") as string,
-      message: formData.get("message") as string,
-    };
-
-    try {
-      await apiRequest("POST", "/api/contact", data);
-      toast({
-        title: "Message Sent",
-        description: "Thank you for your message. We will get back to you soon.",
-      });
-      (e.target as HTMLFormElement).reset();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <section id="contact" className="py-20 bg-background">
@@ -60,88 +20,8 @@ export function Contact({ language }: ContactProps) {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          <div>
-            <h3 className="text-2xl font-bold felicity-primary mb-6">Send us a message</h3>
-            <form onSubmit={handleSubmit} className="space-y-6" data-testid="form-contact">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-2">
-                    {t.contact.form.firstName}
-                  </Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    required
-                    className="w-full"
-                    data-testid="input-firstName"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-2">
-                    {t.contact.form.lastName}
-                  </Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    required
-                    className="w-full"
-                    data-testid="input-lastName"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                  {t.contact.form.email}
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full"
-                  data-testid="input-email"
-                />
-              </div>
-              <div>
-                <Label htmlFor="company" className="block text-sm font-medium text-foreground mb-2">
-                  {t.contact.form.company}
-                </Label>
-                <Input
-                  id="company"
-                  name="company"
-                  type="text"
-                  className="w-full"
-                  data-testid="input-company"
-                />
-              </div>
-              <div>
-                <Label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
-                  {t.contact.form.message}
-                </Label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  required
-                  className="w-full"
-                  data-testid="textarea-message"
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="felicity-bg text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-                data-testid="button-submit-contact"
-              >
-                {isSubmitting ? "Sending..." : t.contact.form.send}
-              </Button>
-            </form>
-          </div>
-
-          <div className="space-y-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8">
             <div data-testid="card-singapore-office">
               <h4 className="text-xl font-bold felicity-primary mb-4">{t.contact.singapore}</h4>
               <div className="space-y-3">

@@ -38,6 +38,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Implemented photo URL normalization to convert GCS URLs to local object serving paths (/objects/uploads/xxx)
 - 2025-08-28: Connected admin member management to public Members section - homepage now displays real database profiles
 - 2025-08-28: Added company dropdown standardization with two Felicity companies for consistent data entry
+- 2025-08-28: Fixed footer navigation to properly route to Contact page instead of anchor scrolling
+- 2025-08-28: Replaced Western office image with professional Asian finance team image for cultural alignment
+- 2025-08-28: Removed web contact form, keeping only office information and business hours display
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
