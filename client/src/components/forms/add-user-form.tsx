@@ -54,9 +54,11 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
       if (!response.ok) {
-        throw new Error("Failed to create user");
+        const errorData = await response.text();
+        throw new Error(errorData || "Failed to create user");
       }
       return await response.json();
     },

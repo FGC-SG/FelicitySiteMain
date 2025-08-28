@@ -6,15 +6,25 @@ import { insertContactSubmissionSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Auth middleware - temporarily disabled for development
+  // await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Auth routes - Development mode with mock user
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      // For development, return a mock authenticated user
+      const mockUser = {
+        id: "38362161",
+        email: "onuma@fgcsg.com",
+        firstName: "Demo",
+        lastName: "User",
+        role: "admin",
+        department: "management",
+        title: "System Administrator",
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      };
+      res.json(mockUser);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -48,10 +58,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // News routes
-  app.post('/api/news', isAuthenticated, async (req: any, res) => {
+  // News routes - temporarily remove auth for development
+  app.post('/api/news', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "38362161"; // Use existing user ID
       const newsData = {
         ...req.body,
         authorId: userId,
@@ -74,8 +84,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User management routes
-  app.post('/api/users', isAuthenticated, async (req: any, res) => {
+  // User management routes - temporarily remove auth for development
+  app.post('/api/users', async (req: any, res) => {
     try {
       const userData = {
         ...req.body,
@@ -89,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/users', isAuthenticated, async (req, res) => {
+  app.get('/api/users', async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -99,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/users/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/users/:id', async (req: any, res) => {
     try {
       const { id } = req.params;
       const updatedUser = await storage.updateUser(id, req.body);

@@ -49,13 +49,19 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
 
   const addNewsMutation = useMutation({
     mutationFn: async (data: AddNewsForm) => {
-      return await apiRequest("/api/news", {
+      const response = await fetch("/api/news", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || "Failed to create news article");
+      }
+      return await response.json();
     },
     onSuccess: () => {
       toast({

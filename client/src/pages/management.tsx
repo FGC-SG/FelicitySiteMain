@@ -9,12 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { AddUserForm } from "@/components/forms/add-user-form";
+import { UsersTable } from "@/components/tables/users-table";
 import { Users, FileText, TrendingUp, Settings } from "lucide-react";
 
 export default function ManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddNews, setShowAddNews] = useState(false);
   const [showAddUser, setShowAddUser] = useState(false);
+  const [showUsersList, setShowUsersList] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
@@ -160,9 +162,14 @@ export default function ManagementPage() {
                   <Users className="h-6 w-6" />
                   <span>Add User</span>
                 </Button>
-                <Button variant="outline" className="h-auto p-6 flex-col space-y-2" data-testid="button-view-reports">
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-6 flex-col space-y-2" 
+                  onClick={() => setShowUsersList(true)}
+                  data-testid="button-manage-team"
+                >
                   <TrendingUp className="h-6 w-6" />
-                  <span>View Reports</span>
+                  <span>Manage Team</span>
                 </Button>
               </div>
             </div>
@@ -241,6 +248,24 @@ export default function ManagementPage() {
                 }}
                 onCancel={() => setShowAddUser(false)}
               />
+            </div>
+          </section>
+        )}
+
+        {/* Users List Modal */}
+        {showUsersList && (
+          <section className="py-20 bg-muted/50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-end mb-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowUsersList(false)}
+                  data-testid="button-close-users-list"
+                >
+                  {language === "en" ? "Close" : "閉じる"}
+                </Button>
+              </div>
+              <UsersTable language={language} />
             </div>
           </section>
         )}
