@@ -31,6 +31,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Added proper role-based access control for member management Edit/Delete functions
 - 2025-08-28: Implemented One-Click User Invitation System with email invitations, automatic account setup, and secure token-based invitation flow
 - 2025-08-28: Added Password Reset feature to Edit User function with secure link generation and user-controlled password updates
+- 2025-08-28: Migrated to fully database-driven authentication system with proper bcrypt password hashing
+- 2025-08-28: Removed hardcoded admin credentials (fc/0729) and implemented secure getUserByEmail storage method
+- 2025-08-28: Updated onuma@fgcsg.com password to 777777 with proper bcrypt security
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
