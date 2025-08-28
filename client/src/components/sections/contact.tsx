@@ -53,10 +53,7 @@ export function Contact({ language }: ContactProps) {
                   <Phone className="felicity-primary mr-3 h-4 w-4" />
                   <span data-testid="text-tokyo-office-phone">+81-3-5375-1025</span>
                 </div>
-                <div className="flex items-center">
-                  <Mail className="felicity-primary mr-3 h-4 w-4" />
-                  <span data-testid="text-tokyo-office-email">info@fgcsg.com</span>
-                </div>
+                
               </div>
             </div>
 
