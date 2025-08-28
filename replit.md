@@ -25,6 +25,10 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Implemented custom email/password authentication system replacing Replit OAuth
 - 2025-08-28: Updated navigation to show "Admin Login" button with professional login modal
 - 2025-08-28: Added session-based authentication supporting multiple credential combinations including original fc:0729
+- 2025-08-28: Enhanced Edit functionality across all management modules with comprehensive field editing
+- 2025-08-28: Fixed role logic to properly recognize "admin" as superuser for Edit/Delete access control
+- 2025-08-28: Implemented complete user editing with firstName, lastName, email, and role fields
+- 2025-08-28: Added proper role-based access control for member management Edit/Delete functions
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

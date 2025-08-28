@@ -339,12 +339,43 @@ export default function UserManagementPage() {
                 </DialogTitle>
                 <DialogDescription>
                   {language === "en" 
-                    ? "Update user role information"
-                    : "ユーザーの役割情報を更新"
+                    ? "Update user information including name, email, and role"
+                    : "名前、メール、役割を含むユーザー情報を更新"
                   }
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
+                <div>
+                  <Label htmlFor="edit-firstName">{language === "en" ? "First Name" : "名"}</Label>
+                  <Input
+                    id="edit-firstName"
+                    value={editingUser.firstName || ""}
+                    onChange={(e) => setEditingUser({...editingUser, firstName: e.target.value})}
+                    placeholder={language === "en" ? "Enter first name" : "名を入力"}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="edit-lastName">{language === "en" ? "Last Name" : "姓"}</Label>
+                  <Input
+                    id="edit-lastName"
+                    value={editingUser.lastName || ""}
+                    onChange={(e) => setEditingUser({...editingUser, lastName: e.target.value})}
+                    placeholder={language === "en" ? "Enter last name" : "姓を入力"}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="edit-email">{language === "en" ? "Email" : "メールアドレス"}</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={editingUser.email || ""}
+                    onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                    placeholder={language === "en" ? "Enter email address" : "メールアドレスを入力"}
+                  />
+                </div>
+                
                 <div>
                   <Label htmlFor="edit-role">{language === "en" ? "Role" : "役割"}</Label>
                   <Select 
@@ -371,6 +402,9 @@ export default function UserManagementPage() {
                     onClick={() => updateUserMutation.mutate({
                       userId: editingUser.id,
                       updates: {
+                        firstName: editingUser.firstName,
+                        lastName: editingUser.lastName,
+                        email: editingUser.email,
                         role: editingUser.role
                       }
                     })}
