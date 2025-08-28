@@ -4,6 +4,7 @@ import {
   newsArticles,
   members,
   userInvitations,
+  passwordResets,
   type User,
   type UpsertUser,
   type ContactSubmission,
@@ -14,6 +15,8 @@ import {
   type InsertMember,
   type UserInvitation,
   type InsertUserInvitation,
+  type PasswordReset,
+  type InsertPasswordReset,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -52,6 +55,12 @@ export interface IStorage {
   getInvitationByToken(token: string): Promise<UserInvitation | undefined>;
   acceptInvitation(token: string, password: string): Promise<User>;
   deleteInvitation(id: string): Promise<void>;
+  
+  // Password reset operations
+  createPasswordReset(userId: string): Promise<PasswordReset>;
+  getPasswordResetByToken(token: string): Promise<PasswordReset | undefined>;
+  resetPassword(token: string, newPassword: string): Promise<User>;
+  deletePasswordReset(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -226,6 +235,55 @@ export class DatabaseStorage implements IStorage {
 
   private generateInvitationToken(): string {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  }
+
+  // Password reset operations
+  async createPasswordReset(userId: string): Promise<PasswordReset> {
+    const resetData = {
+      userId,
+      resetToken: this.generateResetToken(),
+      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+    };
+    const [reset] = await db.insert(passwordResets).values(resetData).returning();
+    return reset;
+  }
+
+  async getPasswordResetByToken(token: string): Promise<PasswordReset | undefined> {
+    const [reset] = await db.select().from(passwordResets).where(eq(passwordResets.resetToken, token));
+    return reset;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<User> {
+    const reset = await this.getPasswordResetByToken(token);
+    if (!reset || reset.usedAt || new Date() > reset.expiresAt!) {
+      throw new Error("Invalid or expired reset token");
+    }
+
+    // Update user's password
+    const [user] = await db
+      .update(users)
+      .set({ 
+        password: newPassword, // This will be hashed in the route handler
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, reset.userId))
+      .returning();
+
+    // Mark reset token as used
+    await db
+      .update(passwordResets)
+      .set({ usedAt: new Date() })
+      .where(eq(passwordResets.resetToken, token));
+
+    return user;
+  }
+
+  async deletePasswordReset(id: string): Promise<void> {
+    await db.delete(passwordResets).where(eq(passwordResets.id, id));
+  }
+
+  private generateResetToken(): string {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36) + Math.random().toString(36).substring(2);
   }
 }
 

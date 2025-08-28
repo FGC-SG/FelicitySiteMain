@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AddUserForm } from "@/components/forms/add-user-form";
-import { Users, UserPlus, Shield, Edit, Trash2, Search, Filter, Mail, Send } from "lucide-react";
+import { Users, UserPlus, Shield, Edit, Trash2, Search, Filter, Mail, Send, Key } from "lucide-react";
 
 interface User {
   id: string;
@@ -150,6 +150,35 @@ export default function UserManagementPage() {
         description: language === "en" 
           ? "Failed to send invitation." 
           : "招待の送信に失敗しました。",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Send password reset mutation
+  const sendPasswordResetMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return await apiRequest("POST", `/api/password-reset/${userId}`);
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: language === "en" ? "Password Reset Sent" : "パスワードリセットを送信しました",
+        description: language === "en" 
+          ? "Password reset link has been generated and copied to clipboard."
+          : "パスワードリセットリンクが生成され、クリップボードにコピーされました。",
+      });
+      
+      // Copy reset link to clipboard
+      if (data.resetLink && navigator.clipboard) {
+        navigator.clipboard.writeText(data.resetLink);
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" 
+          ? "Failed to send password reset." 
+          : "パスワードリセットの送信に失敗しました。",
         variant: "destructive",
       });
     },
@@ -540,39 +569,66 @@ export default function UserManagementPage() {
                     </h4>
                     <p className="text-xs text-muted-foreground">
                       {language === "en" 
-                        ? "Set or update the user's password" 
-                        : "ユーザーのパスワードを設定または更新"}
+                        ? "Set a new password directly or send a reset link to the user" 
+                        : "新しいパスワードを直接設定するか、ユーザーにリセットリンクを送信"}
                     </p>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <Label htmlFor="edit-password">{language === "en" ? "New Password" : "新しいパスワード"}</Label>
-                      <Input
-                        id="edit-password"
-                        type="password"
-                        value={editingUser.password || ""}
-                        onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
-                        placeholder={language === "en" ? "Enter new password" : "新しいパスワードを入力"}
-                      />
-                    </div>
+
+                  <div className="mb-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => sendPasswordResetMutation.mutate(editingUser.id)}
+                      disabled={sendPasswordResetMutation.isPending}
+                      className="w-full"
+                    >
+                      <Key className="h-4 w-4 mr-2" />
+                      {sendPasswordResetMutation.isPending 
+                        ? (language === "en" ? "Sending Reset Link..." : "リセットリンク送信中...")
+                        : (language === "en" ? "Send Password Reset Link" : "パスワードリセットリンクを送信")
+                      }
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === "en" 
+                        ? "User will receive a secure link to set their own password"
+                        : "ユーザーは自分でパスワードを設定するための安全なリンクを受け取ります"}
+                    </p>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <p className="text-xs text-muted-foreground mb-3">
+                      {language === "en" ? "Or set password directly:" : "または直接パスワードを設定:"}
+                    </p>
                     
-                    <div>
-                      <Label htmlFor="edit-password-confirm">{language === "en" ? "Confirm Password" : "パスワード確認"}</Label>
-                      <Input
-                        id="edit-password-confirm"
-                        type="password"
-                        value={editingUser.passwordConfirm || ""}
-                        onChange={(e) => setEditingUser({...editingUser, passwordConfirm: e.target.value})}
-                        placeholder={language === "en" ? "Confirm new password" : "新しいパスワードを確認"}
-                      />
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="edit-password">{language === "en" ? "New Password" : "新しいパスワード"}</Label>
+                        <Input
+                          id="edit-password"
+                          type="password"
+                          value={editingUser.password || ""}
+                          onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
+                          placeholder={language === "en" ? "Enter new password" : "新しいパスワードを入力"}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="edit-password-confirm">{language === "en" ? "Confirm Password" : "パスワード確認"}</Label>
+                        <Input
+                          id="edit-password-confirm"
+                          type="password"
+                          value={editingUser.passwordConfirm || ""}
+                          onChange={(e) => setEditingUser({...editingUser, passwordConfirm: e.target.value})}
+                          placeholder={language === "en" ? "Confirm new password" : "新しいパスワードを確認"}
+                        />
+                      </div>
+                      
+                      {editingUser.password && editingUser.passwordConfirm && editingUser.password !== editingUser.passwordConfirm && (
+                        <p className="text-xs text-destructive">
+                          {language === "en" ? "Passwords do not match" : "パスワードが一致しません"}
+                        </p>
+                      )}
                     </div>
-                    
-                    {editingUser.password && editingUser.passwordConfirm && editingUser.password !== editingUser.passwordConfirm && (
-                      <p className="text-xs text-destructive">
-                        {language === "en" ? "Passwords do not match" : "パスワードが一致しません"}
-                      </p>
-                    )}
                   </div>
                 </div>
 

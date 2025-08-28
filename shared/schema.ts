@@ -123,3 +123,16 @@ export const insertUserInvitationSchema = createInsertSchema(userInvitations).pi
   lastName: true,
   role: true,
 });
+
+// Password reset table for secure password reset functionality
+export const passwordResets = pgTable("password_resets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  resetToken: varchar("reset_token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type PasswordReset = typeof passwordResets.$inferSelect;
+export type InsertPasswordReset = typeof passwordResets.$inferInsert;

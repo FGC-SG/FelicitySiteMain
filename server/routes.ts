@@ -434,7 +434,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error accepting invitation:", error);
-      res.status(400).json({ message: error.message || "Failed to accept invitation" });
+      res.status(400).json({ message: (error as Error).message || "Failed to accept invitation" });
+    }
+  });
+
+  // Password reset routes
+  app.post('/api/password-reset/:userId', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for password reset" });
+      }
+
+      const { userId } = req.params;
+      
+      // Verify user exists
+      const targetUser = await storage.getUser(userId);
+      if (!targetUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const passwordReset = await storage.createPasswordReset(userId);
+      
+      res.json({
+        message: "Password reset link generated successfully",
+        resetId: passwordReset.id,
+        resetLink: `${req.protocol}://${req.get('host')}/reset-password?token=${passwordReset.resetToken}`
+      });
+    } catch (error) {
+      console.error("Error creating password reset:", error);
+      res.status(500).json({ message: "Failed to create password reset" });
+    }
+  });
+
+  app.get('/api/password-reset/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const passwordReset = await storage.getPasswordResetByToken(token);
+      
+      if (!passwordReset) {
+        return res.status(404).json({ message: "Password reset not found" });
+      }
+
+      if (passwordReset.usedAt) {
+        return res.status(400).json({ message: "Password reset link already used" });
+      }
+
+      if (new Date() > passwordReset.expiresAt!) {
+        return res.status(400).json({ message: "Password reset link expired" });
+      }
+
+      // Get user info for display
+      const user = await storage.getUser(passwordReset.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      });
+    } catch (error) {
+      console.error("Error fetching password reset:", error);
+      res.status(500).json({ message: "Failed to fetch password reset" });
+    }
+  });
+
+  app.post('/api/password-reset/:token/reset', async (req: any, res) => {
+    try {
+      const { token } = req.params;
+      const { password } = req.body;
+
+      if (!password) {
+        return res.status(400).json({ message: "Password is required" });
+      }
+
+      // Hash password before storing
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      const user = await storage.resetPassword(token, hashedPassword);
+      
+      res.json({ 
+        message: "Password reset successful",
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        }
+      });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(400).json({ message: (error as Error).message || "Failed to reset password" });
     }
   });
 
