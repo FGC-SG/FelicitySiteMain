@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useLocation, useRoute } from "wouter";
+import { Navigation } from "@/components/layout/navigation";
+import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, CheckCircle, AlertTriangle } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { type Language } from "@/lib/i18n";
+import { CheckCircle, Mail, User, Shield, AlertCircle, Eye, EyeOff } from "lucide-react";
 
-interface InvitationDetails {
+interface InvitationData {
   email: string;
   firstName?: string;
   lastName?: string;
@@ -17,62 +20,74 @@ interface InvitationDetails {
 }
 
 export default function AcceptInvitationPage() {
-  const [location, setLocation] = useLocation();
-  const { toast } = useToast();
+  const [language, setLanguage] = useState<Language>('en');
+  const [token, setToken] = useState<string>("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [accountCreated, setAccountCreated] = useState(false);
-  
-  // Get token from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [location] = useLocation();
+  const { toast } = useToast();
+
+  // Extract token from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviteToken = urlParams.get('token');
+    if (inviteToken) {
+      setToken(inviteToken);
+    }
+  }, [location]);
 
   // Fetch invitation details
-  const { 
-    data: invitation, 
-    isLoading, 
-    error 
-  } = useQuery<InvitationDetails>({
-    queryKey: ["/api/invitations", token],
+  const { data: invitation, isLoading: invitationLoading, error: invitationError } = useQuery({
+    queryKey: [`/api/invitations/${token}`],
     enabled: !!token,
-    retry: false,
   });
 
   // Accept invitation mutation
   const acceptInvitationMutation = useMutation({
-    mutationFn: async ({ token, password }: { token: string; password: string }) => {
-      return await apiRequest("POST", `/api/invitations/${token}/accept`, { password });
+    mutationFn: async (data: { token: string; password: string }) => {
+      return await apiRequest("POST", `/api/invitations/${data.token}/accept`, {
+        password: data.password
+      });
     },
     onSuccess: () => {
-      setAccountCreated(true);
       toast({
-        title: "Account Created",
-        description: "Your account has been created successfully. You can now log in.",
+        title: language === "en" ? "Success!" : "成功！",
+        description: language === "en" 
+          ? "Account created successfully. You are now logged in." 
+          : "アカウントが正常に作成されました。ログインしています。",
       });
+      // Redirect to home page
+      window.location.href = "/";
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to create account",
+        title: language === "en" ? "Error" : "エラー",
+        description: error.message || (language === "en" 
+          ? "Failed to accept invitation. Please try again." 
+          : "招待の受け入れに失敗しました。再試行してください。"),
         variant: "destructive",
       });
     },
   });
 
-  const handleAcceptInvitation = () => {
-    if (!password) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!password.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a password",
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" ? "Password is required" : "パスワードが必要です",
         variant: "destructive",
       });
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (password !== passwordConfirm) {
       toast({
-        title: "Error",
-        description: "Passwords do not match",
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" ? "Passwords do not match" : "パスワードが一致しません",
         variant: "destructive",
       });
       return;
@@ -80,180 +95,253 @@ export default function AcceptInvitationPage() {
 
     if (password.length < 6) {
       toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long",
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" 
+          ? "Password must be at least 6 characters long" 
+          : "パスワードは6文字以上である必要があります",
         variant: "destructive",
       });
       return;
     }
 
-    acceptInvitationMutation.mutate({ token: token!, password });
+    acceptInvitationMutation.mutate({ token, password });
   };
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <CardTitle>Invalid Invitation</CardTitle>
-            <CardDescription>
-              No invitation token found in the URL.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => setLocation("/")}
-              className="w-full"
-            >
-              Go to Home
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <Navigation language={language} setLanguage={setLanguage} />
+        <main className="container mx-auto px-4 py-16">
+          <Card className="max-w-md mx-auto">
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="h-6 w-6 text-red-500" />
+                <CardTitle>
+                  {language === "en" ? "Invalid Invitation" : "無効な招待"}
+                </CardTitle>
+              </div>
+              <CardDescription>
+                {language === "en" 
+                  ? "The invitation link is invalid or missing required information."
+                  : "招待リンクが無効であるか、必要な情報が不足しています。"
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => window.location.href = "/"}
+                className="w-full"
+              >
+                {language === "en" ? "Go to Home" : "ホームへ戻る"}
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer language={language} />
       </div>
     );
   }
 
-  if (isLoading) {
+  if (invitationLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading invitation...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <Navigation language={language} setLanguage={setLanguage} />
+        <main className="container mx-auto px-4 py-16">
+          <Card className="max-w-md mx-auto">
+            <CardContent className="py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                {language === "en" ? "Loading invitation..." : "招待情報を読み込み中..."}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer language={language} />
       </div>
     );
   }
 
-  if (error || !invitation) {
+  if (invitationError || !invitation) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <CardTitle>Invalid or Expired Invitation</CardTitle>
-            <CardDescription>
-              This invitation link is invalid, expired, or has already been used.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => setLocation("/")}
-              className="w-full"
-            >
-              Go to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (accountCreated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-            <CardTitle>Account Created Successfully</CardTitle>
-            <CardDescription>
-              Your account has been created and you can now log in to the system.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => setLocation("/")}
-              className="w-full"
-            >
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <Navigation language={language} setLanguage={setLanguage} />
+        <main className="container mx-auto px-4 py-16">
+          <Card className="max-w-md mx-auto">
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="h-6 w-6 text-red-500" />
+                <CardTitle>
+                  {language === "en" ? "Invitation Error" : "招待エラー"}
+                </CardTitle>
+              </div>
+              <CardDescription>
+                {language === "en" 
+                  ? "This invitation is invalid, expired, or has already been used."
+                  : "この招待は無効、期限切れ、またはすでに使用済みです。"
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => window.location.href = "/"}
+                className="w-full"
+              >
+                {language === "en" ? "Go to Home" : "ホームへ戻る"}
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer language={language} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
-          <CardTitle>Accept Invitation</CardTitle>
-          <CardDescription>
-            Complete your account setup for Felicity Global Capital
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input 
-              value={invitation.email} 
-              disabled 
-              className="bg-muted"
-            />
-          </div>
-          
-          {invitation.firstName && (
-            <div className="space-y-2">
-              <Label>Name</Label>
-              <Input 
-                value={`${invitation.firstName} ${invitation.lastName || ''}`.trim()} 
-                disabled 
-                className="bg-muted"
-              />
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <Navigation language={language} setLanguage={setLanguage} />
+      <main className="container mx-auto px-4 py-16">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="h-6 w-6 text-green-500" />
+              <CardTitle>
+                {language === "en" ? "Join Felicity Global Capital" : "フェリシティグローバルキャピタルに参加"}
+              </CardTitle>
             </div>
-          )}
+            <CardDescription>
+              {language === "en" 
+                ? "Complete your account setup to get started."
+                : "アカウントのセットアップを完了してください。"
+              }
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <Mail className="h-4 w-4 text-blue-500" />
+                <div>
+                  <p className="text-sm font-medium">{invitation.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {language === "en" ? "Email Address" : "メールアドレス"}
+                  </p>
+                </div>
+              </div>
+              
+              {(invitation.firstName || invitation.lastName) && (
+                <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                  <User className="h-4 w-4 text-green-500" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {invitation.firstName} {invitation.lastName}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {language === "en" ? "Full Name" : "氏名"}
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <Shield className="h-4 w-4 text-purple-500" />
+                <div>
+                  <p className="text-sm font-medium capitalize">{invitation.role}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {language === "en" ? "Role" : "役割"}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <Label>Role</Label>
-            <Input 
-              value={invitation.role} 
-              disabled 
-              className="bg-muted"
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">
+                  {language === "en" ? "Create Password" : "パスワードを作成"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={language === "en" ? "Enter your password" : "パスワードを入力"}
+                    required
+                    data-testid="input-password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    data-testid="button-toggle-password"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter a secure password"
-              data-testid="input-password"
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="passwordConfirm">
+                  {language === "en" ? "Confirm Password" : "パスワード確認"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="passwordConfirm"
+                    type={showPasswordConfirm ? "text" : "password"}
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    placeholder={language === "en" ? "Confirm your password" : "パスワードを再入力"}
+                    required
+                    data-testid="input-password-confirm"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                    data-testid="button-toggle-password-confirm"
+                  >
+                    {showPasswordConfirm ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
-              data-testid="input-confirm-password"
-            />
-          </div>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={acceptInvitationMutation.isPending}
+                data-testid="button-create-account"
+              >
+                {acceptInvitationMutation.isPending ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>{language === "en" ? "Creating Account..." : "アカウント作成中..."}</span>
+                  </div>
+                ) : (
+                  language === "en" ? "Create Account & Login" : "アカウント作成＆ログイン"
+                )}
+              </Button>
+            </form>
 
-          <Button 
-            onClick={handleAcceptInvitation}
-            disabled={acceptInvitationMutation.isPending || !password || !confirmPassword}
-            className="w-full"
-            data-testid="button-accept-invitation"
-          >
-            {acceptInvitationMutation.isPending ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Creating Account...
-              </>
-            ) : (
-              "Create Account"
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+            <div className="mt-4 text-center text-xs text-muted-foreground">
+              {language === "en" 
+                ? "By creating an account, you agree to our terms of service and privacy policy."
+                : "アカウントを作成することで、利用規約とプライバシーポリシーに同意したものとみなされます。"
+              }
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+      <Footer language={language} />
     </div>
   );
 }

@@ -677,6 +677,142 @@ export default function UserManagementPage() {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Invite User Dialog */}
+        {showInviteDialog && (
+          <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center">
+                  <Mail className="h-5 w-5 mr-2" />
+                  {language === "en" ? "Invite New User" : "新しいユーザーを招待"}
+                </DialogTitle>
+                <DialogDescription>
+                  {language === "en" 
+                    ? "Send an invitation link to create a new user account."
+                    : "新しいユーザーアカウントを作成するための招待リンクを送信します。"
+                  }
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="invite-email">
+                    {language === "en" ? "Email Address" : "メールアドレス"} *
+                  </Label>
+                  <Input
+                    id="invite-email"
+                    type="email"
+                    placeholder={language === "en" ? "user@example.com" : "user@example.com"}
+                    value={inviteForm.email}
+                    onChange={(e) => setInviteForm({...inviteForm, email: e.target.value})}
+                    data-testid="input-invite-email"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="invite-first-name">
+                      {language === "en" ? "First Name" : "名"}
+                    </Label>
+                    <Input
+                      id="invite-first-name"
+                      placeholder={language === "en" ? "John" : "太郎"}
+                      value={inviteForm.firstName}
+                      onChange={(e) => setInviteForm({...inviteForm, firstName: e.target.value})}
+                      data-testid="input-invite-first-name"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="invite-last-name">
+                      {language === "en" ? "Last Name" : "姓"}
+                    </Label>
+                    <Input
+                      id="invite-last-name"
+                      placeholder={language === "en" ? "Smith" : "田中"}
+                      value={inviteForm.lastName}
+                      onChange={(e) => setInviteForm({...inviteForm, lastName: e.target.value})}
+                      data-testid="input-invite-last-name"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="invite-role">
+                    {language === "en" ? "Role" : "役割"}
+                  </Label>
+                  <Select value={inviteForm.role} onValueChange={(value) => setInviteForm({...inviteForm, role: value})}>
+                    <SelectTrigger data-testid="select-invite-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">{language === "en" ? "User" : "ユーザー"}</SelectItem>
+                      <SelectItem value="admin">{language === "en" ? "Admin" : "管理者"}</SelectItem>
+                      <SelectItem value="superadmin">{language === "en" ? "Superadmin" : "スーパー管理者"}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                  <div className="flex items-start">
+                    <Send className="h-4 w-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        {language === "en" ? "How it works:" : "仕組み:"}
+                      </p>
+                      <p className="text-xs text-blue-700 dark:text-blue-200 mt-1">
+                        {language === "en" 
+                          ? "An invitation link will be generated and copied to your clipboard. Share it with the user to set up their account."
+                          : "招待リンクが生成され、クリップボードにコピーされます。ユーザーとリンクを共有してアカウントを設定してもらってください。"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowInviteDialog(false)}
+                  data-testid="button-cancel-invite"
+                >
+                  {language === "en" ? "Cancel" : "キャンセル"}
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (!inviteForm.email.trim()) {
+                      toast({
+                        title: language === "en" ? "Error" : "エラー",
+                        description: language === "en" ? "Email address is required" : "メールアドレスが必要です",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    
+                    sendInvitationMutation.mutate(inviteForm);
+                  }}
+                  disabled={sendInvitationMutation.isPending}
+                  data-testid="button-send-invite"
+                >
+                  {sendInvitationMutation.isPending ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      {language === "en" ? "Sending..." : "送信中..."}
+                    </div>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      {language === "en" ? "Send Invitation" : "招待を送信"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </main>
       
       <Footer language={language} />

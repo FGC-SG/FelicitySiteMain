@@ -526,13 +526,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/invitations/:token/accept', async (req: any, res) => {
+  app.post('/api/accept-invitation', async (req: any, res) => {
     try {
-      const { token } = req.params;
-      const { password } = req.body;
+      const { token, password, passwordConfirm } = req.body;
 
       if (!password) {
         return res.status(400).json({ message: "Password is required" });
+      }
+
+      if (password !== passwordConfirm) {
+        return res.status(400).json({ message: "Passwords do not match" });
       }
 
       // Hash password before storing
@@ -541,7 +544,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const user = await storage.acceptInvitation(token, hashedPassword);
       
+      // Auto-login the user
+      const sessionUser = {
+        id: user.id.toString(),
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isActive: user.isActive,
+        profileImageUrl: user.profileImageUrl
+      };
+      
+      (req as any).session.user = sessionUser;
+      
       res.json({ 
+        user: sessionUser,
         message: "Account created successfully",
         user: {
           id: user.id,

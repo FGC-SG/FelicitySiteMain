@@ -60,7 +60,7 @@ export interface IStorage {
   deletePortfolio(id: string): Promise<void>;
   
   // User invitation operations
-  createInvitation(invitationData: InsertUserInvitation): Promise<UserInvitation>;
+  createInvitation(invitationData: Partial<UserInvitation>): Promise<UserInvitation>;
   getInvitations(): Promise<UserInvitation[]>;
   getInvitationByToken(token: string): Promise<UserInvitation | undefined>;
   acceptInvitation(token: string, password: string): Promise<User>;
