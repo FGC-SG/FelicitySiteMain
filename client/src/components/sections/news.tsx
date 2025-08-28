@@ -16,6 +16,9 @@ interface NewsArticle {
   title: string;
   description: string;
   content: string;
+  titleJa?: string;
+  descriptionJa?: string;
+  contentJa?: string;
   language: string;
   category: string;
   tags?: string;
@@ -35,27 +38,15 @@ export function News({ language }: NewsProps) {
   };
 
   const { data: newsArticles, isLoading, error } = useQuery({
-    queryKey: ["/api/news-with-translations"],
+    queryKey: ["/api/news"],
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/news-with-translations", {
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Translation service unavailable, falling back to original articles");
-        }
-        return await response.json();
-      } catch (error) {
-        // Fallback to regular news if translation fails
-        console.log("Using fallback news endpoint due to translation service issue");
-        const fallbackResponse = await fetch("/api/news", {
-          credentials: "include",
-        });
-        if (!fallbackResponse.ok) {
-          throw new Error("Failed to fetch news articles");
-        }
-        return await fallbackResponse.json();
+      const response = await fetch("/api/news", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch news articles");
       }
+      return await response.json();
     },
   });
 
@@ -139,16 +130,21 @@ export function News({ language }: NewsProps) {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {newsArticles
               .filter((article: NewsArticle) => {
-                // Show articles that match the current language
-                // For Japanese: prefer AI-translated versions, fallback to English if no translation
+                // Show all articles that have content for the requested language
                 if (language === "jp") {
-                  return article.language === "ja";
+                  // Show articles that have Japanese content or can fallback to English
+                  return article.titleJa || article.title;
                 } else {
-                  // For English: show English articles only
-                  return article.language === "en";
+                  // For English: show all articles (they all have English content)
+                  return true;
                 }
               })
-              .map((article: NewsArticle) => (
+              .map((article: NewsArticle) => {
+                // Use appropriate language content based on availability
+                const displayTitle = language === "jp" && article.titleJa ? article.titleJa : article.title;
+                const displayDescription = language === "jp" && article.descriptionJa ? article.descriptionJa : article.description;
+                
+                return (
                 <Card key={article.id} className="hover:shadow-lg transition-shadow" data-testid={`news-card-${article.id}`}>
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
@@ -164,11 +160,11 @@ export function News({ language }: NewsProps) {
                     </div>
                     
                     <CardTitle className="line-clamp-2" data-testid={`news-title-${article.id}`}>
-                      {article.title}
+                      {displayTitle}
                     </CardTitle>
                     
                     <CardDescription className="line-clamp-3" data-testid={`news-description-${article.id}`}>
-                      {article.description}
+                      {displayDescription}
                     </CardDescription>
                   </CardHeader>
                   
@@ -206,7 +202,8 @@ export function News({ language }: NewsProps) {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
           </div>
         ) : (
           <Card>
@@ -229,67 +226,74 @@ export function News({ language }: NewsProps) {
       {/* Article Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          {selectedArticle && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold mb-2 pr-8">
-                  {selectedArticle.title}
-                </DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground mb-4">
-                  {language === "en" ? "Full article content" : "完全な記事内容"}
-                </DialogDescription>
-                <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </DialogClose>
-              </DialogHeader>
-              
-              <div className="space-y-6 mt-6">
-                {/* Article Meta */}
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b pb-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    <span>{language === "en" ? "Author" : "著者"}: {selectedArticle.authorId.slice(0, 8)}</span>
-                  </div>
-                  {selectedArticle.category && (
-                    <Badge variant="secondary">{selectedArticle.category}</Badge>
-                  )}
-                </div>
+          {selectedArticle && (() => {
+            // Use appropriate language content for the modal
+            const modalTitle = language === "jp" && selectedArticle.titleJa ? selectedArticle.titleJa : selectedArticle.title;
+            const modalDescription = language === "jp" && selectedArticle.descriptionJa ? selectedArticle.descriptionJa : selectedArticle.description;
+            const modalContent = language === "jp" && selectedArticle.contentJa ? selectedArticle.contentJa : selectedArticle.content;
 
-                {/* Article Description */}
-                <div className="text-lg text-muted-foreground leading-relaxed">
-                  {selectedArticle.description}
-                </div>
-
-                {/* Article Content */}
-                <div className="prose prose-lg max-w-none">
-                  <div 
-                    className="leading-relaxed"
-                    style={{ whiteSpace: 'pre-wrap' }}
-                  >
-                    {selectedArticle.content}
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold mb-2 pr-8">
+                    {modalTitle}
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground mb-4">
+                    {language === "en" ? "Full article content" : "完全な記事内容"}
+                  </DialogDescription>
+                  <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                  </DialogClose>
+                </DialogHeader>
+                
+                <div className="space-y-6 mt-6">
+                  {/* Article Meta */}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b pb-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                      <span>{language === "en" ? "Author" : "著者"}: {selectedArticle.authorId.slice(0, 8)}</span>
+                    </div>
+                    {selectedArticle.category && (
+                      <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
+                    )}
                   </div>
-                </div>
 
-                {/* Article Tags */}
-                {selectedArticle.tags && (
-                  <div className="border-t pt-4">
-                    <div className="flex flex-wrap gap-2">
-                      {selectedArticle.tags.split(',').map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {tag.trim()}
-                        </Badge>
-                      ))}
+                  {/* Article Description */}
+                  <div className="text-lg text-muted-foreground leading-relaxed">
+                    {modalDescription}
+                  </div>
+
+                  {/* Article Content */}
+                  <div className="prose prose-lg max-w-none">
+                    <div 
+                      className="leading-relaxed"
+                      style={{ whiteSpace: 'pre-wrap' }}
+                    >
+                      {modalContent}
                     </div>
                   </div>
-                )}
-              </div>
-            </>
-          )}
+
+                  {/* Article Tags */}
+                  {selectedArticle.tags && (
+                    <div className="border-t pt-4">
+                      <div className="flex flex-wrap gap-2">
+                        {selectedArticle.tags.split(',').map((tag, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {tag.trim()}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </section>
