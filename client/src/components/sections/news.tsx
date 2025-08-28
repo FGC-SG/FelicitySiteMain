@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Newspaper, Calendar, User, Eye, ArrowRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Newspaper, Calendar, User, Eye, ArrowRight, X } from "lucide-react";
 
 interface NewsProps {
   language: Language;
@@ -24,6 +26,13 @@ interface NewsArticle {
 
 export function News({ language }: NewsProps) {
   const t = useTranslation(language);
+  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleReadMore = (article: NewsArticle) => {
+    setSelectedArticle(article);
+    setIsModalOpen(true);
+  };
 
   const { data: newsArticles, isLoading, error } = useQuery({
     queryKey: ["/api/news-with-translations"],
@@ -183,7 +192,12 @@ export function News({ language }: NewsProps) {
                           </span>
                         </div>
                         
-                        <Button variant="ghost" size="sm" data-testid={`button-read-more-${article.id}`}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          data-testid={`button-read-more-${article.id}`}
+                          onClick={() => handleReadMore(article)}
+                        >
                           <Eye className="h-4 w-4 mr-1" />
                           {language === "en" ? "Read More" : "続きを読む"}
                           <ArrowRight className="h-4 w-4 ml-1" />
@@ -211,6 +225,70 @@ export function News({ language }: NewsProps) {
           </Card>
         )}
       </div>
+
+      {/* Article Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedArticle && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold mb-4 pr-8">
+                  {selectedArticle.title}
+                </DialogTitle>
+                <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </DialogClose>
+              </DialogHeader>
+              
+              <div className="space-y-6 mt-6">
+                {/* Article Meta */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b pb-4">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    <span>{language === "en" ? "Author" : "著者"}: {selectedArticle.authorId.slice(0, 8)}</span>
+                  </div>
+                  {selectedArticle.category && (
+                    <Badge variant="secondary">{selectedArticle.category}</Badge>
+                  )}
+                </div>
+
+                {/* Article Description */}
+                <div className="text-lg text-muted-foreground leading-relaxed">
+                  {selectedArticle.description}
+                </div>
+
+                {/* Article Content */}
+                <div className="prose prose-lg max-w-none">
+                  <div 
+                    className="leading-relaxed"
+                    style={{ whiteSpace: 'pre-wrap' }}
+                  >
+                    {selectedArticle.content}
+                  </div>
+                </div>
+
+                {/* Article Tags */}
+                {selectedArticle.tags && (
+                  <div className="border-t pt-4">
+                    <div className="flex flex-wrap gap-2">
+                      {selectedArticle.tags.split(',').map((tag, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {tag.trim()}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
