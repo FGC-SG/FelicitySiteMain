@@ -147,7 +147,7 @@ export default function ManagementPage() {
               <div className="grid md:grid-cols-3 gap-4">
                 <Button 
                   className="h-auto p-6 flex-col space-y-2" 
-                  onClick={() => setShowAddNews(true)}
+                  onClick={() => window.location.href = "/news-management"}
                   data-testid="button-add-news"
                 >
                   <FileText className="h-6 w-6" />
