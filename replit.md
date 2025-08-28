@@ -22,6 +22,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Enhanced news management system with comprehensive view/add/delete functionality
 - 2025-08-28: Successfully authenticated and extracted authentic news content from dev.fgcsg.com using provided credentials (fc:0729)
 - 2025-08-28: Imported 6 real articles including PT Fore Kopi Indonesia portfolio updates and corporate announcements with actual dates
+- 2025-08-28: Implemented custom email/password authentication system replacing Replit OAuth
+- 2025-08-28: Updated navigation to show "Admin Login" button with professional login modal
+- 2025-08-28: Added session-based authentication supporting multiple credential combinations including original fc:0729
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

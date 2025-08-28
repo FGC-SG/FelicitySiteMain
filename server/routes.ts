@@ -21,7 +21,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Simple hardcoded admin credentials for demo
       // In production, this should use proper password hashing and database storage
-      if (email === "admin@fgcsg.com" && password === "admin123") {
+      // Using the same credentials from the original website extraction (fc:0729)
+      if ((email === "admin@fgcsg.com" && password === "admin123") || 
+          (email === "fc" && password === "0729") ||
+          (email === "onuma@fgcsg.com" && password === "0729")) {
         const adminUser = {
           id: "admin-001",
           email: "admin@fgcsg.com",

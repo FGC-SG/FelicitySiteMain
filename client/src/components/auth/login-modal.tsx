@@ -84,7 +84,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, language }: LoginModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby="login-description">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">
             {t.title}
@@ -93,7 +93,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, language }: LoginModalP
         
         <Card className="border-0 shadow-none">
           <CardHeader className="text-center pb-4">
-            <CardDescription>
+            <CardDescription id="login-description">
               {t.subtitle}
             </CardDescription>
           </CardHeader>
