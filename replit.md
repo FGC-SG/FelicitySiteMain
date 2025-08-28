@@ -43,6 +43,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Removed web contact form, keeping only office information and business hours display
 - 2025-08-28: Implemented Portfolio Management system with complete CRUD operations for admin users
 - 2025-08-28: Added distinct color schemes for investment types: Buyout (blue), Growth Equity (green), Secondary (purple)
+- 2025-08-28: Replaced country text input with standardized dropdown selection covering major Asian markets and global regions
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

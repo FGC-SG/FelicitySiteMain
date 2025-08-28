@@ -63,6 +63,32 @@ function PortfolioPage() {
     }
   };
 
+  // Country options for consistent formatting across the application
+  const countryOptions = [
+    { value: "singapore", label: "Singapore" },
+    { value: "malaysia", label: "Malaysia" },
+    { value: "japan", label: "Japan" },
+    { value: "indonesia", label: "Indonesia" },
+    { value: "thailand", label: "Thailand" },
+    { value: "philippines", label: "Philippines" },
+    { value: "vietnam", label: "Vietnam" },
+    { value: "hongkong", label: "Hong Kong" },
+    { value: "taiwan", label: "Taiwan" },
+    { value: "southkorea", label: "South Korea" },
+    { value: "china", label: "China" },
+    { value: "india", label: "India" },
+    { value: "australia", label: "Australia" },
+    { value: "newzealand", label: "New Zealand" },
+    { value: "unitedstates", label: "United States" },
+    { value: "unitedkingdom", label: "United Kingdom" },
+    { value: "other", label: "Other" },
+  ];
+
+  const formatCountryName = (countryValue: string) => {
+    const country = countryOptions.find(c => c.value === countryValue);
+    return country ? country.label : countryValue.charAt(0).toUpperCase() + countryValue.slice(1);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -190,7 +216,7 @@ function PortfolioPage() {
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 mr-1" />
                         <span data-testid={`text-country-${portfolio.id}`}>
-                          {portfolio.country.charAt(0).toUpperCase() + portfolio.country.slice(1)}
+                          {formatCountryName(portfolio.country)}
                         </span>
                       </div>
                     </div>
