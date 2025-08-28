@@ -50,7 +50,8 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
 
   const createMemberMutation = useMutation({
     mutationFn: async (data: MemberFormData & { photoUrl?: string }) => {
-      return apiRequest("/api/members", "POST", data);
+      const response = await apiRequest("/api/members", "POST", data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
@@ -77,9 +78,10 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
 
   const handleGetUploadParameters = async () => {
     const response = await apiRequest("/api/objects/upload", "POST");
+    const data = await response.json();
     return {
       method: "PUT" as const,
-      url: response.uploadURL,
+      url: data.uploadURL,
     };
   };
 
