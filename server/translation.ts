@@ -99,13 +99,44 @@ function getJapaneseTitle(title: string): string {
 }
 
 function getJapaneseDescription(description: string): string {
-  if (description.includes("investment") || description.includes("portfolio")) {
-    return description.replace(/investment/gi, "投資").replace(/portfolio/gi, "ポートフォリオ");
+  // Comprehensive description mapping for known articles
+  const descriptionMap: { [key: string]: string } = {
+    "Strategic partnerships with leading technology companies across Asia-Pacific.": "アジア太平洋地域の主要テクノロジー企業との戦略的パートナーシップ。",
+    "Launch of specialized business succession fund for family enterprises.": "ファミリー企業向け専門事業継承ファンドの設立。",
+    "PT Fore Kopi Indonesia secures strategic investment for expansion into new markets.": "PTフォーレコピーインドネシア、新市場拡張のため戦略的投資を確保。",
+    "ACA Investments launches second business succession fund targeting family businesses.": "ACA投資、ファミリービジネスをターゲットとした第二次事業継承ファンドを設立。",
+    "Official announcement regarding the transfer of shares in TECHNOTECH., Ltd.": "TECHNOTECH株式会社の株式譲渡に関する公式発表。",
+    "Official announcement regarding the transfer of shares in NewsBase Inc.": "NewsBase Inc.の株式譲渡に関する公式発表。",
+    "ACA enters into capital and business alliance with KUMASITA Industry Ltd.": "ACA、KUMASITA Industry Ltd.との資本業務提携を締結。"
+  };
+  
+  // Check for exact match first
+  const exactMatch = descriptionMap[description.trim()];
+  if (exactMatch) {
+    return exactMatch;
   }
-  if (description.includes("expansion") || description.includes("growth")) {
-    return description.replace(/expansion/gi, "拡張").replace(/growth/gi, "成長");
-  }
-  return `${description} (日本語での説明)`;
+  
+  // For other descriptions, provide comprehensive translation
+  let translatedDescription = description
+    .replace(/Strategic partnerships/gi, '戦略的パートナーシップ')
+    .replace(/leading technology companies/gi, '主要テクノロジー企業')
+    .replace(/Asia-Pacific/gi, 'アジア太平洋')
+    .replace(/investment/gi, '投資')
+    .replace(/portfolio/gi, 'ポートフォリオ')
+    .replace(/expansion/gi, '拡張')
+    .replace(/growth/gi, '成長')
+    .replace(/business/gi, 'ビジネス')
+    .replace(/fund/gi, 'ファンド')
+    .replace(/market/gi, '市場')
+    .replace(/capital/gi, '資本')
+    .replace(/alliance/gi, '提携')
+    .replace(/partnership/gi, 'パートナーシップ')
+    .replace(/company/gi, '企業')
+    .replace(/announcement/gi, '発表')
+    .replace(/transfer/gi, '譲渡')
+    .replace(/shares/gi, '株式');
+  
+  return translatedDescription;
 }
 
 function getJapaneseContent(content: string): string {
@@ -123,7 +154,13 @@ function getJapaneseContent(content: string): string {
     
     "This article was imported from the original ACA Group website. ACA Enters into Capital and Business Alliance with KUMASITA Industry Ltd": "この記事は元のACAグループウェブサイトからインポートされました。ACA、KUMASITA Industry Ltd.との資本業務提携を締結",
     
-    "Felicity Global Capital has successfully launched its latest business succession fund, specifically designed to support family enterprises in their transition and growth phases. The fund focuses on providing capital and strategic guidance to established family businesses.": "フェリシティグローバルキャピタルは、ファミリー企業の移行と成長段階を支援するために特別に設計された最新の事業継承ファンドを成功裏に設立しました。このファンドは、確立されたファミリービジネスに資本と戦略的ガイダンスを提供することに焦点を当てています。"
+    "Felicity Global Capital has successfully launched its latest business succession fund, specifically designed to support family enterprises in their transition and growth phases. The fund focuses on providing capital and strategic guidance to established family businesses.": "フェリシティグローバルキャピタルは、ファミリー企業の移行と成長段階を支援するために特別に設計された最新の事業継承ファンドを成功裏に設立しました。このファンドは、確立されたファミリービジネスに資本と戦略的ガイダンスを提供することに焦点を当てています。",
+    
+    "The company has entered into strategic partnership agreements with several leading technology companies across Asia-Pacific regions. These partnerships are designed to leverage technological innovations and expand market reach in key sectors.": "同社は、アジア太平洋地域の数社の主要テクノロジー企業と戦略的パートナーシップ協定を締結しました。これらのパートナーシップは、技術革新を活用し、主要セクターでの市場リーチを拡大することを目的としています。",
+    
+    "Partnership agreements with technology companies for market expansion": "市場拡大のためのテクノロジー企業との提携協定",
+    
+    "Strategic partnerships with leading technology companies across Asia-Pacific.": "アジア太平洋地域の主要テクノロジー企業との戦略的パートナーシップ。"
   };
   
   // Check for exact content match first
