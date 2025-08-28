@@ -18,6 +18,8 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Implemented object storage for photo uploads with automatic scaling
 - 2025-08-28: Created member profile management with title, company, and biography fields
 - 2025-08-28: Added Member Management section to admin portal with full CRUD operations
+- 2025-08-28: Successfully extracted and imported 7 news articles from original ACA Group website
+- 2025-08-28: Enhanced news management system with comprehensive view/add/delete functionality
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
