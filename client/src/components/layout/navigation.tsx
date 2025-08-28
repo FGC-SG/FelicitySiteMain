@@ -18,20 +18,14 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
   const t = useTranslation(language);
 
   const navItems = [
-    { href: "#home", label: t.nav.home },
-    { href: "#about", label: t.nav.about },
-    { href: "#news", label: t.nav.news },
-    { href: "#contact", label: t.nav.contact },
+    { href: "/", label: t.nav.home },
+    { href: "/about", label: t.nav.about },
+    { href: "/news", label: t.nav.news },
+    { href: "/contact", label: t.nav.contact },
   ];
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = () => {
     setIsMobileMenuOpen(false);
-    if (href.startsWith("#")) {
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
   };
 
   const handleLogin = () => {
@@ -64,18 +58,19 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {navItems.map((item) => (
-                <button
+                <Link
                   key={item.href}
-                  onClick={() => handleNavClick(item.href)}
+                  href={item.href}
+                  onClick={handleNavClick}
                   className={`px-3 py-2 text-sm font-medium transition-colors ${
-                    item.href === "#home"
+                    location === item.href
                       ? "felicity-primary"
                       : "text-muted-foreground hover:felicity-primary"
                   }`}
-                  data-testid={`nav-${item.href.slice(1)}`}
+                  data-testid={`nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
                   {item.label}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -120,14 +115,15 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           <div className="md:hidden border-t border-border bg-background">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navItems.map((item) => (
-                <button
+                <Link
                   key={item.href}
-                  onClick={() => handleNavClick(item.href)}
+                  href={item.href}
+                  onClick={handleNavClick}
                   className="block px-3 py-2 text-base font-medium text-muted-foreground hover:felicity-primary w-full text-left"
-                  data-testid={`mobile-nav-${item.href.slice(1)}`}
+                  data-testid={`mobile-nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
                   {item.label}
-                </button>
+                </Link>
               ))}
             </div>
           </div>

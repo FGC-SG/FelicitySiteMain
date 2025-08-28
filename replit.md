@@ -6,6 +6,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 ## Recent Changes
 - 2025-08-28: Initial project setup with bilingual content structure
 - 2025-08-28: Added Singapore skyline background as requested
+- 2025-08-28: Restructured from single-page to multi-page application with separate routes for Home, About, News, and Contact
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
@@ -16,8 +17,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 ## Project Architecture
 - **Frontend**: React with TypeScript, Vite, TailwindCSS, shadcn/ui
 - **Backend**: Express.js with TypeScript
-- **Storage**: In-memory storage (MemStorage)
-- **Authentication**: User login system
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Replit OAuth integration
+- **Routing**: Multi-page application with separate routes for Home (/), About (/about), News (/news), Contact (/contact)
 - **Styling**: Singapore skyline background, professional corporate design
 - **Languages**: Bilingual support (English/Japanese)
 
