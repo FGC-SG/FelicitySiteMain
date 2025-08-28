@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
+import { AddUserForm } from "@/components/forms/add-user-form";
 import { Users, FileText, TrendingUp, Settings } from "lucide-react";
 
 export default function ManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddNews, setShowAddNews] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
@@ -149,9 +151,14 @@ export default function ManagementPage() {
                   <FileText className="h-6 w-6" />
                   <span>Add News Article</span>
                 </Button>
-                <Button variant="outline" className="h-auto p-6 flex-col space-y-2" data-testid="button-manage-team">
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-6 flex-col space-y-2" 
+                  onClick={() => setShowAddUser(true)}
+                  data-testid="button-add-user"
+                >
                   <Users className="h-6 w-6" />
-                  <span>Manage Team</span>
+                  <span>Add User</span>
                 </Button>
                 <Button variant="outline" className="h-auto p-6 flex-col space-y-2" data-testid="button-view-reports">
                   <TrendingUp className="h-6 w-6" />
@@ -214,6 +221,25 @@ export default function ManagementPage() {
                   });
                 }}
                 onCancel={() => setShowAddNews(false)}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* Add User Form Modal */}
+        {showAddUser && (
+          <section className="py-20 bg-muted/50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <AddUserForm
+                language={language}
+                onSuccess={() => {
+                  setShowAddUser(false);
+                  toast({
+                    title: "Success",
+                    description: "User has been created successfully.",
+                  });
+                }}
+                onCancel={() => setShowAddUser(false)}
               />
             </div>
           </section>

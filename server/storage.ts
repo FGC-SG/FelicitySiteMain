@@ -25,6 +25,11 @@ export interface IStorage {
   
   // Contact operations
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+  
+  // User management operations
+  createUser(userData: UpsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  updateUser(id: string, userData: Partial<UpsertUser>): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -67,6 +72,24 @@ export class DatabaseStorage implements IStorage {
 
   async getNewsArticles(): Promise<NewsArticle[]> {
     return await db.select().from(newsArticles).orderBy(desc(newsArticles.createdAt));
+  }
+
+  async createUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async updateUser(id: string, userData: Partial<UpsertUser>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ ...userData, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
   }
 }
 

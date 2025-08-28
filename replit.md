@@ -7,6 +7,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Initial project setup with bilingual content structure
 - 2025-08-28: Added Singapore skyline background as requested
 - 2025-08-28: Restructured from single-page to multi-page application with separate routes for Home, About, News, and Contact
+- 2025-08-28: Added comprehensive member management system with login/logout functionality
+- 2025-08-28: Implemented "Add News Article" function with bilingual form validation
+- 2025-08-28: Created "Add User" function with role-based access control and department management
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
@@ -25,11 +28,13 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 
 ## Key Features
 - Bilingual website (EN/JP)
-- User authentication with login
-- Company information and news
-- Professional corporate design
-- Singapore-themed background
-- Responsive design
+- User authentication with Replit OAuth
+- Member management portal with role-based access
+- News article creation and management
+- User creation with department/role assignment
+- Company information and team profiles
+- Professional corporate design with Singapore skyline
+- Responsive design with shadcn/ui components
 
 ## Technical Stack
 - React 18 with TypeScript
