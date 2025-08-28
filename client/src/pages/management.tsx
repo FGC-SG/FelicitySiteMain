@@ -7,10 +7,12 @@ import { type Language } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AddNewsForm } from "@/components/forms/add-news-form";
 import { Users, FileText, TrendingUp, Settings } from "lucide-react";
 
 export default function ManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
+  const [showAddNews, setShowAddNews] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
@@ -139,7 +141,11 @@ export default function ManagementPage() {
                 Quick Actions
               </h3>
               <div className="grid md:grid-cols-3 gap-4">
-                <Button className="h-auto p-6 flex-col space-y-2" data-testid="button-add-news">
+                <Button 
+                  className="h-auto p-6 flex-col space-y-2" 
+                  onClick={() => setShowAddNews(true)}
+                  data-testid="button-add-news"
+                >
                   <FileText className="h-6 w-6" />
                   <span>Add News Article</span>
                 </Button>
@@ -193,6 +199,25 @@ export default function ManagementPage() {
             </div>
           </div>
         </section>
+
+        {/* Add News Form Modal */}
+        {showAddNews && (
+          <section className="py-20 bg-muted/50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <AddNewsForm
+                language={language}
+                onSuccess={() => {
+                  setShowAddNews(false);
+                  toast({
+                    title: "Success",
+                    description: "News article has been added successfully.",
+                  });
+                }}
+                onCancel={() => setShowAddNews(false)}
+              />
+            </div>
+          </section>
+        )}
       </main>
       <Footer language={language} />
     </div>

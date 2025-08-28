@@ -48,6 +48,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // News routes
+  app.post('/api/news', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const newsData = {
+        ...req.body,
+        authorId: userId,
+      };
+      const news = await storage.createNewsArticle(newsData);
+      res.json(news);
+    } catch (error) {
+      console.error("Error creating news article:", error);
+      res.status(500).json({ message: "Failed to create news article" });
+    }
+  });
+
+  app.get('/api/news', async (req, res) => {
+    try {
+      const news = await storage.getNewsArticles();
+      res.json(news);
+    } catch (error) {
+      console.error("Error fetching news articles:", error);
+      res.status(500).json({ message: "Failed to fetch news articles" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
