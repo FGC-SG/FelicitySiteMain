@@ -93,7 +93,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                         data-testid="button-management"
                       >
                         <User className="h-4 w-4" />
-                        <span>Management</span>
+                        <span>Admin</span>
                       </Button>
                     </Link>
                     <Button
