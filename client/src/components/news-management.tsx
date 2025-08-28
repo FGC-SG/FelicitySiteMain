@@ -157,9 +157,13 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
           article={editingArticle}
           language={language}
           onSave={(data) => {
+            const updatedData = {
+              ...data,
+              publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date()
+            };
             updateNewsMutation.mutate({ 
               id: editingArticle.id, 
-              updates: data 
+              updates: updatedData 
             });
           }}
           onCancel={() => setEditingArticle(null)}
@@ -224,6 +228,13 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
                       <Badge variant="secondary" data-testid={`badge-category-${article.id}`}>
                         {article.category}
                       </Badge>
+                      <div className="flex items-center text-xs text-muted-foreground gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span data-testid={`text-announcement-date-${article.id}`}>
+                          {language === "en" ? "Announced: " : "発表日: "}
+                          {formatDate(article.publishedAt || article.createdAt || new Date())}
+                        </span>
+                      </div>
                     </div>
                     <CardTitle className="text-lg line-clamp-2" data-testid={`text-news-title-${article.id}`}>
                       {article.title}

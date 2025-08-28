@@ -16,6 +16,7 @@ const editNewsSchema = z.object({
   content: z.string().min(1, "Content is required"),
   category: z.string().min(1, "Category is required"),
   language: z.enum(["en", "ja"]),
+  publishedAt: z.string().min(1, "Announcement date is required"),
 });
 
 type EditNewsFormData = z.infer<typeof editNewsSchema>;
@@ -37,6 +38,7 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
       content: article.content || "",
       category: article.category,
       language: article.language as "en" | "ja",
+      publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     },
   });
 
@@ -113,6 +115,26 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="publishedAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel data-testid="label-published-at">
+                    {language === "en" ? "Date of Announcement *" : "発表日 *"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      data-testid="input-published-at"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

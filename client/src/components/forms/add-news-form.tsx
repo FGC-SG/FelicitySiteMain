@@ -20,6 +20,7 @@ const addNewsSchema = z.object({
   language: z.enum(["en", "jp"]),
   category: z.string().min(1, "Category is required"),
   tags: z.string().optional(),
+  publishedAt: z.string().min(1, "Announcement date is required"),
 });
 
 type AddNewsForm = z.infer<typeof addNewsSchema>;
@@ -44,6 +45,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       language: language,
       category: "",
       tags: "",
+      publishedAt: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     },
   });
 
@@ -156,6 +158,26 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="publishedAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel data-testid="label-news-published-at">
+                      {language === "en" ? "Date of Announcement" : "発表日"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="date"
+                        {...field}
+                        data-testid="input-news-published-at"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
