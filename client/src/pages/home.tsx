@@ -43,9 +43,7 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to login
-  }
+
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -54,7 +52,7 @@ export default function Home() {
       {/* Welcome message for authenticated users */}
       {user && (
         <div className="bg-felicity-primary text-white py-2 px-4 text-center text-sm">
-          Welcome back, {(user as any).firstName || (user as any).email}! You are logged in to Felicity Global Capital.
+          Welcome back, {(user as any)?.firstName || (user as any)?.email}! You are logged in to Felicity Global Capital.
         </div>
       )}
       
