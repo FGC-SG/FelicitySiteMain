@@ -98,7 +98,8 @@ function getJapaneseTitle(title: string): string {
     "Announcement Regarding the Transfer of Shares in NewsBase Inc.": "NewsBase Inc.の株式譲渡に関するお知らせ", 
     "ACA Enters into Capital and Business Alliance with KUMASITA Industry Ltd": "ACA、KUMASITA Industry Ltd.との資本業務提携を締結",
     "New Business Succession Fund Launched for Family Enterprises": "ファミリー企業向け新事業継承ファンドを設立",
-    "Partnership Agreement with Leading Technology Companies": "主要テクノロジー企業との提携協定"
+    "Partnership Agreement with Leading Technology Companies": "主要テクノロジー企業との提携協定",
+    "Our portfolio company, PT Fore Kopi Indonesia, has successfully gone public on the Indonesia Stock Exchange.": "ポートフォリオ企業PTフォーレコピーインドネシア、インドネシア証券取引所への上場を成功"
   };
   
   return titleMap[title] || `${title} (日本語翻訳)`;
@@ -116,7 +117,8 @@ function getJapaneseDescription(description: string): string {
     "ACA enters into capital and business alliance with KUMASITA Industry Ltd.": "ACA、KUMASITA Industry Ltd.との資本業務提携を締結。",
     "Strategic investment initiatives targeting high-growth opportunities in Southeast Asian markets.": "東南アジア市場の高成長機会をターゲットとした戦略的投資イニシアチブ。",
     "Comprehensive investment portfolio expansion across Asia-Pacific regions.": "アジア太平洋地域全体での包括的投資ポートフォリオ拡張。",
-    "Performance analysis and strategic review of Q3 investment activities.": "第3四半期投資活動のパフォーマンス分析と戦略的レビュー。"
+    "Performance analysis and strategic review of Q3 investment activities.": "第3四半期投資活動のパフォーマンス分析と戦略的レビュー。",
+    "Our portfolio company, PT Fore Kopi Indonesia, has successfully gone public on the Indonesia Stock Exchange.": "ポートフォリオ企業PTフォーレコピーインドネシア、インドネシア証券取引所への上場に成功。"
   };
   
   // Check for exact match first
@@ -165,7 +167,9 @@ function getJapaneseContent(content: string): string {
     
     "Felicity Global Capital has successfully launched its latest business succession fund, specifically designed to support family enterprises in their transition and growth phases. The fund focuses on providing capital and strategic guidance to established family businesses.": "フェリシティ・グローバル・キャピタルは、ファミリー企業の移行と成長段階を支援するために特別に設計された最新の事業継承ファンドを成功裏に設立しました。\n\nこのファンドは、確立されたファミリービジネスに資本と戦略的ガイダンスを提供することに焦点を当てています。特に、次世代への円滑な経営移行、ガバナンス構造の強化、および持続可能な成長戦略の策定において専門的支援を提供します。\n\n日本をはじめアジア各国のファミリー企業が直面する事業継承の課題に対し、包括的なソリューションを提供することで、企業の長期的繁栄を支援します。",
     
-    "The company has entered into strategic partnership agreements with several leading technology companies across Asia-Pacific regions. These partnerships are designed to leverage technological innovations and expand market reach in key sectors.": "同社は、アジア太平洋地域の数社の主要テクノロジー企業と戦略的パートナーシップ協定を締結しました。\n\nこれらのパートナーシップは、人工知能、IoT、ブロックチェーン技術などの最新技術革新を活用し、金融サービス、ヘルスケア、製造業などの主要セクターでの市場リーチを拡大することを目的としています。\n\n特に、デジタル変革が急速に進む東南アジア市場において、革新的なソリューションの共同開発と展開を通じて、新たなビジネス機会の創出を図ります。"
+    "The company has entered into strategic partnership agreements with several leading technology companies across Asia-Pacific regions. These partnerships are designed to leverage technological innovations and expand market reach in key sectors.": "同社は、アジア太平洋地域の数社の主要テクノロジー企業と戦略的パートナーシップ協定を締結しました。\n\nこれらのパートナーシップは、人工知能、IoT、ブロックチェーン技術などの最新技術革新を活用し、金融サービス、ヘルスケア、製造業などの主要セクターでの市場リーチを拡大することを目的としています。\n\n特に、デジタル変革が急速に進む東南アジア市場において、革新的なソリューションの共同開発と展開を通じて、新たなビジネス機会の創出を図ります。",
+    
+    "Our portfolio company, PT Fore Kopi Indonesia, has successfully gone public on the Indonesia Stock Exchange.": "ポートフォリオ企業であるPTフォーレコピーインドネシアが、インドネシア証券取引所への上場を成功させました。\n\n同社は、インドネシアの主要コーヒー生産企業として、持続可能な農業実践と革新的な加工技術を通じて、高品質なコーヒー製品を世界市場に提供しています。\n\nこの上場により、PTフォーレコピーインドネシアは事業拡大のための追加資本を調達し、生産能力の向上と新市場への進出を加速させることが可能となります。フェリシティ・グローバル・キャピタルは、同社の成長戦略を引き続き支援してまいります。"
   };
   
   // Check for exact content match first
