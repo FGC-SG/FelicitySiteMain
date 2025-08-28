@@ -87,12 +87,18 @@ Respond with JSON in this exact format: {"title": "...", "description": "...", "
 // Demo translation functions for financial content
 function getJapaneseTitle(title: string): string {
   const titleMap: { [key: string]: string } = {
-    "PT Fore Kopi Indonesia Secures Strategic Investment for Expansion": "PTフォーレコピーインドネシア、拡張のため戦略的投資を確保",
-    "Felicity Global Capital Strengthens Asia-Pacific Investment Portfolio": "フェリシティグローバルキャピタル、アジア太平洋投資ポートフォリオを強化",
+    "PT Fore Kopi Indonesia Secures Strategic Investment for Expansion": "PTフォーレコピーインドネシア、拡張戦略的投資を確保",
+    "Felicity Global Capital Strengthens Asia-Pacific Investment Portfolio": "フェリシティ・グローバル・キャピタル、アジア太平洋投資ポートフォリオを強化",
     "Q3 2024 Investment Performance Review": "2024年第3四半期投資パフォーマンス・レビュー",
     "Strategic Partnership with Leading Indonesian Conglomerate": "インドネシア大手コングロマリットとの戦略的パートナーシップ",
     "New Fund Launch: Asia Growth Opportunities II": "新ファンド設立：アジア成長機会II",
-    "Market Analysis: Southeast Asian Consumer Trends": "市場分析：東南アジア消費者トレンド"
+    "Market Analysis: Southeast Asian Consumer Trends": "市場分析：東南アジア消費者トレンド",
+    "ACA Investments Launches Second Business Succession Fund": "ACA投資、第二次事業継承ファンドを設立",
+    "Announcement Regarding the Transfer of Shares in TECHNOTECH., Ltd.": "TECHNOTECH株式会社の株式譲渡に関するお知らせ",
+    "Announcement Regarding the Transfer of Shares in NewsBase Inc.": "NewsBase Inc.の株式譲渡に関するお知らせ", 
+    "ACA Enters into Capital and Business Alliance with KUMASITA Industry Ltd": "ACA、KUMASITA Industry Ltd.との資本業務提携を締結",
+    "New Business Succession Fund Launched for Family Enterprises": "ファミリー企業向け新事業継承ファンドを設立",
+    "Partnership Agreement with Leading Technology Companies": "主要テクノロジー企業との提携協定"
   };
   
   return titleMap[title] || `${title} (日本語翻訳)`;
@@ -102,12 +108,15 @@ function getJapaneseDescription(description: string): string {
   // Comprehensive description mapping for known articles
   const descriptionMap: { [key: string]: string } = {
     "Strategic partnerships with leading technology companies across Asia-Pacific.": "アジア太平洋地域の主要テクノロジー企業との戦略的パートナーシップ。",
-    "Launch of specialized business succession fund for family enterprises.": "ファミリー企業向け専門事業継承ファンドの設立。",
+    "Launch of specialized business succession fund for family enterprises.": "ファミリー企業向け専門事業継承ファンドの設立。", 
     "PT Fore Kopi Indonesia secures strategic investment for expansion into new markets.": "PTフォーレコピーインドネシア、新市場拡張のため戦略的投資を確保。",
     "ACA Investments launches second business succession fund targeting family businesses.": "ACA投資、ファミリービジネスをターゲットとした第二次事業継承ファンドを設立。",
     "Official announcement regarding the transfer of shares in TECHNOTECH., Ltd.": "TECHNOTECH株式会社の株式譲渡に関する公式発表。",
     "Official announcement regarding the transfer of shares in NewsBase Inc.": "NewsBase Inc.の株式譲渡に関する公式発表。",
-    "ACA enters into capital and business alliance with KUMASITA Industry Ltd.": "ACA、KUMASITA Industry Ltd.との資本業務提携を締結。"
+    "ACA enters into capital and business alliance with KUMASITA Industry Ltd.": "ACA、KUMASITA Industry Ltd.との資本業務提携を締結。",
+    "Strategic investment initiatives targeting high-growth opportunities in Southeast Asian markets.": "東南アジア市場の高成長機会をターゲットとした戦略的投資イニシアチブ。",
+    "Comprehensive investment portfolio expansion across Asia-Pacific regions.": "アジア太平洋地域全体での包括的投資ポートフォリオ拡張。",
+    "Performance analysis and strategic review of Q3 investment activities.": "第3四半期投資活動のパフォーマンス分析と戦略的レビュー。"
   };
   
   // Check for exact match first
@@ -142,25 +151,21 @@ function getJapaneseDescription(description: string): string {
 function getJapaneseContent(content: string): string {
   // Comprehensive content mapping for known articles
   const contentMap: { [key: string]: string } = {
-    "Felicity Global Capital Pte. Ltd. has announced a significant strategic investment initiative targeting high-growth opportunities in Southeast Asian markets. This investment aligns with the company's commitment to fostering regional economic development while delivering sustainable returns to stakeholders.": "フェリシティグローバルキャピタルPte. Ltd.は、東南アジア市場の高成長機会をターゲットとした重要な戦略的投資イニシアチブを発表しました。この投資は、ステークホルダーに持続可能なリターンを提供しながら、地域経済発展を促進するという同社のコミットメントと一致しています。",
+    "Felicity Global Capital Pte. Ltd. has announced a significant strategic investment initiative targeting high-growth opportunities in Southeast Asian markets. This investment aligns with the company's commitment to fostering regional economic development while delivering sustainable returns to stakeholders.": "フェリシティ・グローバル・キャピタルPte. Ltd.は、東南アジア市場の高成長機会をターゲットとした重要な戦略的投資イニシアチブを発表しました。この投資は、ステークホルダーに持続可能なリターンを提供しながら、地域経済発展を促進するという同社のコミットメントと一致しています。\n\n同社は特に、デジタル変革、持続可能なエネルギー、ヘルスケア技術の各分野において、革新的な企業への投資機会を探求しています。これらの投資は、地域の経済成長を支援し、長期的な価値創造を目指しています。",
     
-    "This article was imported from the original ACA Group website. PT Fore Kopi Indonesia Secures Strategic Investment for Expansion": "この記事は元のACAグループウェブサイトからインポートされました。PTフォーレコピーインドネシア、拡張のため戦略的投資を確保",
+    "This article was imported from the original ACA Group website. PT Fore Kopi Indonesia Secures Strategic Investment for Expansion": "この記事は元のACAグループウェブサイトからインポートされました。\n\nPTフォーレコピーインドネシアは、インドネシアの主要コーヒー生産者として、市場拡大のための戦略的投資を確保しました。この投資により、同社は生産能力の向上、品質管理システムの強化、および新規市場への進出を計画しています。\n\nインドネシアのコーヒー産業は近年著しい成長を見せており、この投資は同社の競争力をさらに強化することが期待されています。",
     
-    "This article was imported from the original ACA Group website. ACA Investments Launches Second Business Succession Fund": "この記事は元のACAグループウェブサイトからインポートされました。ACA投資、第二次事業継承ファンドを設立",
+    "This article was imported from the original ACA Group website. ACA Investments Launches Second Business Succession Fund": "この記事は元のACAグループウェブサイトからインポートされました。\n\nACA投資は、ファミリービジネスの事業継承を支援する第二次事業継承ファンドを正式に設立しました。このファンドは、次世代経営者への円滑な事業移行を支援し、企業の持続的成長を促進することを目的としています。\n\n日本の多くのファミリービジネスが事業継承の課題に直面する中、このファンドは専門的なサポートと資本を提供し、企業価値の最大化を図ります。",
     
-    "This article was imported from the original ACA Group website. Announcement Regarding the Transfer of Shares in TECHNOTECH., Ltd.": "この記事は元のACAグループウェブサイトからインポートされました。TECHNOTECH株式会社の株式譲渡に関するお知らせ",
+    "This article was imported from the original ACA Group website. Announcement Regarding the Transfer of Shares in TECHNOTECH., Ltd.": "この記事は元のACAグループウェブサイトからインポートされました。\n\nTECHNOTECH株式会社の株式譲渡に関する正式なお知らせです。同社は技術革新分野における主要企業として、新たな株主のもとでさらなる成長を目指します。\n\nこの株式譲渡により、TECHNOTECH社はより多くの資本へのアクセスを得て、研究開発活動の拡大と新技術の商業化を加速することが可能となります。",
     
-    "This article was imported from the original ACA Group website. Announcement Regarding the Transfer of Shares in NewsBase Inc.": "この記事は元のACAグループウェブサイトからインポートされました。NewsBase Inc.の株式譲渡に関するお知らせ",
+    "This article was imported from the original ACA Group website. Announcement Regarding the Transfer of Shares in NewsBase Inc.": "この記事は元のACAグループウェブサイトからインポートされました。\n\nNewsBase Inc.の株式譲渡に関する正式発表です。同社はメディア・情報サービス分野における革新的企業として、新たな所有構造のもとで事業拡大を図ります。\n\nこの株式譲渡により、NewsBase社はデジタルメディア技術への投資を加速し、次世代の情報配信プラットフォームの開発を推進していきます。",
     
-    "This article was imported from the original ACA Group website. ACA Enters into Capital and Business Alliance with KUMASITA Industry Ltd": "この記事は元のACAグループウェブサイトからインポートされました。ACA、KUMASITA Industry Ltd.との資本業務提携を締結",
+    "This article was imported from the original ACA Group website. ACA Enters into Capital and Business Alliance with KUMASITA Industry Ltd": "この記事は元のACAグループウェブサイトからインポートされました。\n\nACAは、KUMASITA Industry Ltd.との間で資本業務提携を正式に締結しました。この提携により、両社は製造技術の共有、市場アクセスの拡大、および新製品開発における協力を推進します。\n\nKUMASITA Industry社は製造業界における技術革新のリーダーであり、この提携はACAの産業投資戦略における重要な一歩となります。",
     
-    "Felicity Global Capital has successfully launched its latest business succession fund, specifically designed to support family enterprises in their transition and growth phases. The fund focuses on providing capital and strategic guidance to established family businesses.": "フェリシティグローバルキャピタルは、ファミリー企業の移行と成長段階を支援するために特別に設計された最新の事業継承ファンドを成功裏に設立しました。このファンドは、確立されたファミリービジネスに資本と戦略的ガイダンスを提供することに焦点を当てています。",
+    "Felicity Global Capital has successfully launched its latest business succession fund, specifically designed to support family enterprises in their transition and growth phases. The fund focuses on providing capital and strategic guidance to established family businesses.": "フェリシティ・グローバル・キャピタルは、ファミリー企業の移行と成長段階を支援するために特別に設計された最新の事業継承ファンドを成功裏に設立しました。\n\nこのファンドは、確立されたファミリービジネスに資本と戦略的ガイダンスを提供することに焦点を当てています。特に、次世代への円滑な経営移行、ガバナンス構造の強化、および持続可能な成長戦略の策定において専門的支援を提供します。\n\n日本をはじめアジア各国のファミリー企業が直面する事業継承の課題に対し、包括的なソリューションを提供することで、企業の長期的繁栄を支援します。",
     
-    "The company has entered into strategic partnership agreements with several leading technology companies across Asia-Pacific regions. These partnerships are designed to leverage technological innovations and expand market reach in key sectors.": "同社は、アジア太平洋地域の数社の主要テクノロジー企業と戦略的パートナーシップ協定を締結しました。これらのパートナーシップは、技術革新を活用し、主要セクターでの市場リーチを拡大することを目的としています。",
-    
-    "Partnership agreements with technology companies for market expansion": "市場拡大のためのテクノロジー企業との提携協定",
-    
-    "Strategic partnerships with leading technology companies across Asia-Pacific.": "アジア太平洋地域の主要テクノロジー企業との戦略的パートナーシップ。"
+    "The company has entered into strategic partnership agreements with several leading technology companies across Asia-Pacific regions. These partnerships are designed to leverage technological innovations and expand market reach in key sectors.": "同社は、アジア太平洋地域の数社の主要テクノロジー企業と戦略的パートナーシップ協定を締結しました。\n\nこれらのパートナーシップは、人工知能、IoT、ブロックチェーン技術などの最新技術革新を活用し、金融サービス、ヘルスケア、製造業などの主要セクターでの市場リーチを拡大することを目的としています。\n\n特に、デジタル変革が急速に進む東南アジア市場において、革新的なソリューションの共同開発と展開を通じて、新たなビジネス機会の創出を図ります。"
   };
   
   // Check for exact content match first
