@@ -58,6 +58,15 @@ export function Footer({ language }: FooterProps) {
               </li>
               <li>
                 <button
+                  onClick={() => handleNavClick("/portfolio")}
+                  className="text-muted-foreground hover:felicity-primary transition-colors"
+                  data-testid="footer-link-portfolio"
+                >
+                  Portfolio
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => handleNavClick("/contact")}
                   className="text-muted-foreground hover:felicity-primary transition-colors"
                   data-testid="footer-link-contact"

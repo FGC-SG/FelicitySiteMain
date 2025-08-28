@@ -3,6 +3,7 @@ import {
   contactSubmissions,
   newsArticles,
   members,
+  portfolios,
   userInvitations,
   passwordResets,
   type User,
@@ -13,6 +14,8 @@ import {
   type InsertNewsArticle,
   type Member,
   type InsertMember,
+  type Portfolio,
+  type InsertPortfolio,
   type UserInvitation,
   type InsertUserInvitation,
   type PasswordReset,
@@ -49,6 +52,12 @@ export interface IStorage {
   getAllMembers(): Promise<Member[]>;
   updateMember(id: string, memberData: Partial<InsertMember>): Promise<Member>;
   deleteMember(id: string): Promise<void>;
+
+  // Portfolio operations
+  createPortfolio(portfolioData: InsertPortfolio): Promise<Portfolio>;
+  getAllPortfolios(): Promise<Portfolio[]>;
+  updatePortfolio(id: string, portfolioData: Partial<InsertPortfolio>): Promise<Portfolio>;
+  deletePortfolio(id: string): Promise<void>;
   
   // User invitation operations
   createInvitation(invitationData: InsertUserInvitation): Promise<UserInvitation>;
@@ -183,6 +192,29 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMember(id: string): Promise<void> {
     await db.delete(members).where(eq(members.id, id));
+  }
+
+  // Portfolio operations
+  async createPortfolio(portfolioData: InsertPortfolio): Promise<Portfolio> {
+    const [portfolio] = await db.insert(portfolios).values(portfolioData).returning();
+    return portfolio;
+  }
+
+  async getAllPortfolios(): Promise<Portfolio[]> {
+    return await db.select().from(portfolios).orderBy(desc(portfolios.createdAt));
+  }
+
+  async updatePortfolio(id: string, portfolioData: Partial<InsertPortfolio>): Promise<Portfolio> {
+    const [portfolio] = await db
+      .update(portfolios)
+      .set({ ...portfolioData, updatedAt: new Date() })
+      .where(eq(portfolios.id, id))
+      .returning();
+    return portfolio;
+  }
+
+  async deletePortfolio(id: string): Promise<void> {
+    await db.delete(portfolios).where(eq(portfolios.id, id));
   }
 
   // User invitation operations

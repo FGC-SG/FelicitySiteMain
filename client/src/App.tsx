@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import About from "@/pages/about";
 import News from "@/pages/news";
 import Contact from "@/pages/contact";
+import Portfolio from "@/pages/portfolio";
 import Management from "@/pages/management";
 import NewsManagement from "@/pages/news-management";
 import UserManagement from "@/pages/user-management";
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/news" component={News} />
       <Route path="/contact" component={Contact} />
+      <Route path="/portfolio" component={Portfolio} />
       <Route path="/management" component={Management} />
       <Route path="/news-management" component={NewsManagement} />
       <Route path="/user-management" component={UserManagement} />

@@ -335,6 +335,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Portfolio management routes
+  app.get('/api/portfolios', async (req, res) => {
+    try {
+      const portfolios = await storage.getAllPortfolios();
+      res.json(portfolios);
+    } catch (error) {
+      console.error("Error fetching portfolios:", error);
+      res.status(500).json({ message: "Failed to fetch portfolios" });
+    }
+  });
+
+  app.post('/api/portfolios', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required" });
+      }
+
+      const portfolio = await storage.createPortfolio(req.body);
+      res.json(portfolio);
+    } catch (error) {
+      console.error("Error creating portfolio:", error);
+      res.status(500).json({ message: "Failed to create portfolio" });
+    }
+  });
+
+  app.put('/api/portfolios/:id', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required" });
+      }
+
+      const { id } = req.params;
+      const portfolio = await storage.updatePortfolio(id, req.body);
+      res.json(portfolio);
+    } catch (error) {
+      console.error("Error updating portfolio:", error);
+      res.status(500).json({ message: "Failed to update portfolio" });
+    }
+  });
+
+  app.delete('/api/portfolios/:id', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for delete operations" });
+      }
+
+      const { id } = req.params;
+      await storage.deletePortfolio(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting portfolio:", error);
+      res.status(500).json({ message: "Failed to delete portfolio" });
+    }
+  });
+
   // User invitation routes
   app.post('/api/invitations', async (req: any, res) => {
     try {

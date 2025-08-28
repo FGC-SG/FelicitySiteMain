@@ -61,6 +61,25 @@ export const insertContactSubmissionSchema = createInsertSchema(contactSubmissio
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
+// Portfolio table
+export const portfolios = pgTable("portfolios", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: varchar("company_name").notNull(),
+  industry: varchar("industry").notNull(),
+  investmentType: varchar("investment_type").notNull(), // buyout, growthequity, secondary
+  country: varchar("country").notNull(),
+  businessType: varchar("business_type").notNull(),
+  succession: boolean("succession").default(false),
+  description: text("description"),
+  website: varchar("website"),
+  logoUrl: varchar("logo_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type InsertPortfolio = typeof portfolios.$inferInsert;
+export type Portfolio = typeof portfolios.$inferSelect;
+
 // Members table for company member profiles
 export const members = pgTable("members", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
