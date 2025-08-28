@@ -173,6 +173,19 @@ export default function PortfolioManagementPage() {
       succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
     });
+    // Initialize GICS selections based on the existing industry
+    initializeGicsFromIndustry(portfolio.industry);
+  };
+
+  // Reset GICS selections when creating new portfolio
+  const handleCreateNew = () => {
+    setIsAddDialogOpen(true);
+    setEditingPortfolio(null);
+    form.reset();
+    setSelectedSector("");
+    setSelectedIndustryGroup("");
+    setSelectedIndustry("");
+    setSelectedSubIndustry("");
   };
 
   const handleSubmit = (data: PortfolioFormData) => {
@@ -216,6 +229,804 @@ export default function PortfolioManagementPage() {
   const formatCountryName = (countryValue: string) => {
     const country = countryOptions.find(c => c.value === countryValue);
     return country ? country.label : countryValue.charAt(0).toUpperCase() + countryValue.slice(1);
+  };
+
+  // GICS Industry Classification System - 4 levels of hierarchy
+  const gicsData: Record<string, any> = {
+    "energy": {
+      label: "Energy",
+      industryGroups: {
+        "energy-equipment-services": {
+          label: "Energy Equipment & Services",
+          industries: {
+            "energy-equipment-services": {
+              label: "Energy Equipment & Services",
+              subIndustries: [
+                { value: "oil-gas-drilling", label: "Oil & Gas Drilling" },
+                { value: "oil-gas-equipment", label: "Oil & Gas Equipment & Services" }
+              ]
+            }
+          }
+        },
+        "oil-gas-consumable-fuels": {
+          label: "Oil, Gas & Consumable Fuels",
+          industries: {
+            "oil-gas-consumable-fuels": {
+              label: "Oil, Gas & Consumable Fuels",
+              subIndustries: [
+                { value: "integrated-oil-gas", label: "Integrated Oil & Gas" },
+                { value: "oil-gas-exploration-production", label: "Oil & Gas Exploration & Production" },
+                { value: "oil-gas-refining-marketing", label: "Oil & Gas Refining & Marketing" },
+                { value: "oil-gas-storage-transportation", label: "Oil & Gas Storage & Transportation" },
+                { value: "coal-consumable-fuels", label: "Coal & Consumable Fuels" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "materials": {
+      label: "Materials",
+      industryGroups: {
+        "chemicals": {
+          label: "Chemicals",
+          industries: {
+            "chemicals": {
+              label: "Chemicals",
+              subIndustries: [
+                { value: "commodity-chemicals", label: "Commodity Chemicals" },
+                { value: "diversified-chemicals", label: "Diversified Chemicals" },
+                { value: "fertilizers-agricultural-chemicals", label: "Fertilizers & Agricultural Chemicals" },
+                { value: "industrial-gases", label: "Industrial Gases" },
+                { value: "specialty-chemicals", label: "Specialty Chemicals" }
+              ]
+            }
+          }
+        },
+        "construction-materials": {
+          label: "Construction Materials",
+          industries: {
+            "construction-materials": {
+              label: "Construction Materials",
+              subIndustries: [
+                { value: "construction-materials", label: "Construction Materials" }
+              ]
+            }
+          }
+        },
+        "containers-packaging": {
+          label: "Containers & Packaging",
+          industries: {
+            "containers-packaging": {
+              label: "Containers & Packaging",
+              subIndustries: [
+                { value: "metal-glass-containers", label: "Metal & Glass Containers" },
+                { value: "paper-packaging", label: "Paper Packaging" }
+              ]
+            }
+          }
+        },
+        "metals-mining": {
+          label: "Metals & Mining",
+          industries: {
+            "metals-mining": {
+              label: "Metals & Mining",
+              subIndustries: [
+                { value: "aluminum", label: "Aluminum" },
+                { value: "diversified-metals-mining", label: "Diversified Metals & Mining" },
+                { value: "copper", label: "Copper" },
+                { value: "gold", label: "Gold" },
+                { value: "precious-metals-minerals", label: "Precious Metals & Minerals" },
+                { value: "silver", label: "Silver" },
+                { value: "steel", label: "Steel" }
+              ]
+            }
+          }
+        },
+        "paper-forest-products": {
+          label: "Paper & Forest Products",
+          industries: {
+            "forest-products": {
+              label: "Forest Products",
+              subIndustries: [
+                { value: "forest-products", label: "Forest Products" }
+              ]
+            },
+            "paper-products": {
+              label: "Paper Products",
+              subIndustries: [
+                { value: "paper-products", label: "Paper Products" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "industrials": {
+      label: "Industrials",
+      industryGroups: {
+        "aerospace-defense": {
+          label: "Aerospace & Defense",
+          industries: {
+            "aerospace-defense": {
+              label: "Aerospace & Defense",
+              subIndustries: [
+                { value: "aerospace-defense", label: "Aerospace & Defense" }
+              ]
+            }
+          }
+        },
+        "building-products": {
+          label: "Building Products",
+          industries: {
+            "building-products": {
+              label: "Building Products",
+              subIndustries: [
+                { value: "building-products", label: "Building Products" }
+              ]
+            }
+          }
+        },
+        "construction-engineering": {
+          label: "Construction & Engineering",
+          industries: {
+            "construction-engineering": {
+              label: "Construction & Engineering",
+              subIndustries: [
+                { value: "construction-engineering", label: "Construction & Engineering" }
+              ]
+            }
+          }
+        },
+        "electrical-equipment": {
+          label: "Electrical Equipment",
+          industries: {
+            "electrical-equipment": {
+              label: "Electrical Equipment",
+              subIndustries: [
+                { value: "electrical-components-equipment", label: "Electrical Components & Equipment" },
+                { value: "heavy-electrical-equipment", label: "Heavy Electrical Equipment" }
+              ]
+            }
+          }
+        },
+        "industrial-conglomerates": {
+          label: "Industrial Conglomerates",
+          industries: {
+            "industrial-conglomerates": {
+              label: "Industrial Conglomerates",
+              subIndustries: [
+                { value: "industrial-conglomerates", label: "Industrial Conglomerates" }
+              ]
+            }
+          }
+        },
+        "machinery": {
+          label: "Machinery",
+          industries: {
+            "machinery": {
+              label: "Machinery",
+              subIndustries: [
+                { value: "construction-farm-machinery-heavy-trucks", label: "Construction & Farm Machinery & Heavy Trucks" },
+                { value: "industrial-machinery", label: "Industrial Machinery" }
+              ]
+            }
+          }
+        },
+        "road-rail": {
+          label: "Road & Rail",
+          industries: {
+            "road-rail": {
+              label: "Road & Rail",
+              subIndustries: [
+                { value: "railroads", label: "Railroads" },
+                { value: "trucking", label: "Trucking" }
+              ]
+            }
+          }
+        },
+        "transportation-infrastructure": {
+          label: "Transportation Infrastructure",
+          industries: {
+            "airport-services": {
+              label: "Airport Services",
+              subIndustries: [
+                { value: "airport-services", label: "Airport Services" }
+              ]
+            },
+            "highways-railtracks": {
+              label: "Highways & Railtracks",
+              subIndustries: [
+                { value: "highways-railtracks", label: "Highways & Railtracks" }
+              ]
+            },
+            "marine-ports-services": {
+              label: "Marine Ports & Services",
+              subIndustries: [
+                { value: "marine-ports-services", label: "Marine Ports & Services" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "consumer-discretionary": {
+      label: "Consumer Discretionary",
+      industryGroups: {
+        "automobiles-components": {
+          label: "Automobiles & Components",
+          industries: {
+            "auto-components": {
+              label: "Auto Components",
+              subIndustries: [
+                { value: "auto-parts-equipment", label: "Auto Parts & Equipment" },
+                { value: "tires-rubber", label: "Tires & Rubber" }
+              ]
+            },
+            "automobiles": {
+              label: "Automobiles",
+              subIndustries: [
+                { value: "automobile-manufacturers", label: "Automobile Manufacturers" },
+                { value: "motorcycle-manufacturers", label: "Motorcycle Manufacturers" }
+              ]
+            }
+          }
+        },
+        "consumer-durables-apparel": {
+          label: "Consumer Durables & Apparel",
+          industries: {
+            "household-durables": {
+              label: "Household Durables",
+              subIndustries: [
+                { value: "consumer-electronics", label: "Consumer Electronics" },
+                { value: "home-furnishings", label: "Home Furnishings" },
+                { value: "homebuilding", label: "Homebuilding" },
+                { value: "household-appliances", label: "Household Appliances" },
+                { value: "housewares-specialties", label: "Housewares & Specialties" }
+              ]
+            },
+            "leisure-products": {
+              label: "Leisure Products",
+              subIndustries: [
+                { value: "leisure-products", label: "Leisure Products" }
+              ]
+            },
+            "textiles-apparel-luxury-goods": {
+              label: "Textiles, Apparel & Luxury Goods",
+              subIndustries: [
+                { value: "apparel-accessories-luxury-goods", label: "Apparel, Accessories & Luxury Goods" },
+                { value: "footwear", label: "Footwear" },
+                { value: "textiles", label: "Textiles" }
+              ]
+            }
+          }
+        },
+        "consumer-services": {
+          label: "Consumer Services",
+          industries: {
+            "diversified-consumer-services": {
+              label: "Diversified Consumer Services",
+              subIndustries: [
+                { value: "education-services", label: "Education Services" },
+                { value: "specialized-consumer-services", label: "Specialized Consumer Services" }
+              ]
+            },
+            "hotels-restaurants-leisure": {
+              label: "Hotels, Restaurants & Leisure",
+              subIndustries: [
+                { value: "casinos-gaming", label: "Casinos & Gaming" },
+                { value: "hotels-resorts-cruise-lines", label: "Hotels, Resorts & Cruise Lines" },
+                { value: "leisure-facilities", label: "Leisure Facilities" },
+                { value: "restaurants", label: "Restaurants" }
+              ]
+            }
+          }
+        },
+        "media-entertainment": {
+          label: "Media & Entertainment",
+          industries: {
+            "media-entertainment": {
+              label: "Media & Entertainment",
+              subIndustries: [
+                { value: "advertising", label: "Advertising" },
+                { value: "broadcasting", label: "Broadcasting" },
+                { value: "cable-satellite", label: "Cable & Satellite" },
+                { value: "publishing", label: "Publishing" },
+                { value: "movies-entertainment", label: "Movies & Entertainment" }
+              ]
+            }
+          }
+        },
+        "retailing": {
+          label: "Retailing",
+          industries: {
+            "distributors": {
+              label: "Distributors",
+              subIndustries: [
+                { value: "distributors", label: "Distributors" }
+              ]
+            },
+            "internet-direct-marketing-retail": {
+              label: "Internet & Direct Marketing Retail",
+              subIndustries: [
+                { value: "internet-direct-marketing-retail", label: "Internet & Direct Marketing Retail" }
+              ]
+            },
+            "multiline-retail": {
+              label: "Multiline Retail",
+              subIndustries: [
+                { value: "department-stores", label: "Department Stores" },
+                { value: "general-merchandise-stores", label: "General Merchandise Stores" }
+              ]
+            },
+            "specialty-retail": {
+              label: "Specialty Retail",
+              subIndustries: [
+                { value: "apparel-retail", label: "Apparel Retail" },
+                { value: "automotive-retail", label: "Automotive Retail" },
+                { value: "computer-electronics-retail", label: "Computer & Electronics Retail" },
+                { value: "home-improvement-retail", label: "Home Improvement Retail" },
+                { value: "other-specialty-retail", label: "Other Specialty Retail" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "consumer-staples": {
+      label: "Consumer Staples",
+      industryGroups: {
+        "food-staples-retailing": {
+          label: "Food & Staples Retailing",
+          industries: {
+            "food-staples-retailing": {
+              label: "Food & Staples Retailing",
+              subIndustries: [
+                { value: "drug-retail", label: "Drug Retail" },
+                { value: "food-distributors", label: "Food Distributors" },
+                { value: "food-retail", label: "Food Retail" },
+                { value: "hypermarkets-super-centers", label: "Hypermarkets & Super Centers" }
+              ]
+            }
+          }
+        },
+        "food-beverage-tobacco": {
+          label: "Food, Beverage & Tobacco",
+          industries: {
+            "beverages": {
+              label: "Beverages",
+              subIndustries: [
+                { value: "brewers", label: "Brewers" },
+                { value: "distillers-vintners", label: "Distillers & Vintners" },
+                { value: "soft-drinks", label: "Soft Drinks" }
+              ]
+            },
+            "food-products": {
+              label: "Food Products",
+              subIndustries: [
+                { value: "agricultural-products", label: "Agricultural Products" },
+                { value: "packaged-foods-meats", label: "Packaged Foods & Meats" }
+              ]
+            },
+            "tobacco": {
+              label: "Tobacco",
+              subIndustries: [
+                { value: "tobacco", label: "Tobacco" }
+              ]
+            }
+          }
+        },
+        "household-personal-products": {
+          label: "Household & Personal Products",
+          industries: {
+            "household-products": {
+              label: "Household Products",
+              subIndustries: [
+                { value: "household-products", label: "Household Products" }
+              ]
+            },
+            "personal-products": {
+              label: "Personal Products",
+              subIndustries: [
+                { value: "personal-products", label: "Personal Products" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "health-care": {
+      label: "Health Care",
+      industryGroups: {
+        "health-care-equipment-services": {
+          label: "Health Care Equipment & Services",
+          industries: {
+            "health-care-equipment-supplies": {
+              label: "Health Care Equipment & Supplies",
+              subIndustries: [
+                { value: "health-care-equipment", label: "Health Care Equipment" },
+                { value: "health-care-supplies", label: "Health Care Supplies" }
+              ]
+            },
+            "health-care-providers-services": {
+              label: "Health Care Providers & Services",
+              subIndustries: [
+                { value: "health-care-distributors", label: "Health Care Distributors" },
+                { value: "health-care-facilities", label: "Health Care Facilities" },
+                { value: "managed-health-care", label: "Managed Health Care" },
+                { value: "health-care-services", label: "Health Care Services" }
+              ]
+            },
+            "health-care-technology": {
+              label: "Health Care Technology",
+              subIndustries: [
+                { value: "health-care-technology", label: "Health Care Technology" }
+              ]
+            }
+          }
+        },
+        "pharmaceuticals-biotechnology-life-sciences": {
+          label: "Pharmaceuticals, Biotechnology & Life Sciences",
+          industries: {
+            "biotechnology": {
+              label: "Biotechnology",
+              subIndustries: [
+                { value: "biotechnology", label: "Biotechnology" }
+              ]
+            },
+            "pharmaceuticals": {
+              label: "Pharmaceuticals",
+              subIndustries: [
+                { value: "pharmaceuticals", label: "Pharmaceuticals" }
+              ]
+            },
+            "life-sciences-tools-services": {
+              label: "Life Sciences Tools & Services",
+              subIndustries: [
+                { value: "life-sciences-tools-services", label: "Life Sciences Tools & Services" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "financials": {
+      label: "Financials",
+      industryGroups: {
+        "banks": {
+          label: "Banks",
+          industries: {
+            "banks": {
+              label: "Banks",
+              subIndustries: [
+                { value: "diversified-banks", label: "Diversified Banks" },
+                { value: "regional-banks", label: "Regional Banks" },
+                { value: "thrifts-mortgage-finance", label: "Thrifts & Mortgage Finance" }
+              ]
+            }
+          }
+        },
+        "diversified-financials": {
+          label: "Diversified Financials",
+          industries: {
+            "diversified-financial-services": {
+              label: "Diversified Financial Services",
+              subIndustries: [
+                { value: "diversified-financial-services", label: "Diversified Financial Services" },
+                { value: "multi-sector-holdings", label: "Multi-Sector Holdings" },
+                { value: "specialized-finance", label: "Specialized Finance" }
+              ]
+            },
+            "consumer-finance": {
+              label: "Consumer Finance",
+              subIndustries: [
+                { value: "consumer-finance", label: "Consumer Finance" }
+              ]
+            },
+            "capital-markets": {
+              label: "Capital Markets",
+              subIndustries: [
+                { value: "asset-management-custody-banks", label: "Asset Management & Custody Banks" },
+                { value: "investment-banking-brokerage", label: "Investment Banking & Brokerage" },
+                { value: "diversified-capital-markets", label: "Diversified Capital Markets" },
+                { value: "financial-exchanges-data", label: "Financial Exchanges & Data" }
+              ]
+            },
+            "mortgage-reits": {
+              label: "Mortgage REITs",
+              subIndustries: [
+                { value: "mortgage-reits", label: "Mortgage REITs" }
+              ]
+            }
+          }
+        },
+        "insurance": {
+          label: "Insurance",
+          industries: {
+            "insurance": {
+              label: "Insurance",
+              subIndustries: [
+                { value: "insurance-brokers", label: "Insurance Brokers" },
+                { value: "life-health-insurance", label: "Life & Health Insurance" },
+                { value: "multi-line-insurance", label: "Multi-line Insurance" },
+                { value: "property-casualty-insurance", label: "Property & Casualty Insurance" },
+                { value: "reinsurance", label: "Reinsurance" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "information-technology": {
+      label: "Information Technology",
+      industryGroups: {
+        "software-services": {
+          label: "Software & Services",
+          industries: {
+            "internet-software-services": {
+              label: "Internet Software & Services",
+              subIndustries: [
+                { value: "internet-software-services", label: "Internet Software & Services" }
+              ]
+            },
+            "it-services": {
+              label: "IT Services",
+              subIndustries: [
+                { value: "data-processing-outsourced-services", label: "Data Processing & Outsourced Services" },
+                { value: "it-consulting-services", label: "IT Consulting & Services" }
+              ]
+            },
+            "software": {
+              label: "Software",
+              subIndustries: [
+                { value: "application-software", label: "Application Software" },
+                { value: "systems-software", label: "Systems Software" }
+              ]
+            }
+          }
+        },
+        "technology-hardware-equipment": {
+          label: "Technology Hardware & Equipment",
+          industries: {
+            "communications-equipment": {
+              label: "Communications Equipment",
+              subIndustries: [
+                { value: "communications-equipment", label: "Communications Equipment" }
+              ]
+            },
+            "computers-peripherals": {
+              label: "Computers & Peripherals",
+              subIndustries: [
+                { value: "computer-hardware", label: "Computer Hardware" },
+                { value: "computer-storage-peripherals", label: "Computer Storage & Peripherals" }
+              ]
+            },
+            "electronic-equipment-instruments": {
+              label: "Electronic Equipment, Instruments & Components",
+              subIndustries: [
+                { value: "electronic-equipment-instruments", label: "Electronic Equipment & Instruments" },
+                { value: "electronic-components", label: "Electronic Components" },
+                { value: "electronic-manufacturing-services", label: "Electronic Manufacturing Services" },
+                { value: "technology-distributors", label: "Technology Distributors" }
+              ]
+            }
+          }
+        },
+        "semiconductors-equipment": {
+          label: "Semiconductors & Semiconductor Equipment",
+          industries: {
+            "semiconductors-equipment": {
+              label: "Semiconductors & Semiconductor Equipment",
+              subIndustries: [
+                { value: "semiconductor-equipment", label: "Semiconductor Equipment" },
+                { value: "semiconductors", label: "Semiconductors" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "communication-services": {
+      label: "Communication Services",
+      industryGroups: {
+        "telecommunication-services": {
+          label: "Telecommunication Services",
+          industries: {
+            "diversified-telecommunication-services": {
+              label: "Diversified Telecommunication Services",
+              subIndustries: [
+                { value: "alternative-carriers", label: "Alternative Carriers" },
+                { value: "integrated-telecommunication-services", label: "Integrated Telecommunication Services" }
+              ]
+            },
+            "wireless-telecommunication-services": {
+              label: "Wireless Telecommunication Services",
+              subIndustries: [
+                { value: "wireless-telecommunication-services", label: "Wireless Telecommunication Services" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "utilities": {
+      label: "Utilities",
+      industryGroups: {
+        "utilities": {
+          label: "Utilities",
+          industries: {
+            "electric-utilities": {
+              label: "Electric Utilities",
+              subIndustries: [
+                { value: "electric-utilities", label: "Electric Utilities" }
+              ]
+            },
+            "gas-utilities": {
+              label: "Gas Utilities",
+              subIndustries: [
+                { value: "gas-utilities", label: "Gas Utilities" }
+              ]
+            },
+            "multi-utilities": {
+              label: "Multi-Utilities",
+              subIndustries: [
+                { value: "multi-utilities", label: "Multi-Utilities" }
+              ]
+            },
+            "water-utilities": {
+              label: "Water Utilities",
+              subIndustries: [
+                { value: "water-utilities", label: "Water Utilities" }
+              ]
+            },
+            "independent-power-renewable-electricity": {
+              label: "Independent Power and Renewable Electricity Producers",
+              subIndustries: [
+                { value: "independent-power-producers", label: "Independent Power Producers & Energy Traders" },
+                { value: "renewable-electricity", label: "Renewable Electricity" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "real-estate": {
+      label: "Real Estate",
+      industryGroups: {
+        "equity-reits": {
+          label: "Equity Real Estate Investment Trusts (REITs)",
+          industries: {
+            "diversified-reits": {
+              label: "Diversified REITs",
+              subIndustries: [
+                { value: "diversified-reits", label: "Diversified REITs" }
+              ]
+            },
+            "industrial-reits": {
+              label: "Industrial REITs",
+              subIndustries: [
+                { value: "industrial-reits", label: "Industrial REITs" }
+              ]
+            },
+            "hotel-resort-reits": {
+              label: "Hotel & Resort REITs",
+              subIndustries: [
+                { value: "hotel-resort-reits", label: "Hotel & Resort REITs" }
+              ]
+            },
+            "office-reits": {
+              label: "Office REITs",
+              subIndustries: [
+                { value: "office-reits", label: "Office REITs" }
+              ]
+            },
+            "health-care-reits": {
+              label: "Health Care REITs",
+              subIndustries: [
+                { value: "health-care-reits", label: "Health Care REITs" }
+              ]
+            },
+            "residential-reits": {
+              label: "Residential REITs",
+              subIndustries: [
+                { value: "residential-reits", label: "Residential REITs" }
+              ]
+            },
+            "retail-reits": {
+              label: "Retail REITs",
+              subIndustries: [
+                { value: "retail-reits", label: "Retail REITs" }
+              ]
+            },
+            "specialized-reits": {
+              label: "Specialized REITs",
+              subIndustries: [
+                { value: "specialized-reits", label: "Specialized REITs" }
+              ]
+            }
+          }
+        },
+        "real-estate-management-development": {
+          label: "Real Estate Management & Development",
+          industries: {
+            "real-estate-operating-companies": {
+              label: "Real Estate Operating Companies",
+              subIndustries: [
+                { value: "diversified-real-estate-activities", label: "Diversified Real Estate Activities" },
+                { value: "real-estate-development", label: "Real Estate Development" },
+                { value: "real-estate-services", label: "Real Estate Services" }
+              ]
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // State for GICS selection
+  const [selectedSector, setSelectedSector] = useState<string>("");
+  const [selectedIndustryGroup, setSelectedIndustryGroup] = useState<string>("");
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
+  const [selectedSubIndustry, setSelectedSubIndustry] = useState<string>("");
+
+  // Reset downstream selections when higher level changes
+  const handleSectorChange = (sectorValue: string) => {
+    setSelectedSector(sectorValue);
+    setSelectedIndustryGroup("");
+    setSelectedIndustry("");
+    setSelectedSubIndustry("");
+    form.setValue("industry", "");
+  };
+
+  const handleIndustryGroupChange = (groupValue: string) => {
+    setSelectedIndustryGroup(groupValue);
+    setSelectedIndustry("");
+    setSelectedSubIndustry("");
+    form.setValue("industry", "");
+  };
+
+  const handleIndustryChange = (industryValue: string) => {
+    setSelectedIndustry(industryValue);
+    setSelectedSubIndustry("");
+    form.setValue("industry", "");
+  };
+
+  const handleSubIndustryChange = (subIndustryValue: string) => {
+    setSelectedSubIndustry(subIndustryValue);
+    const selectedSubIndustryData = getSelectedSubIndustryData(subIndustryValue);
+    if (selectedSubIndustryData) {
+      form.setValue("industry", selectedSubIndustryData.label);
+    }
+  };
+
+  const getSelectedSubIndustryData = (subIndustryValue: string) => {
+    for (const sector of Object.values(gicsData)) {
+      for (const industryGroup of Object.values(sector.industryGroups)) {
+        for (const industry of Object.values(industryGroup.industries)) {
+          const found = industry.subIndustries.find((sub: { value: string; label: string }) => sub.value === subIndustryValue);
+          if (found) return found;
+        }
+      }
+    }
+    return null;
+  };
+
+  // Initialize GICS selections when editing
+  const initializeGicsFromIndustry = (industryLabel: string) => {
+    for (const [sectorKey, sector] of Object.entries(gicsData)) {
+      for (const [groupKey, industryGroup] of Object.entries(sector.industryGroups)) {
+        for (const [industryKey, industry] of Object.entries(industryGroup.industries)) {
+          const subIndustry = industry.subIndustries.find((sub: { value: string; label: string }) => sub.label === industryLabel);
+          if (subIndustry) {
+            setSelectedSector(sectorKey);
+            setSelectedIndustryGroup(groupKey);
+            setSelectedIndustry(industryKey);
+            setSelectedSubIndustry(subIndustry.value);
+            return;
+          }
+        }
+      }
+    }
   };
 
   if (isLoading || portfoliosLoading) {
@@ -308,10 +1119,14 @@ export default function PortfolioManagementPage() {
                             setIsAddDialogOpen(false);
                             setEditingPortfolio(null);
                             form.reset();
+                            setSelectedSector("");
+                            setSelectedIndustryGroup("");
+                            setSelectedIndustry("");
+                            setSelectedSubIndustry("");
                           }
                         }}>
                   <DialogTrigger asChild>
-                    <Button onClick={() => setIsAddDialogOpen(true)} data-testid="button-add-portfolio">
+                    <Button onClick={handleCreateNew} data-testid="button-add-portfolio">
                       <Plus className="h-4 w-4 mr-2" />
                       Add Company
                     </Button>
@@ -344,19 +1159,108 @@ export default function PortfolioManagementPage() {
                               </FormItem>
                             )}
                           />
-                          <FormField
-                            control={form.control}
-                            name="industry"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Industry</FormLabel>
-                                <FormControl>
-                                  <Input {...field} data-testid="input-industry" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
+                          {/* GICS Industry Classification - Multi-level Selection */}
+                          <div className="space-y-4">
+                            <FormLabel>Industry (GICS Classification)</FormLabel>
+                            
+                            {/* Sector Selection */}
+                            <div>
+                              <Label htmlFor="sector" className="text-sm text-muted-foreground">Sector</Label>
+                              <Select onValueChange={handleSectorChange} value={selectedSector}>
+                                <SelectTrigger data-testid="select-sector">
+                                  <SelectValue placeholder="Select sector" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.entries(gicsData).map(([key, sector]) => (
+                                    <SelectItem key={key} value={key}>
+                                      {sector.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Industry Group Selection */}
+                            {selectedSector && (
+                              <div>
+                                <Label htmlFor="industry-group" className="text-sm text-muted-foreground">Industry Group</Label>
+                                <Select onValueChange={handleIndustryGroupChange} value={selectedIndustryGroup}>
+                                  <SelectTrigger data-testid="select-industry-group">
+                                    <SelectValue placeholder="Select industry group" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.entries(gicsData[selectedSector]?.industryGroups || {}).map(([key, group]) => (
+                                      <SelectItem key={key} value={key}>
+                                        {group.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             )}
-                          />
+
+                            {/* Industry Selection */}
+                            {selectedIndustryGroup && (
+                              <div>
+                                <Label htmlFor="industry" className="text-sm text-muted-foreground">Industry</Label>
+                                <Select onValueChange={handleIndustryChange} value={selectedIndustry}>
+                                  <SelectTrigger data-testid="select-industry">
+                                    <SelectValue placeholder="Select industry" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.entries(gicsData[selectedSector]?.industryGroups[selectedIndustryGroup]?.industries || {}).map(([key, industry]) => (
+                                      <SelectItem key={key} value={key}>
+                                        {industry.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+
+                            {/* Sub-Industry Selection */}
+                            {selectedIndustry && (
+                              <div>
+                                <Label htmlFor="sub-industry" className="text-sm text-muted-foreground">Sub-Industry</Label>
+                                <Select onValueChange={handleSubIndustryChange} value={selectedSubIndustry}>
+                                  <SelectTrigger data-testid="select-sub-industry">
+                                    <SelectValue placeholder="Select sub-industry" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {(gicsData[selectedSector]?.industryGroups[selectedIndustryGroup]?.industries[selectedIndustry]?.subIndustries || []).map((subIndustry: { value: string; label: string }) => (
+                                      <SelectItem key={subIndustry.value} value={subIndustry.value}>
+                                        {subIndustry.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+
+                            {/* Hidden field to store the final industry value */}
+                            <FormField
+                              control={form.control}
+                              name="industry"
+                              render={({ field }) => (
+                                <FormItem className="hidden">
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Display selected industry */}
+                            {selectedSubIndustry && (
+                              <div className="p-3 bg-muted rounded-md">
+                                <p className="text-sm font-medium">Selected Industry:</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {getSelectedSubIndustryData(selectedSubIndustry)?.label}
+                                </p>
+                              </div>
+                            )}
+                          </div>
                           <FormField
                             control={form.control}
                             name="investmentType"
@@ -442,6 +1346,10 @@ export default function PortfolioManagementPage() {
                               setIsAddDialogOpen(false);
                               setEditingPortfolio(null);
                               form.reset();
+                              setSelectedSector("");
+                              setSelectedIndustryGroup("");
+                              setSelectedIndustry("");
+                              setSelectedSubIndustry("");
                             }}
                             data-testid="button-cancel-portfolio"
                           >
