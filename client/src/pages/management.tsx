@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { NewsManagement } from "@/components/news-management";
-import { Users, FileText, UserPlus } from "lucide-react";
+import { Users, FileText, UserPlus, Building2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
 
@@ -29,6 +29,12 @@ export default function ManagementPage() {
   // Fetch news articles count
   const { data: newsArticles } = useQuery({
     queryKey: ["/api/news"],
+    enabled: isAuthenticated,
+  });
+
+  // Fetch portfolio companies count
+  const { data: portfolios } = useQuery({
+    queryKey: ["/api/portfolios"],
     enabled: isAuthenticated,
   });
 
@@ -86,6 +92,14 @@ export default function ManagementPage() {
       color: "bg-green-500",
       stats: `${(newsArticles as any[])?.length || 0} Articles`,
       action: () => setShowNewsList(true)
+    },
+    {
+      title: "Portfolio Management",
+      description: "Manage investment portfolio companies and details",
+      icon: Building2,
+      color: "bg-orange-500",
+      stats: `${(portfolios as any[])?.length || 0} Companies`,
+      action: () => window.location.href = "/portfolio-management"
     }
   ];
 
