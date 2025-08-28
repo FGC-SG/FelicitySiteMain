@@ -145,7 +145,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "News article ID is required" });
       }
 
-      const updatedArticle = await storage.updateNewsArticle(id, req.body);
+      // Properly convert date fields
+      const updateData = {
+        ...req.body,
+        publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : undefined
+      };
+
+      const updatedArticle = await storage.updateNewsArticle(id, updateData);
       
       if (!updatedArticle) {
         return res.status(404).json({ message: "News article not found" });
