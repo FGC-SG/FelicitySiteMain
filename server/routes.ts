@@ -89,6 +89,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update news article
+  app.put('/api/news/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      if (!id) {
+        return res.status(400).json({ message: "News article ID is required" });
+      }
+
+      const updatedArticle = await storage.updateNewsArticle(id, req.body);
+      
+      if (!updatedArticle) {
+        return res.status(404).json({ message: "News article not found" });
+      }
+
+      res.json(updatedArticle);
+    } catch (error) {
+      console.error("Error updating news article:", error);
+      res.status(500).json({ message: "Failed to update news article" });
+    }
+  });
+
   // Delete news article
   app.delete('/api/news/:id', isAuthenticated, async (req, res) => {
     try {

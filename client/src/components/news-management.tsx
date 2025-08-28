@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
+import { EditNewsForm } from "@/components/forms/edit-news-form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -18,6 +19,7 @@ interface NewsManagementProps {
 
 export function NewsManagement({ language, onClose }: NewsManagementProps) {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<NewsArticle | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -56,6 +58,42 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
         description: language === "en" 
           ? "Failed to delete news article" 
           : "ニュース記事の削除に失敗しました",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateNewsMutation = useMutation({
+    mutationFn: async (data: { id: string; updates: Partial<NewsArticle> }) => {
+      return apiRequest(`/api/news/${data.id}`, "PUT", data.updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      setEditingArticle(null);
+      toast({
+        title: language === "en" ? "Success" : "成功",
+        description: language === "en" 
+          ? "News article updated successfully" 
+          : "ニュース記事が正常に更新されました",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" 
+          ? "Failed to update news article" 
+          : "ニュース記事の更新に失敗しました",
         variant: "destructive",
       });
     },
@@ -105,6 +143,25 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
             });
           }}
           onCancel={() => setShowAddForm(false)}
+        />
+      </div>
+    );
+  }
+
+  if (editingArticle) {
+    return (
+      <div className="space-y-6">
+        <EditNewsForm
+          article={editingArticle}
+          language={language}
+          onSave={(data) => {
+            updateNewsMutation.mutate({ 
+              id: editingArticle.id, 
+              updates: data 
+            });
+          }}
+          onCancel={() => setEditingArticle(null)}
+          isLoading={updateNewsMutation.isPending}
         />
       </div>
     );
@@ -195,6 +252,7 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
                     <Button 
                       variant="outline" 
                       size="sm"
+                      onClick={() => setEditingArticle(article)}
                       className="gap-1"
                       data-testid={`button-edit-news-${article.id}`}
                     >

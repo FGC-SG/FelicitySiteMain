@@ -25,6 +25,7 @@ export interface IStorage {
   // News operations
   createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle>;
   getNewsArticles(): Promise<NewsArticle[]>;
+  updateNewsArticle(id: string, updates: Partial<InsertNewsArticle>): Promise<NewsArticle | null>;
   deleteNewsArticle(id: string): Promise<boolean>;
   
   // Contact operations
@@ -83,6 +84,20 @@ export class DatabaseStorage implements IStorage {
 
   async getNewsArticles(): Promise<NewsArticle[]> {
     return await db.select().from(newsArticles).orderBy(desc(newsArticles.createdAt));
+  }
+
+  async updateNewsArticle(id: string, updates: Partial<InsertNewsArticle>): Promise<NewsArticle | null> {
+    try {
+      const [updatedArticle] = await db
+        .update(newsArticles)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(newsArticles.id, id))
+        .returning();
+      return updatedArticle || null;
+    } catch (error) {
+      console.error("Error updating news article:", error);
+      return null;
+    }
   }
 
   async deleteNewsArticle(id: string): Promise<boolean> {
