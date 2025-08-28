@@ -26,13 +26,13 @@ export function News({ language }: NewsProps) {
   const t = useTranslation(language);
 
   const { data: newsArticles, isLoading, error } = useQuery({
-    queryKey: ["/api/news"],
+    queryKey: ["/api/news-with-translations"],
     queryFn: async () => {
-      const response = await fetch("/api/news", {
+      const response = await fetch("/api/news-with-translations", {
         credentials: "include",
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch news articles");
+        throw new Error("Failed to fetch news articles with translations");
       }
       return await response.json();
     },

@@ -10,6 +10,7 @@ import {
   ObjectNotFoundError,
 } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
+import { translateNewsArticle } from "./translation";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware - temporarily disabled for development
@@ -133,6 +134,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching news articles:", error);
       res.status(500).json({ message: "Failed to fetch news articles" });
+    }
+  });
+
+  // Get news with AI translations
+  app.get('/api/news-with-translations', async (req, res) => {
+    try {
+      const news = await storage.getNewsArticles();
+      const englishNews = news.filter(article => article.language === 'en');
+      const japaneseNews = news.filter(article => article.language === 'ja');
+      
+      // Generate Japanese translations for English articles
+      const translatedNews = [];
+      for (const article of englishNews) {
+        try {
+          const translation = await translateNewsArticle(article);
+          translatedNews.push(translation);
+        } catch (error) {
+          console.error(`Error translating article ${article.id}:`, error);
+          // Skip this translation but continue with others
+        }
+      }
+      
+      // Combine original articles with translations
+      const allNews = [...news, ...translatedNews];
+      res.json(allNews);
+    } catch (error) {
+      console.error("Error fetching news with translations:", error);
+      res.status(500).json({ message: "Failed to fetch news with translations" });
     }
   });
 
