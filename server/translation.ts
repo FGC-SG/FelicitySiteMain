@@ -1,6 +1,4 @@
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY environment variable must be set");
-}
+// ChatGPT API disabled - no longer requiring OPENAI_API_KEY
 
 interface TranslationRequest {
   title: string;
@@ -19,69 +17,18 @@ interface TranslationResponse {
 export async function translateToJapanese(
   text: TranslationRequest
 ): Promise<TranslationResponse> {
-  try {
-    const prompt = `Please translate the following English news article content to Japanese. Maintain the professional tone and financial terminology accuracy. Return the translation in JSON format with the same structure.
-
-Input:
-${JSON.stringify(text, null, 2)}
-
-Please provide a natural, professional Japanese translation that would be appropriate for a financial services company's website. For financial terms, use appropriate Japanese business terminology.
-
-Respond with JSON in this exact format: {"title": "...", "description": "...", "content": "...", "tags": "..."}`;
-
-    // Using GPT-4o with direct API call similar to curl approach
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3
-      })
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${data.error?.message || 'Unknown error'}`);
-    }
-    
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Invalid response structure from OpenAI API');
-    }
-    
-    const responseText = data.choices[0].message.content;
-    const translatedContent = JSON.parse(responseText || "{}");
-    
-    return {
-      title: translatedContent.title || text.title,
-      description: translatedContent.description || text.description,
-      content: translatedContent.content || text.content,
-      tags: translatedContent.tags || text.tags,
-    };
-  } catch (error) {
-    console.error("OpenAI translation error:", error);
-    
-    // Provide professional Japanese translations as demonstration
-    // This shows how the AI translation would work once API key is valid
-    const demoTranslations = {
-      title: getJapaneseTitle(text.title),
-      description: getJapaneseDescription(text.description),
-      content: text.content ? getJapaneseContent(text.content) : text.content,
-      tags: text.tags ? getJapaneseTags(text.tags) : text.tags,
-    };
-    
-    return demoTranslations;
-  }
+  // ChatGPT API usage disabled per user request
+  // Using comprehensive fallback translation mappings only
+  console.log("Using fallback translations (ChatGPT API disabled)");
+  
+  const translations = {
+    title: getJapaneseTitle(text.title),
+    description: getJapaneseDescription(text.description),
+    content: text.content ? getJapaneseContent(text.content) : text.content,
+    tags: text.tags ? getJapaneseTags(text.tags) : text.tags,
+  };
+  
+  return translations;
 }
 
 // Demo translation functions for financial content
