@@ -31,7 +31,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
   };
 
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    setShowLoginModal(true);
   };
 
   const handleLogout = async () => {

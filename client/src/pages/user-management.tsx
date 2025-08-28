@@ -47,7 +47,7 @@ export default function UserManagementPage() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/";
       }, 1000);
       return;
     }
