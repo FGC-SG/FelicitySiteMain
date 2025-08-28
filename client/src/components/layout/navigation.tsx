@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 
 interface NavigationProps {
   language: Language;
@@ -82,14 +82,40 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
               onLanguageChange={onLanguageChange}
             />
             {!isLoading && (
-              <Button
-                onClick={isAuthenticated ? handleLogout : handleLogin}
-                className="felicity-bg text-primary-foreground hover:opacity-90"
-                size="sm"
-                data-testid={isAuthenticated ? "button-logout" : "button-login"}
-              >
-                {isAuthenticated ? t.nav.logout : t.nav.login}
-              </Button>
+              <>
+                {isAuthenticated ? (
+                  <div className="flex items-center space-x-2">
+                    <Link href="/management">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center space-x-1"
+                        data-testid="button-management"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>Management</span>
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={handleLogout}
+                      className="felicity-bg text-primary-foreground hover:opacity-90"
+                      size="sm"
+                      data-testid="button-logout"
+                    >
+                      {t.nav.logout}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={handleLogin}
+                    className="felicity-bg text-primary-foreground hover:opacity-90"
+                    size="sm"
+                    data-testid="button-login"
+                  >
+                    {t.nav.login}
+                  </Button>
+                )}
+              </>
             )}
           </div>
 

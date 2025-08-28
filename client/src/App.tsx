@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import About from "@/pages/about";
 import News from "@/pages/news";
 import Contact from "@/pages/contact";
+import Management from "@/pages/management";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/news" component={News} />
       <Route path="/contact" component={Contact} />
+      <Route path="/management" component={Management} />
       <Route component={NotFound} />
     </Switch>
   );
