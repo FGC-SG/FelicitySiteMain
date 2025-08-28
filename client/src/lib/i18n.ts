@@ -79,14 +79,18 @@ export interface TranslationStrings {
     title: string;
     subtitle: string;
     positions: {
-      groupRepresentative: string;
-      chairman: string;
-      ceo: string;
+      manager: string;
+      seniorPrincipal: string;
+      presidentCeo: string;
+      managingDirector: string;
+      managingPartner: string;
     };
     bios: {
       fujita: string;
       takano: string;
       kaneda: string;
+      shimada: string;
+      chouhan: string;
     };
   };
   footer: {
@@ -185,14 +189,18 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       title: "Our Leadership Team",
       subtitle: "Meet the professionals driving strategic growth across Asia-Pacific and Japan",
       positions: {
-        groupRepresentative: "Group Representative",
-        chairman: "Chairman",
-        ceo: "President & CEO"
+        manager: "Manager",
+        seniorPrincipal: "Senior Principal",
+        presidentCeo: "President & CEO",
+        managingDirector: "Managing Director",
+        managingPartner: "Managing Partner"
       },
       bios: {
-        fujita: "Leading Felicity Global Capital's strategic vision across Asia-Pacific markets with extensive experience in investment management and business development.",
-        takano: "Overseeing the Singapore operations with deep expertise in Southeast Asian markets and cross-border investment strategies.",
-        kaneda: "Directing Japanese operations with focus on business succession investments and domestic market opportunities."
+        fujita: "Leading strategic initiatives and investment management across Asia-Pacific markets with extensive experience in cross-border business development.",
+        takano: "Senior investment professional with deep expertise in principal investments and strategic partnerships across Southeast Asian markets.",
+        kaneda: "Directing Japanese operations with focus on business succession investments and domestic market opportunities in the Japanese market.",
+        shimada: "Managing director overseeing investment operations and portfolio management with specialization in Japanese business succession.",
+        chouhan: "Managing partner focused on strategic investments and business development across Asian markets."
       }
     }
   },
@@ -283,14 +291,18 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       title: "リーダーシップチーム",
       subtitle: "アジア太平洋地域と日本での戦略的成長を推進する専門家チーム",
       positions: {
-        groupRepresentative: "グループ代表",
-        chairman: "代表",
-        ceo: "代表取締役"
+        manager: "マネージャー",
+        seniorPrincipal: "シニアプリンシパル",
+        presidentCeo: "代表取締役",
+        managingDirector: "マネージングディレクター",
+        managingPartner: "マネージングパートナー"
       },
       bios: {
-        fujita: "投資管理とビジネス開発における豊富な経験を持ち、アジア太平洋市場でのFelicity Global Capitalの戦略的ビジョンをリードしています。",
-        takano: "東南アジア市場とクロスボーダー投資戦略の深い専門知識を持ち、シンガポール事業を監督しています。",
-        kaneda: "事業承継投資と国内市場機会に焦点を当て、日本事業を指揮しています。"
+        fujita: "アジア太平洋市場での戦略的イニシアティブと投資管理をリードし、クロスボーダーのビジネス開発において豊富な経験を持っています。",
+        takano: "東南アジア市場でのプリンシパル投資と戦略的パートナーシップの深い専門知識を持つシニア投資プロフェッショナルです。",
+        kaneda: "日本市場での事業承継投資と国内市場機会に焦点を当て、日本事業を指揮しています。",
+        shimada: "日本の事業承継を専門とし、投資業務とポートフォリオマネジメントを監督するマネージングディレクターです。",
+        chouhan: "アジア市場での戦略的投資とビジネス開発に焦点を当てたマネージングパートナーです。"
       }
     }
   }

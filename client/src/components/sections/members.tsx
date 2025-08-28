@@ -10,24 +10,38 @@ export function Members({ language }: MembersProps) {
   const members = [
     {
       name: "Tomohiro Fujita",
-      position: t.members.positions.groupRepresentative,
+      position: t.members.positions.manager,
       company: "Felicity Global Capital Pte. Ltd.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
       bio: t.members.bios.fujita
     },
     {
       name: "Masaki Takano", 
-      position: t.members.positions.chairman,
+      position: t.members.positions.seniorPrincipal,
       company: "Felicity Global Capital Pte. Ltd.",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
       bio: t.members.bios.takano
     },
     {
       name: "Yuta Kaneda",
-      position: t.members.positions.ceo,
+      position: t.members.positions.presidentCeo,
       company: "Felicity Capital Co., Ltd.",
       image: "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300", 
       bio: t.members.bios.kaneda
+    },
+    {
+      name: "Ryo Shimada",
+      position: t.members.positions.managingDirector,
+      company: "Felicity Capital Co., Ltd.",
+      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
+      bio: t.members.bios.shimada
+    },
+    {
+      name: "Akira Chouhan",
+      position: t.members.positions.managingPartner,
+      company: "Felicity Capital Co., Ltd.",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
+      bio: t.members.bios.chouhan
     }
   ];
 
@@ -43,7 +57,7 @@ export function Members({ language }: MembersProps) {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
           {members.map((member, index) => (
             <div key={index} className="bg-card rounded-xl p-6 shadow-lg border border-border text-center" data-testid={`card-member-${index}`}>
               <div className="mb-6">
