@@ -107,9 +107,9 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(language === "en" ? "en-US" : "ja-JP", {
+  const formatDate = (date: string | Date) => {
+    const dateObj = new Date(date);
+    return dateObj.toLocaleDateString(language === "en" ? "en-US" : "ja-JP", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -239,7 +239,7 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1" data-testid={`text-news-date-${article.id}`}>
                       <Calendar className="h-4 w-4" />
-                      {formatDate(article.createdAt!)}
+                      {formatDate(article.publishedAt || article.createdAt!)}
                     </div>
                     {article.authorId && (
                       <div className="flex items-center gap-1" data-testid={`text-news-author-${article.id}`}>
