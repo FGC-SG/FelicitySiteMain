@@ -160,16 +160,16 @@ export default function ManagementPage() {
                   data-testid="button-add-user"
                 >
                   <Users className="h-6 w-6" />
-                  <span>Add User</span>
+                  <span>User management</span>
                 </Button>
                 <Button 
                   variant="outline" 
                   className="h-auto p-6 flex-col space-y-2" 
-                  onClick={() => setShowUsersList(true)}
-                  data-testid="button-manage-team"
+                  onClick={() => window.location.href = "/user-management"}
+                  data-testid="button-user-management"
                 >
                   <TrendingUp className="h-6 w-6" />
-                  <span>Manage Team</span>
+                  <span>User Management</span>
                 </Button>
               </div>
             </div>
