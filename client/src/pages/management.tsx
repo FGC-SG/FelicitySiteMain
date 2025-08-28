@@ -201,6 +201,7 @@ export default function ManagementPage() {
               <NewsManagement
                 language={language}
                 onClose={() => setShowNewsList(false)}
+                currentUser={user}
               />
             </div>
           </div>

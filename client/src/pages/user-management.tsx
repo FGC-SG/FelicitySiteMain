@@ -89,14 +89,26 @@ export default function UserManagementPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({
-        title: "Success",
-        description: "User deleted successfully.",
+        title: language === "en" ? "Success" : "成功",
+        description: language === "en" ? "User deleted successfully." : "ユーザーが正常に削除されました。",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      let errorMessage = language === "en" ? "Failed to delete user." : "ユーザーの削除に失敗しました。";
+      
+      if (error.message?.includes("403")) {
+        errorMessage = language === "en" 
+          ? "Access denied. Only superusers can delete users." 
+          : "アクセスが拒否されました。スーパーユーザーのみがユーザーを削除できます。";
+      } else if (error.message?.includes("401")) {
+        errorMessage = language === "en" 
+          ? "Authentication required. Please log in again." 
+          : "認証が必要です。再度ログインしてください。";
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to delete user.",
+        title: language === "en" ? "Error" : "エラー",
+        description: errorMessage,
         variant: "destructive",
       });
     },

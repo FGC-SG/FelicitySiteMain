@@ -15,13 +15,17 @@ import { Plus, Calendar, User, Globe, Trash2, Edit, FileText } from "lucide-reac
 interface NewsManagementProps {
   language: Language;
   onClose?: () => void;
+  currentUser?: any;
 }
 
-export function NewsManagement({ language, onClose }: NewsManagementProps) {
+export function NewsManagement({ language, onClose, currentUser }: NewsManagementProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<NewsArticle | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Check if current user is superadmin
+  const isSuperadmin = currentUser?.role === "Superadmin" || currentUser?.role === "superadmin";
 
   // Fetch news articles
   const { data: newsArticles, isLoading } = useQuery({
@@ -41,23 +45,28 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
           : "ニュース記事が正常に削除されました",
       });
     },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
+    onError: (error: any) => {
+      let errorMessage = language === "en" ? "Failed to delete news article" : "ニュース記事の削除に失敗しました";
+      
+      if (error.message?.includes("403")) {
+        errorMessage = language === "en" 
+          ? "Access denied. Only superusers can delete articles." 
+          : "アクセスが拒否されました。スーパーユーザーのみが記事を削除できます。";
+      } else if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/";
         }, 500);
         return;
       }
+      
       toast({
         title: language === "en" ? "Error" : "エラー",
-        description: language === "en" 
-          ? "Failed to delete news article" 
-          : "ニュース記事の削除に失敗しました",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -85,7 +94,7 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/";
         }, 500);
         return;
       }
@@ -272,17 +281,19 @@ export function NewsManagement({ language, onClose }: NewsManagementProps) {
                       <Edit className="h-3 w-3" />
                       {language === "en" ? "Edit" : "編集"}
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDeleteNews(article.id, article.title)}
-                      disabled={deleteNewsMutation.isPending}
-                      className="gap-1"
-                      data-testid={`button-delete-news-${article.id}`}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      {language === "en" ? "Delete" : "削除"}
-                    </Button>
+                    {isSuperadmin && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDeleteNews(article.id, article.title)}
+                        disabled={deleteNewsMutation.isPending}
+                        className="gap-1"
+                        data-testid={`button-delete-news-${article.id}`}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        {language === "en" ? "Delete" : "削除"}
+                      </Button>
+                    )}
                   </div>
                 </div>
                 {article.content && (

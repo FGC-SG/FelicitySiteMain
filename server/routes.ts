@@ -149,9 +149,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete news article - temporarily remove auth for development
+  // Delete news article - requires superuser role
   app.delete('/api/news/:id', async (req: any, res) => {
     try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for delete operations" });
+      }
+
       const { id } = req.params;
       
       if (!id) {
@@ -209,6 +220,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/users/:id', async (req: any, res) => {
     try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for delete operations" });
+      }
+
       const { id } = req.params;
       await storage.deleteUser(id);
       res.json({ message: "User deleted successfully" });
@@ -252,6 +274,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/members/:id', async (req, res) => {
     try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for delete operations" });
+      }
+
       const { id } = req.params;
       await storage.deleteMember(id);
       res.json({ success: true });
