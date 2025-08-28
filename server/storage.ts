@@ -78,7 +78,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle> {
-    const [result] = await db.insert(newsArticles).values(article).returning();
+    // Ensure all date fields are proper Date objects
+    const articleData = {
+      ...article,
+      publishedAt: article.publishedAt ? new Date(article.publishedAt) : new Date(),
+      createdAt: article.createdAt ? new Date(article.createdAt) : new Date(),
+      updatedAt: article.updatedAt ? new Date(article.updatedAt) : new Date()
+    };
+    
+    const [result] = await db.insert(newsArticles).values(articleData).returning();
     return result;
   }
 

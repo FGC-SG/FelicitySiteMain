@@ -70,6 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newsData = {
         ...req.body,
         authorId: userId,
+        publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : new Date()
       };
       const news = await storage.createNewsArticle(newsData);
       res.json(news);

@@ -20,6 +20,8 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Added Member Management section to admin portal with full CRUD operations
 - 2025-08-28: Successfully extracted and imported 7 news articles from original ACA Group website
 - 2025-08-28: Enhanced news management system with comprehensive view/add/delete functionality
+- 2025-08-28: Successfully authenticated and extracted authentic news content from dev.fgcsg.com using provided credentials (fc:0729)
+- 2025-08-28: Imported 6 real articles including PT Fore Kopi Indonesia portfolio updates and corporate announcements with actual dates
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
