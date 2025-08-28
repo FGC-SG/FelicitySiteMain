@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   boolean,
   index,
+  integer,
   jsonb,
   pgTable,
   timestamp,
@@ -58,6 +59,23 @@ export const insertContactSubmissionSchema = createInsertSchema(contactSubmissio
 
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+// Members table for company member profiles
+export const members = pgTable("members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  title: varchar("title").notNull(),
+  company: varchar("company").notNull(),
+  bio: varchar("bio", { length: 1000 }),
+  photoUrl: varchar("photo_url"),
+  displayOrder: integer("display_order").default(0),
+  isVisible: boolean("is_visible").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type InsertMember = typeof members.$inferInsert;
+export type Member = typeof members.$inferSelect;
 
 // News articles table
 export const newsArticles = pgTable("news_articles", {

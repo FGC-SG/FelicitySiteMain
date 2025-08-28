@@ -14,6 +14,10 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Streamlined management portal to only include Team Management and Content Management sections
 - 2025-08-28: Removed Analytics & Reports and System Settings from management dashboard
 - 2025-08-28: Migrated Add News Article functionality to Content Management section
+- 2025-08-28: Added comprehensive Member Management system with photo upload capabilities
+- 2025-08-28: Implemented object storage for photo uploads with automatic scaling
+- 2025-08-28: Created member profile management with title, company, and biography fields
+- 2025-08-28: Added Member Management section to admin portal with full CRUD operations
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
@@ -39,6 +43,10 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - Company information and team profiles
 - Professional corporate design with Singapore skyline
 - Responsive design with shadcn/ui components
+- Member profile management with photo upload
+- Object storage integration for file uploads
+- Automatic photo scaling and processing
+- Full CRUD operations for member profiles
 
 ## Technical Stack
 - React 18 with TypeScript

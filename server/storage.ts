@@ -2,12 +2,15 @@ import {
   users,
   contactSubmissions,
   newsArticles,
+  members,
   type User,
   type UpsertUser,
   type ContactSubmission,
   type InsertContactSubmission,
   type NewsArticle,
   type InsertNewsArticle,
+  type Member,
+  type InsertMember,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -31,6 +34,12 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   updateUser(id: string, userData: Partial<UpsertUser>): Promise<User>;
   deleteUser(id: string): Promise<void>;
+  
+  // Member management operations
+  createMember(memberData: InsertMember): Promise<Member>;
+  getAllMembers(): Promise<Member[]>;
+  updateMember(id: string, memberData: Partial<InsertMember>): Promise<Member>;
+  deleteMember(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -95,6 +104,28 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUser(id: string): Promise<void> {
     await db.delete(users).where(eq(users.id, id));
+  }
+
+  async createMember(memberData: InsertMember): Promise<Member> {
+    const [member] = await db.insert(members).values(memberData).returning();
+    return member;
+  }
+
+  async getAllMembers(): Promise<Member[]> {
+    return await db.select().from(members).orderBy(desc(members.displayOrder), desc(members.createdAt));
+  }
+
+  async updateMember(id: string, memberData: Partial<InsertMember>): Promise<Member> {
+    const [member] = await db
+      .update(members)
+      .set({ ...memberData, updatedAt: new Date() })
+      .where(eq(members.id, id))
+      .returning();
+    return member;
+  }
+
+  async deleteMember(id: string): Promise<void> {
+    await db.delete(members).where(eq(members.id, id));
   }
 }
 

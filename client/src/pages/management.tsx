@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
-import { Users, FileText } from "lucide-react";
+import { Users, FileText, UserPlus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
 
@@ -62,6 +62,14 @@ export default function ManagementPage() {
       color: "bg-blue-500",
       stats: `${(users as User[])?.length || 0} Users`,
       action: () => window.location.href = "/user-management"
+    },
+    {
+      title: "Member Management",
+      description: "Manage public member profiles with photos and bios",
+      icon: UserPlus,
+      color: "bg-purple-500",
+      stats: "Team Profiles",
+      action: () => window.location.href = "/member-management"
     },
     {
       title: "Content Management",
