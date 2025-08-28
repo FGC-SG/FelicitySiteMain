@@ -183,13 +183,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User management routes - temporarily remove auth for development
+  // User management routes
   app.post('/api/users', async (req: any, res) => {
     try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for user creation" });
+      }
+
       const userData = {
         ...req.body,
         id: undefined, // Let the database generate the ID
       };
+      
+      // Hash password if provided
+      if (userData.password) {
+        const saltRounds = 10;
+        userData.password = await bcrypt.hash(userData.password, saltRounds);
+      }
+      
       const user = await storage.createUser(userData);
       res.json(user);
     } catch (error) {

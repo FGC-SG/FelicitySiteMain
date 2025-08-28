@@ -132,9 +132,9 @@ export default function UserManagementPage() {
   }
 
   // Check if current user is superadmin
-  const isSuperadmin = (currentUser as any)?.email === "onuma@fgcsg.com" || 
-                       (currentUser as any)?.role === "superadmin" || 
-                       (currentUser as any)?.role === "admin";
+  const isSuperadmin = (currentUser as any)?.role === "superadmin" || 
+                       (currentUser as any)?.role === "admin" ||
+                       (currentUser as any)?.email === "onuma@fgcsg.com";
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -389,9 +389,7 @@ export default function UserManagementPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">User</SelectItem>
-                      {(currentUser as any)?.email === "onuma@fgcsg.com" && (
-                        <SelectItem value="superadmin">Superadmin</SelectItem>
-                      )}
+                      <SelectItem value="superadmin">Superadmin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
