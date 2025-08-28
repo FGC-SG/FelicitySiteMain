@@ -1,13 +1,6 @@
-import OpenAI from "openai";
-
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY environment variable must be set");
 }
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 interface TranslationRequest {
   title: string;
@@ -36,20 +29,28 @@ Please provide a natural, professional Japanese translation that would be approp
 
 Respond with JSON in this exact format: {"title": "...", "description": "...", "content": "...", "tags": "..."}`;
 
-    // Using GPT-4o as requested by the user
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user", 
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3
+    // Using GPT-4o with direct API call similar to curl approach
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3
+      })
     });
 
-    const responseText = response.choices[0].message.content;
+    const data = await response.json();
+    const responseText = data.choices[0].message.content;
     const translatedContent = JSON.parse(responseText || "{}");
     
     return {

@@ -50,6 +50,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Enhanced translation error handling with graceful fallback for quota exceeded scenarios
 - 2025-08-28: Fixed news filtering to properly display AI-translated Japanese articles with appropriate language mapping
 - 2025-08-28: Implemented "Read More" functionality for news articles with responsive modal dialog showing full content, metadata, and tags
+- 2025-08-28: Updated OpenAI translation service to use direct HTTP fetch API calls matching curl approach instead of OpenAI client library
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
