@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
+import { NewsManagement } from "@/components/news-management";
 import { Users, FileText, UserPlus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
@@ -15,12 +16,19 @@ import { type User } from "@shared/schema";
 export default function ManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddNews, setShowAddNews] = useState(false);
+  const [showNewsList, setShowNewsList] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
   // Fetch users count
   const { data: users } = useQuery({
     queryKey: ["/api/users"],
+    enabled: isAuthenticated,
+  });
+
+  // Fetch news articles count
+  const { data: newsArticles } = useQuery({
+    queryKey: ["/api/news"],
     enabled: isAuthenticated,
   });
 
@@ -76,8 +84,8 @@ export default function ManagementPage() {
       description: "Update website content and news articles",
       icon: FileText,
       color: "bg-green-500",
-      stats: "12 Articles",
-      action: () => setShowAddNews(true)
+      stats: `${(newsArticles as any[])?.length || 0} Articles`,
+      action: () => setShowNewsList(true)
     }
   ];
 
@@ -185,6 +193,18 @@ export default function ManagementPage() {
             </div>
           </div>
         </section>
+
+        {/* News Management Modal */}
+        {showNewsList && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" data-testid="modal-news-management">
+            <div className="bg-background rounded-lg p-6 w-full max-w-6xl max-h-[80vh] overflow-y-auto">
+              <NewsManagement
+                language={language}
+                onClose={() => setShowNewsList(false)}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Add News Form Modal */}
         {showAddNews && (

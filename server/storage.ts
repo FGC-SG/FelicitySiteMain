@@ -25,6 +25,7 @@ export interface IStorage {
   // News operations
   createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle>;
   getNewsArticles(): Promise<NewsArticle[]>;
+  deleteNewsArticle(id: string): Promise<boolean>;
   
   // Contact operations
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
@@ -82,6 +83,14 @@ export class DatabaseStorage implements IStorage {
 
   async getNewsArticles(): Promise<NewsArticle[]> {
     return await db.select().from(newsArticles).orderBy(desc(newsArticles.createdAt));
+  }
+
+  async deleteNewsArticle(id: string): Promise<boolean> {
+    const [deletedArticle] = await db
+      .delete(newsArticles)
+      .where(eq(newsArticles.id, id))
+      .returning();
+    return !!deletedArticle;
   }
 
   async createUser(userData: UpsertUser): Promise<User> {

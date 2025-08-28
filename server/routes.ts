@@ -89,6 +89,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete news article
+  app.delete('/api/news/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      if (!id) {
+        return res.status(400).json({ message: "News article ID is required" });
+      }
+
+      const success = await storage.deleteNewsArticle(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "News article not found" });
+      }
+
+      res.json({ message: "News article deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting news article:", error);
+      res.status(500).json({ message: "Failed to delete news article" });
+    }
+  });
+
   // User management routes - temporarily remove auth for development
   app.post('/api/users', async (req: any, res) => {
     try {
