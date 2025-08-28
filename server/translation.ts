@@ -1,12 +1,12 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("GEMINI_API_KEY environment variable must be set");
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("OPENAI_API_KEY environment variable must be set");
 }
 
-// Initialize Gemini API client
-const genAI = new GoogleGenAI({ 
-  apiKey: process.env.GEMINI_API_KEY
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 interface TranslationRequest {
@@ -36,33 +36,24 @@ Please provide a natural, professional Japanese translation that would be approp
 
 Respond with JSON in this exact format: {"title": "...", "description": "...", "content": "...", "tags": "..."}`;
 
-    // Use Gemini 2.5 Flash for high-quality translation
-    const response = await genAI.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{
-        role: "user",
-        parts: [{
-          text: `You are a professional translator specializing in financial and business content. Translate English to Japanese while maintaining professional terminology and tone. Always respond with valid JSON in the exact same structure as the input.
-
-${prompt}`
-        }]
-      }],
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "object",
-          properties: {
-            title: { type: "string" },
-            description: { type: "string" },
-            content: { type: "string" },
-            tags: { type: "string" }
-          },
-          required: ["title", "description"]
+    // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional translator specializing in financial and business content. Translate English to Japanese while maintaining professional terminology and tone. Always respond with valid JSON in the exact same structure as the input."
+        },
+        {
+          role: "user",
+          content: prompt
         }
-      }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3 // Lower temperature for more consistent translations
     });
 
-    const responseText = response.text;
+    const responseText = response.choices[0].message.content;
     const translatedContent = JSON.parse(responseText || "{}");
     
     return {
@@ -72,7 +63,7 @@ ${prompt}`
       tags: translatedContent.tags || text.tags,
     };
   } catch (error) {
-    console.error("Gemini translation error:", error);
+    console.error("OpenAI translation error:", error);
     
     // Provide professional Japanese translations as demonstration
     // This shows how the AI translation would work once API key is valid
