@@ -34,6 +34,10 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Migrated to fully database-driven authentication system with proper bcrypt password hashing
 - 2025-08-28: Removed hardcoded admin credentials (fc/0729) and implemented secure getUserByEmail storage method
 - 2025-08-28: Updated onuma@fgcsg.com password to 777777 with proper bcrypt security
+- 2025-08-28: Fixed photo upload functionality with simplified ObjectUploader component replacing complex Uppy integration
+- 2025-08-28: Implemented photo URL normalization to convert GCS URLs to local object serving paths (/objects/uploads/xxx)
+- 2025-08-28: Connected admin member management to public Members section - homepage now displays real database profiles
+- 2025-08-28: Added company dropdown standardization with two Felicity companies for consistent data entry
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
