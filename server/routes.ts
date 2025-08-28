@@ -210,7 +210,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/users/:id', async (req: any, res) => {
     try {
       const { id } = req.params;
-      const updatedUser = await storage.updateUser(id, req.body);
+      const updateData = { ...req.body };
+      
+      // Hash password if provided
+      if (updateData.password) {
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        updateData.password = await bcrypt.hash(updateData.password, saltRounds);
+      }
+      
+      const updatedUser = await storage.updateUser(id, updateData);
       res.json(updatedUser);
     } catch (error) {
       console.error("Error updating user:", error);

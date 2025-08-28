@@ -26,6 +26,8 @@ interface User {
   profileImageUrl?: string;
   createdAt: string;
   updatedAt: string;
+  password?: string;
+  passwordConfirm?: string;
 }
 
 export default function UserManagementPage() {
@@ -235,7 +237,7 @@ export default function UserManagementPage() {
             <Card>
               <CardHeader>
                 <CardTitle data-testid="text-users-table-title">
-                  {language === "en" ? "Team Members" : "チームメンバー"} ({filteredUsers.length})
+                  {language === "en" ? "Users" : "ユーザー"} ({filteredUsers.length})
                 </CardTitle>
                 <CardDescription>
                   {language === "en" 
@@ -394,20 +396,83 @@ export default function UserManagementPage() {
                   </Select>
                 </div>
 
+                {/* Password Setup Section */}
+                <div className="border-t pt-4 mt-6">
+                  <div className="mb-3">
+                    <h4 className="text-sm font-medium text-foreground mb-1">
+                      {language === "en" ? "Password Settings" : "パスワード設定"}
+                    </h4>
+                    <p className="text-xs text-muted-foreground">
+                      {language === "en" 
+                        ? "Set or update the user's password" 
+                        : "ユーザーのパスワードを設定または更新"}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="edit-password">{language === "en" ? "New Password" : "新しいパスワード"}</Label>
+                      <Input
+                        id="edit-password"
+                        type="password"
+                        value={editingUser.password || ""}
+                        onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
+                        placeholder={language === "en" ? "Enter new password" : "新しいパスワードを入力"}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="edit-password-confirm">{language === "en" ? "Confirm Password" : "パスワード確認"}</Label>
+                      <Input
+                        id="edit-password-confirm"
+                        type="password"
+                        value={editingUser.passwordConfirm || ""}
+                        onChange={(e) => setEditingUser({...editingUser, passwordConfirm: e.target.value})}
+                        placeholder={language === "en" ? "Confirm new password" : "新しいパスワードを確認"}
+                      />
+                    </div>
+                    
+                    {editingUser.password && editingUser.passwordConfirm && editingUser.password !== editingUser.passwordConfirm && (
+                      <p className="text-xs text-destructive">
+                        {language === "en" ? "Passwords do not match" : "パスワードが一致しません"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setEditingUser(null)}>
                     {language === "en" ? "Cancel" : "キャンセル"}
                   </Button>
                   <Button 
-                    onClick={() => updateUserMutation.mutate({
-                      userId: editingUser.id,
-                      updates: {
+                    onClick={() => {
+                      // Validate password match if password is being updated
+                      if (editingUser.password && editingUser.password !== editingUser.passwordConfirm) {
+                        toast({
+                          title: language === "en" ? "Error" : "エラー",
+                          description: language === "en" ? "Passwords do not match" : "パスワードが一致しません",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
+                      const updates: any = {
                         firstName: editingUser.firstName,
                         lastName: editingUser.lastName,
                         email: editingUser.email,
                         role: editingUser.role
+                      };
+                      
+                      // Only include password if it's provided
+                      if (editingUser.password && editingUser.password.trim()) {
+                        updates.password = editingUser.password;
                       }
-                    })}
+                      
+                      updateUserMutation.mutate({
+                        userId: editingUser.id,
+                        updates
+                      });
+                    }}
                     disabled={updateUserMutation.isPending}
                   >
                     {updateUserMutation.isPending 
