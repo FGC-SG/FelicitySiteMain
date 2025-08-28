@@ -23,7 +23,6 @@ interface User {
   firstName?: string;
   lastName?: string;
   role?: string;
-  department?: string;
   profileImageUrl?: string;
   createdAt: string;
   updatedAt: string;
@@ -35,7 +34,6 @@ export default function UserManagementPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
   const { user: currentUser, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -137,13 +135,11 @@ export default function UserManagementPage() {
                          user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.lastName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    const matchesDepartment = departmentFilter === "all" || user.department === departmentFilter;
     
-    return matchesSearch && matchesRole && matchesDepartment;
+    return matchesSearch && matchesRole;
   });
 
   const uniqueRoles = Array.from(new Set((users as User[]).map((user: User) => user.role).filter(Boolean)));
-  const uniqueDepartments = Array.from(new Set((users as User[]).map((user: User) => user.department).filter(Boolean)));
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -207,17 +203,7 @@ export default function UserManagementPage() {
                   </SelectContent>
                 </Select>
 
-                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                  <SelectTrigger className="w-full sm:w-48" data-testid="select-department-filter">
-                    <SelectValue placeholder={language === "en" ? "All Departments" : "全ての部署"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{language === "en" ? "All Departments" : "全ての部署"}</SelectItem>
-                    {uniqueDepartments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+
               </div>
 
               {isSuperuser && (
@@ -256,7 +242,6 @@ export default function UserManagementPage() {
                       <TableRow>
                         <TableHead>{language === "en" ? "User" : "ユーザー"}</TableHead>
                         <TableHead>{language === "en" ? "Role" : "役割"}</TableHead>
-                        <TableHead>{language === "en" ? "Department" : "部署"}</TableHead>
                         <TableHead>{language === "en" ? "Joined" : "参加日"}</TableHead>
                         {isSuperuser && <TableHead>{language === "en" ? "Actions" : "アクション"}</TableHead>}
                       </TableRow>
@@ -288,9 +273,6 @@ export default function UserManagementPage() {
                             <Badge className={getRoleColor(user.role || "member")} data-testid={`user-role-${user.id}`}>
                               {user.role || "member"}
                             </Badge>
-                          </TableCell>
-                          <TableCell data-testid={`user-department-${user.id}`}>
-                            {user.department || "-"}
                           </TableCell>
                           <TableCell data-testid={`user-joined-${user.id}`}>
                             {new Date(user.createdAt).toLocaleDateString(
@@ -343,8 +325,8 @@ export default function UserManagementPage() {
                 </DialogTitle>
                 <DialogDescription>
                   {language === "en" 
-                    ? "Update user role and department information"
-                    : "ユーザーの役割と部署情報を更新"
+                    ? "Update user role information"
+                    : "ユーザーの役割情報を更新"
                   }
                 </DialogDescription>
               </DialogHeader>
@@ -368,14 +350,7 @@ export default function UserManagementPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="edit-department">{language === "en" ? "Department" : "部署"}</Label>
-                  <Input 
-                    value={editingUser.department || ""} 
-                    onChange={(e) => setEditingUser({...editingUser, department: e.target.value})}
-                    placeholder={language === "en" ? "Enter department" : "部署を入力"}
-                  />
-                </div>
+
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setEditingUser(null)}>
                     {language === "en" ? "Cancel" : "キャンセル"}
@@ -384,8 +359,7 @@ export default function UserManagementPage() {
                     onClick={() => updateUserMutation.mutate({
                       userId: editingUser.id,
                       updates: {
-                        role: editingUser.role,
-                        department: editingUser.department
+                        role: editingUser.role
                       }
                     })}
                     disabled={updateUserMutation.isPending}

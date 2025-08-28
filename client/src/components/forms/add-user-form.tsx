@@ -17,8 +17,6 @@ const addUserSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50, "First name must be less than 50 characters"),
   lastName: z.string().min(1, "Last name is required").max(50, "Last name must be less than 50 characters"),
   role: z.string().min(1, "Role is required"),
-  department: z.string().optional(),
-  title: z.string().optional(),
 });
 
 type AddUserForm = z.infer<typeof addUserSchema>;
@@ -41,8 +39,6 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
       firstName: "",
       lastName: "",
       role: "",
-      department: "",
-      title: "",
     },
   });
 
@@ -101,13 +97,7 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
     { value: "viewer", label: language === "en" ? "Viewer" : "閲覧者" },
   ];
 
-  const departments = [
-    { value: "investment", label: language === "en" ? "Investment" : "投資部門" },
-    { value: "research", label: language === "en" ? "Research" : "調査部門" },
-    { value: "operations", label: language === "en" ? "Operations" : "運営部門" },
-    { value: "compliance", label: language === "en" ? "Compliance" : "コンプライアンス" },
-    { value: "technology", label: language === "en" ? "Technology" : "テクノロジー" },
-  ];
+
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -188,77 +178,28 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
               )}
             />
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel data-testid="label-user-role">
-                      {language === "en" ? "Role" : "役割"}
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-user-role">
-                          <SelectValue placeholder={language === "en" ? "Select role" : "役割を選択"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {roles.map((role) => (
-                          <SelectItem key={role.value} value={role.value}>
-                            {role.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="department"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel data-testid="label-user-department">
-                      {language === "en" ? "Department (Optional)" : "部門（オプション）"}
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-user-department">
-                          <SelectValue placeholder={language === "en" ? "Select department" : "部門を選択"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept.value} value={dept.value}>
-                            {dept.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <FormField
               control={form.control}
-              name="title"
+              name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel data-testid="label-user-title">
-                    {language === "en" ? "Job Title (Optional)" : "職種（オプション）"}
+                  <FormLabel data-testid="label-user-role">
+                    {language === "en" ? "Role" : "役割"}
                   </FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder={language === "en" ? "Enter job title" : "職種を入力"}
-                      {...field}
-                      data-testid="input-user-title"
-                    />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-user-role">
+                        <SelectValue placeholder={language === "en" ? "Select role" : "役割を選択"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {roles.map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          {role.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
