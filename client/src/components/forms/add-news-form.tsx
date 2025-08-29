@@ -121,6 +121,11 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Language section title - fixed as English */}
+            <div className="border-b pb-2 mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">English</h3>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -235,7 +240,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
             {/* Japanese Content Section */}
             <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
               <h3 className="text-lg font-semibold text-foreground">
-                {language === "en" ? "Japanese Translation (Optional)" : "日本語翻訳（オプション）"}
+                Japanese
               </h3>
               
               <FormField
@@ -301,31 +306,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               />
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="language"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel data-testid="label-news-language">
-                      {language === "en" ? "Article Language" : "記事の言語"}
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-news-language">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="jp">日本語</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+            <div className="grid md:grid-cols-1 gap-6">
               <FormField
                 control={form.control}
                 name="tags"

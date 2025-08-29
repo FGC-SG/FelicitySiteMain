@@ -147,29 +147,10 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="language"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel data-testid="label-language">
-                  {language === "en" ? "Language *" : "言語 *"}
-                </FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger data-testid="select-language">
-                      <SelectValue placeholder={language === "en" ? "Select language" : "言語を選択"} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="en" data-testid="option-language-en">English</SelectItem>
-                    <SelectItem value="ja" data-testid="option-language-ja">日本語</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Language section title - fixed as English */}
+          <div className="border-b pb-2 mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">English</h3>
+          </div>
 
           <FormField
             control={form.control}
@@ -216,7 +197,7 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
           {/* Japanese Translation Section */}
           <div className="border-t pt-6 mt-6">
             <h4 className="text-lg font-semibold mb-4 text-blue-600">
-              {language === "en" ? "Japanese Translation (Optional)" : "日本語翻訳（任意）"}
+              Japanese
             </h4>
             <div className="space-y-4">
               <FormField
