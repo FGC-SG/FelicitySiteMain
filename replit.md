@@ -72,6 +72,8 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-29: Completed fund name selection functionality with 6 predefined Felicity fund options, bilingual interface support, database schema updates, and professional display formatting
 - 2025-08-29: Fixed production login issue by implementing automatic user initialization system with proper bcrypt security
 - 2025-08-29: Added second superuser account (test@fgcsg.com/0729) with automatic production environment setup
+- 2025-08-29: Fixed logo display issue in production by implementing proper Vite asset import syntax
+- 2025-08-29: Implemented comprehensive Excel (.xlsx) export functionality for both News and Portfolio data with admin-only access, bilingual interface, automatic column sizing, and timestamped filenames
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

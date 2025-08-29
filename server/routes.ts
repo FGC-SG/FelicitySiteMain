@@ -11,6 +11,7 @@ import {
 } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { translateNewsArticle } from "./translation";
+import * as XLSX from "xlsx";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize default admin user for production environments
@@ -773,6 +774,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error setting member photo:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Excel export routes
+  app.get('/api/news/export', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const newsArticles = await storage.getNewsArticles();
+      
+      // Prepare data for Excel
+      const excelData = newsArticles.map(article => ({
+        'Title': article.title,
+        'Title (Japanese)': article.titleJa || '',
+        'Description': article.description,
+        'Description (Japanese)': article.descriptionJa || '',
+        'Content': article.content,
+        'Content (Japanese)': article.contentJa || '',
+        'Felicity Company': article.felicityCompany,
+        'Tags': Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags || ''),
+        'Created Date': article.createdAt ? new Date(article.createdAt).toLocaleDateString() : '',
+        'Updated Date': article.updatedAt ? new Date(article.updatedAt).toLocaleDateString() : ''
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        colWidths.push({ wch: Math.min(maxWidth, 50) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'News Articles');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-news-export-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting news to Excel:', error);
+      res.status(500).json({ message: 'Failed to export news data' });
+    }
+  });
+
+  app.get('/api/portfolios/export', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const portfolios = await storage.getAllPortfolios();
+      
+      // Prepare data for Excel
+      const excelData = portfolios.map(portfolio => ({
+        'Company Name': portfolio.companyName,
+        'Company Name (Japanese)': portfolio.companyNameJa || '',
+        'Felicity Company': portfolio.felicityCompany,
+        'Fund Name': portfolio.fundName || '',
+        'Investment Type': portfolio.investmentType,
+        'Country': portfolio.country,
+        'Industry': portfolio.industry,
+        'Business Description': portfolio.businessDescription || '',
+        'Description': portfolio.description || '',
+        'Description (Japanese)': portfolio.descriptionJa || '',
+        'Website': portfolio.website || '',
+        'Succession': portfolio.succession ? 'Yes' : 'No',
+        'Investment Period': portfolio.investmentPeriod || '',
+        'Created Date': portfolio.createdAt ? new Date(portfolio.createdAt).toLocaleDateString() : '',
+        'Updated Date': portfolio.updatedAt ? new Date(portfolio.updatedAt).toLocaleDateString() : ''
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        colWidths.push({ wch: Math.min(maxWidth, 50) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Portfolio Companies');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-portfolio-export-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting portfolio to Excel:', error);
+      res.status(500).json({ message: 'Failed to export portfolio data' });
     }
   });
 

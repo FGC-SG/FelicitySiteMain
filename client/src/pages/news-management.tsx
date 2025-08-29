@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, FileText, Calendar, User, Tag, Plus, Eye } from "lucide-react";
+import { ArrowLeft, FileText, Calendar, User, Tag, Plus, Eye, Download } from "lucide-react";
 import { Link } from "wouter";
 
 interface NewsArticle {
@@ -29,6 +29,42 @@ export default function NewsManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
+
+  const handleExportNews = async () => {
+    try {
+      const response = await fetch('/api/news/export', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export news data');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-news-export-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Export Successful",
+        description: "News articles have been exported to Excel file.",
+      });
+    } catch (error) {
+      console.error('Error exporting news:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export news articles. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const { data: newsArticles, isLoading, error, refetch } = useQuery({
     queryKey: ["/api/news"],
@@ -127,14 +163,25 @@ export default function NewsManagementPage() {
                 </p>
               </div>
               
-              <Button 
-                onClick={() => setShowAddForm(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-                data-testid="button-create-article"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                {language === "en" ? "Create Article" : "記事を作成"}
-              </Button>
+              <div className="flex space-x-4">
+                <Button 
+                  onClick={handleExportNews}
+                  variant="outline"
+                  className="border-green-600 text-green-600 hover:bg-green-50"
+                  data-testid="button-export-news"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {language === "en" ? "Export Excel" : "Excelエクスポート"}
+                </Button>
+                <Button 
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                  data-testid="button-create-article"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {language === "en" ? "Create Article" : "記事を作成"}
+                </Button>
+              </div>
             </div>
 
             {/* News Articles List */}

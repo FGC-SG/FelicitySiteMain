@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Building2, Plus, Pencil, Trash2, Search, Filter } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, ArrowLeft } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Portfolio } from "@shared/schema";
@@ -56,6 +56,42 @@ export default function PortfolioManagementPage() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const handleExportPortfolio = async () => {
+    try {
+      const response = await fetch('/api/portfolios/export', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export portfolio data');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-portfolio-export-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: language === 'jp' ? "エクスポート成功" : "Export Successful",
+        description: language === 'jp' ? "ポートフォリオデータがExcelファイルにエクスポートされました。" : "Portfolio data has been exported to Excel file.",
+      });
+    } catch (error) {
+      console.error('Error exporting portfolio:', error);
+      toast({
+        title: language === 'jp' ? "エクスポート失敗" : "Export Failed",
+        description: language === 'jp' ? "ポートフォリオデータのエクスポートに失敗しました。再度お試しください。" : "Failed to export portfolio data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const form = useForm<PortfolioFormData>({
     resolver: zodResolver(portfolioFormSchema),
@@ -1300,6 +1336,15 @@ export default function PortfolioManagementPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Button 
+                  onClick={handleExportPortfolio}
+                  variant="outline"
+                  className="border-green-600 text-green-600 hover:bg-green-50"
+                  data-testid="button-export-portfolio"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {language === "en" ? "Export Excel" : "Excelエクスポート"}
+                </Button>
                 <Dialog open={isAddDialogOpen || editingPortfolio !== null} 
                         onOpenChange={(open) => {
                           if (!open) {
