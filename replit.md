@@ -74,6 +74,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-29: Added second superuser account (test@fgcsg.com/0729) with automatic production environment setup
 - 2025-08-29: Fixed logo display issue in production by implementing proper Vite asset import syntax
 - 2025-08-29: Implemented comprehensive Excel (.xlsx) export functionality for both News and Portfolio data with admin-only access, bilingual interface, automatic column sizing, and timestamped filenames
+- 2025-08-29: Added Reverse Display Order functionality to both Member Management admin page and public Members section with toggle button to switch between normal and reverse sorting by display order
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

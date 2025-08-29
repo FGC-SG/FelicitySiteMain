@@ -13,12 +13,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { type Member } from "@shared/schema";
-import { Users, Edit, Trash2, Plus } from "lucide-react";
+import { Users, Edit, Trash2, Plus, ArrowUpDown } from "lucide-react";
 
 export default function MemberManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddMember, setShowAddMember] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [reverseOrder, setReverseOrder] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -130,9 +131,9 @@ export default function MemberManagementPage() {
               </p>
             </div>
 
-            {/* Add Member Button */}
+            {/* Action Buttons */}
             {isSuperadmin && (
-              <div className="mb-8 flex justify-center">
+              <div className="mb-8 flex justify-center gap-4">
                 <Button 
                   onClick={() => setShowAddMember(true)}
                   className="gap-2"
@@ -140,6 +141,18 @@ export default function MemberManagementPage() {
                 >
                   <Plus className="h-4 w-4" />
                   {language === "en" ? "Add New Member" : "新しいメンバーを追加"}
+                </Button>
+                <Button 
+                  onClick={() => setReverseOrder(!reverseOrder)}
+                  variant="outline"
+                  className="gap-2"
+                  data-testid="button-reverse-display-order"
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  {language === "en" 
+                    ? (reverseOrder ? "Normal Order" : "Reverse Order")
+                    : (reverseOrder ? "通常順序" : "逆順序")
+                  }
                 </Button>
               </div>
             )}
@@ -151,7 +164,13 @@ export default function MemberManagementPage() {
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(members as Member[])?.map((member) => (
+                {(() => {
+                  let sortedMembers = (members as Member[]) ? [...(members as Member[])].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)) : [];
+                  if (reverseOrder) {
+                    sortedMembers = sortedMembers.reverse();
+                  }
+                  return sortedMembers;
+                })().map((member) => (
                   <Card key={member.id} className="overflow-hidden" data-testid={`card-member-${member.id}`}>
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
