@@ -171,7 +171,7 @@ export default function PortfolioManagementPage() {
       industry: portfolio.industry,
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
-      businessType: portfolio.businessType,
+      businessType: portfolio.businessType ?? "",
       website: portfolio.website ?? "",
       succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
@@ -1004,9 +1004,9 @@ export default function PortfolioManagementPage() {
 
   const getSelectedSubIndustryData = (subIndustryValue: string) => {
     for (const sector of Object.values(gicsData)) {
-      for (const industryGroup of Object.values(sector.industryGroups)) {
-        for (const industry of Object.values(industryGroup.industries)) {
-          const found = industry.subIndustries.find((sub: { value: string; label: string }) => sub.value === subIndustryValue);
+      for (const industryGroup of Object.values(sector.industryGroups) as any[]) {
+        for (const industry of Object.values(industryGroup.industries) as any[]) {
+          const found = industry.subIndustries?.find((sub: { value: string; label: string }) => sub.value === subIndustryValue);
           if (found) return found;
         }
       }
@@ -1017,9 +1017,9 @@ export default function PortfolioManagementPage() {
   // Initialize GICS selections when editing
   const initializeGicsFromIndustry = (industryLabel: string) => {
     for (const [sectorKey, sector] of Object.entries(gicsData)) {
-      for (const [groupKey, industryGroup] of Object.entries(sector.industryGroups)) {
-        for (const [industryKey, industry] of Object.entries(industryGroup.industries)) {
-          const subIndustry = industry.subIndustries.find((sub: { value: string; label: string }) => sub.label === industryLabel);
+      for (const [groupKey, industryGroup] of Object.entries(sector.industryGroups) as [string, any][]) {
+        for (const [industryKey, industry] of Object.entries(industryGroup.industries) as [string, any][]) {
+          const subIndustry = industry.subIndustries?.find((sub: { value: string; label: string }) => sub.label === industryLabel);
           if (subIndustry) {
             setSelectedSector(sectorKey);
             setSelectedIndustryGroup(groupKey);
@@ -1192,7 +1192,7 @@ export default function PortfolioManagementPage() {
                                     <SelectValue placeholder="Select industry group" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {Object.entries(gicsData[selectedSector]?.industryGroups || {}).map(([key, group]) => (
+                                    {Object.entries(gicsData[selectedSector]?.industryGroups || {}).map(([key, group]: [string, any]) => (
                                       <SelectItem key={key} value={key}>
                                         {group.label}
                                       </SelectItem>
@@ -1211,7 +1211,7 @@ export default function PortfolioManagementPage() {
                                     <SelectValue placeholder="Select industry" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {Object.entries(gicsData[selectedSector]?.industryGroups[selectedIndustryGroup]?.industries || {}).map(([key, industry]) => (
+                                    {Object.entries(gicsData[selectedSector]?.industryGroups[selectedIndustryGroup]?.industries || {}).map(([key, industry]: [string, any]) => (
                                       <SelectItem key={key} value={key}>
                                         {industry.label}
                                       </SelectItem>
