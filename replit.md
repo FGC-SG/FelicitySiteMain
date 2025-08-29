@@ -60,6 +60,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Successfully extracted and imported 18 authentic portfolio companies from ACA Group HTML data including companies from Japan, Singapore, South Korea, Malaysia, Vietnam, Israel, Hong Kong, and UK
 - 2025-08-28: Enhanced portfolio schema with bilingual Japanese fields (companyNameJa, industryJa, countryJa, descriptionJa) and comprehensive GICS classification system (sector, industry group, industry, sub-industry)
 - 2025-08-28: Portfolio database now contains 30 companies total (12 existing + 18 newly imported) with complete investment type categorization (buyout, growth-equity, secondary, strategy) and investment period data
+- 2025-08-29: Integrated comprehensive GICS (Global Industry Classification Standard) data from March 2023 CSV update containing 163 sub-industries across 11 sectors, 25 industry groups, and 74 industries
+- 2025-08-29: Replaced legacy GICS data structure with official classification system providing complete 4-level cascading dropdown selection (Sector → Industry Group → Industry → Sub-Industry)
+- 2025-08-29: Enhanced portfolio management with authentic industry classification covering all major business sectors from Energy and Materials to Technology and Financial Services
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

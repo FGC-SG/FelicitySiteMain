@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { gicsData } from '../data/gics-data';
 
 const portfolioFormSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
@@ -234,8 +235,8 @@ export default function PortfolioManagementPage() {
     return country ? country.label : countryValue.charAt(0).toUpperCase() + countryValue.slice(1);
   };
 
-  // GICS Industry Classification System - 4 levels of hierarchy
-  const gicsData: Record<string, any> = {
+  // Legacy GICS data (now unused but kept for reference)
+  const legacyGicsData: Record<string, any> = {
     "energy": {
       label: "Energy",
       industryGroups: {
