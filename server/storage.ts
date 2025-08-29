@@ -325,9 +325,10 @@ export class DatabaseStorage implements IStorage {
     return Math.random().toString(36).substring(2) + Date.now().toString(36) + Math.random().toString(36).substring(2);
   }
 
-  // Initialize default admin user for production environments
+  // Initialize default admin users for production environments
   async initializeDefaultUser(): Promise<void> {
     try {
+      // Initialize primary admin user
       const adminEmail = 'onuma@fgcsg.com';
       const existingUser = await this.getUserByEmail(adminEmail);
       
@@ -349,8 +350,31 @@ export class DatabaseStorage implements IStorage {
       } else {
         console.log('Default admin user already exists');
       }
+
+      // Initialize test superuser
+      const testEmail = 'test@fgcsg.com';
+      const existingTestUser = await this.getUserByEmail(testEmail);
+      
+      if (!existingTestUser) {
+        console.log('Creating test superuser for production environment...');
+        const testHashedPassword = await bcrypt.hash('0729', 10);
+        
+        const testUser: UpsertUser = {
+          email: testEmail,
+          firstName: 'Test',
+          lastName: 'User',
+          role: 'superadmin',
+          password: testHashedPassword,
+          isActive: true
+        };
+        
+        await this.createUser(testUser);
+        console.log('Test superuser created successfully');
+      } else {
+        console.log('Test superuser already exists');
+      }
     } catch (error) {
-      console.error('Error initializing default user:', error);
+      console.error('Error initializing default users:', error);
     }
   }
 }

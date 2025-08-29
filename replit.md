@@ -70,6 +70,8 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-29: Removed "(Optional)" label from Description field as requested and added full bilingual support to dialog titles, descriptions, and form buttons
 - 2025-08-29: Added comprehensive navigation section to all pages including portfolio, not-found, and error pages to enable easy movement between sections as requested
 - 2025-08-29: Completed fund name selection functionality with 6 predefined Felicity fund options, bilingual interface support, database schema updates, and professional display formatting
+- 2025-08-29: Fixed production login issue by implementing automatic user initialization system with proper bcrypt security
+- 2025-08-29: Added second superuser account (test@fgcsg.com/0729) with automatic production environment setup
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
