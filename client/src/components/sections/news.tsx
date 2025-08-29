@@ -148,9 +148,25 @@ export function News({ language }: NewsProps) {
                 <Card key={article.id} className="hover:shadow-lg transition-shadow" data-testid={`news-card-${article.id}`}>
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
-                      <Badge className={getCategoryColor(article.category)} data-testid={`news-category-${article.id}`}>
-                        {getCategoryLabel(article.category)}
-                      </Badge>
+                      <div className="flex gap-2">
+                        <Badge className={getCategoryColor(article.category)} data-testid={`news-category-${article.id}`}>
+                          {getCategoryLabel(article.category)}
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            (article as any).felicityCompany === "felicity-japan" 
+                              ? "bg-red-50 text-red-700 border-red-200" 
+                              : "bg-blue-50 text-blue-700 border-blue-200"
+                          }
+                          data-testid={`news-felicity-company-${article.id}`}
+                        >
+                          {(article as any).felicityCompany === "felicity-japan" 
+                            ? (language === "jp" ? "フェリシティ・ジャパン" : "Felicity Japan")
+                            : (language === "jp" ? "フェリシティ・シンガポール" : "Felicity Singapore")
+                          }
+                        </Badge>
+                      </div>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4 mr-1" />
                         <span data-testid={`news-date-${article.id}`}>

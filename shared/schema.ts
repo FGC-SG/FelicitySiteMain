@@ -118,6 +118,7 @@ export const newsArticles = pgTable("news_articles", {
   contentJa: varchar("content_ja"),
   language: varchar("language").notNull(),
   category: varchar("category").notNull(),
+  felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
   tags: varchar("tags"),
   authorId: varchar("author_id").references(() => users.id),
   publishedAt: timestamp("published_at").defaultNow(),

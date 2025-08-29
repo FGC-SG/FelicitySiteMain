@@ -239,6 +239,20 @@ export function NewsManagement({ language, onClose, currentUser }: NewsManagemen
                       <Badge variant="secondary" data-testid={`badge-category-${article.id}`}>
                         {article.category}
                       </Badge>
+                      <Badge 
+                        variant="outline" 
+                        className={
+                          (article as any).felicityCompany === "felicity-japan" 
+                            ? "bg-red-50 text-red-700 border-red-200" 
+                            : "bg-blue-50 text-blue-700 border-blue-200"
+                        }
+                        data-testid={`badge-felicity-company-${article.id}`}
+                      >
+                        {(article as any).felicityCompany === "felicity-japan" 
+                          ? (language === "en" ? "Felicity Japan" : "フェリシティ・ジャパン")
+                          : (language === "en" ? "Felicity Singapore" : "フェリシティ・シンガポール")
+                        }
+                      </Badge>
                       <div className="flex items-center text-xs text-muted-foreground gap-1">
                         <Calendar className="h-3 w-3" />
                         <span data-testid={`text-announcement-date-${article.id}`}>

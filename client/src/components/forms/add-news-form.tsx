@@ -22,6 +22,7 @@ const addNewsSchema = z.object({
   contentJa: z.string().optional(),
   language: z.enum(["en", "jp"]),
   category: z.string().min(1, "Category is required"),
+  felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
   tags: z.string().optional(),
   publishedAt: z.string().min(1, "Announcement date is required"),
 });
@@ -50,6 +51,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       contentJa: "",
       language: language,
       category: "",
+      felicityCompany: "felicity-singapore",
       tags: "",
       publishedAt: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     },
@@ -167,6 +169,34 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                             {category.label}
                           </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="felicityCompany"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel data-testid="label-felicity-company">
+                      {language === "en" ? "Felicity Company" : "フェリシティ会社"}
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-felicity-company">
+                          <SelectValue placeholder={language === "en" ? "Select company" : "会社を選択"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="felicity-singapore">
+                          {language === "en" ? "Felicity Singapore" : "フェリシティ・シンガポール"}
+                        </SelectItem>
+                        <SelectItem value="felicity-japan">
+                          {language === "en" ? "Felicity Japan" : "フェリシティ・ジャパン"}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
