@@ -146,8 +146,11 @@ export default function PortfolioManagementPage() {
     return matchesSearch && matchesType && matchesCountry;
   });
 
-  // Get unique values for filters
-  const investmentTypes = Array.from(new Set(portfolios?.map(p => p.investmentType) || []));
+  // Get unique values for filters - only valid investment types
+  const validInvestmentTypes = ["buyout", "growthequity", "secondary"];
+  const investmentTypes = validInvestmentTypes.filter(type => 
+    portfolios?.some(p => p.investmentType === type) || false
+  );
   const countries = Array.from(new Set(portfolios?.map(p => p.country) || []));
 
   // Redirect to login if not authenticated
