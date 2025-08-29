@@ -25,6 +25,7 @@ import { gicsData } from '../data/gics-data';
 
 const portfolioFormSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
+  felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
   industry: z.string().min(1, "Industry is required"),
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
   country: z.string().min(1, "Country is required"),
@@ -41,6 +42,7 @@ export default function PortfolioManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterCountry, setFilterCountry] = useState<string>("all");
+  const [filterCompany, setFilterCompany] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingPortfolio, setEditingPortfolio] = useState<Portfolio | null>(null);
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -51,6 +53,7 @@ export default function PortfolioManagementPage() {
     resolver: zodResolver(portfolioFormSchema),
     defaultValues: {
       companyName: "",
+      felicityCompany: "felicity-singapore",
       industry: "",
       investmentType: "growthequity",
       country: "",
@@ -142,8 +145,9 @@ export default function PortfolioManagementPage() {
                          portfolio.industry.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || portfolio.investmentType === filterType;
     const matchesCountry = filterCountry === "all" || portfolio.country === filterCountry;
+    const matchesCompany = filterCompany === "all" || portfolio.felicityCompany === filterCompany;
     
-    return matchesSearch && matchesType && matchesCountry;
+    return matchesSearch && matchesType && matchesCountry && matchesCompany;
   });
 
   // Get unique values for filters - only valid investment types
@@ -172,6 +176,7 @@ export default function PortfolioManagementPage() {
     setEditingPortfolio(portfolio);
     form.reset({
       companyName: portfolio.companyName,
+      felicityCompany: (portfolio.felicityCompany ?? "felicity-singapore") as "felicity-singapore" | "felicity-japan",
       industry: portfolio.industry,
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
@@ -188,7 +193,17 @@ export default function PortfolioManagementPage() {
   const handleCreateNew = () => {
     setIsAddDialogOpen(true);
     setEditingPortfolio(null);
-    form.reset();
+    form.reset({
+      companyName: "",
+      felicityCompany: "felicity-singapore",
+      industry: "",
+      investmentType: "growthequity",
+      country: "",
+      businessType: "",
+      website: "",
+      succession: false,
+      description: "",
+    });
     setSelectedSector("");
     setSelectedIndustryGroup("");
     setSelectedIndustry("");
@@ -236,6 +251,14 @@ export default function PortfolioManagementPage() {
   const formatCountryName = (countryValue: string) => {
     const country = countryOptions.find(c => c.value === countryValue);
     return country ? country.label : countryValue.charAt(0).toUpperCase() + countryValue.slice(1);
+  };
+
+  const formatFelicityCompany = (companyValue: string | null | undefined) => {
+    switch (companyValue) {
+      case "felicity-singapore": return "Felicity Singapore";
+      case "felicity-japan": return "Felicity Japan";
+      default: return "Felicity Singapore"; // Default fallback
+    }
   };
 
   // Legacy GICS data (now unused but kept for reference)
@@ -1107,6 +1130,16 @@ export default function PortfolioManagementPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Select value={filterCompany} onValueChange={setFilterCompany}>
+                  <SelectTrigger className="w-[180px]" data-testid="select-filter-company">
+                    <SelectValue placeholder="Felicity Company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Companies</SelectItem>
+                    <SelectItem value="felicity-singapore">Felicity Singapore</SelectItem>
+                    <SelectItem value="felicity-japan">Felicity Japan</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Select value={filterCountry} onValueChange={setFilterCountry}>
                   <SelectTrigger className="w-[180px]" data-testid="select-filter-country">
                     <SelectValue placeholder="Country" />
@@ -1162,6 +1195,27 @@ export default function PortfolioManagementPage() {
                                 <FormControl>
                                   <Input {...field} data-testid="input-company-name" />
                                 </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="felicityCompany"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Felicity Company</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger data-testid="select-felicity-company">
+                                      <SelectValue placeholder="Select Felicity company" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="felicity-singapore">Felicity Singapore</SelectItem>
+                                    <SelectItem value="felicity-japan">Felicity Japan</SelectItem>
+                                  </SelectContent>
+                                </Select>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -1431,6 +1485,12 @@ export default function PortfolioManagementPage() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Company:</span>
+                        <span data-testid={`text-felicity-company-${portfolio.id}`} className="font-medium text-blue-700 dark:text-blue-300">
+                          {formatFelicityCompany(portfolio.felicityCompany)}
+                        </span>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Country:</span>
                         <span data-testid={`text-country-${portfolio.id}`}>

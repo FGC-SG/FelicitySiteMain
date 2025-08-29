@@ -15,6 +15,7 @@ function PortfolioPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterCountry, setFilterCountry] = useState<string>("all");
+  const [filterCompany, setFilterCompany] = useState<string>("all");
   const { user, isAuthenticated } = useAuth();
   const t = useTranslation(language);
 
@@ -33,8 +34,9 @@ function PortfolioPage() {
                          portfolio.industry.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || portfolio.investmentType === filterType;
     const matchesCountry = filterCountry === "all" || portfolio.country === filterCountry;
+    const matchesCompany = filterCompany === "all" || portfolio.felicityCompany === filterCompany;
     
-    return matchesSearch && matchesType && matchesCountry;
+    return matchesSearch && matchesType && matchesCountry && matchesCompany;
   }) || [];
 
   const getInvestmentTypeColor = (type: string) => {
@@ -87,6 +89,14 @@ function PortfolioPage() {
   const formatCountryName = (countryValue: string) => {
     const country = countryOptions.find(c => c.value === countryValue);
     return country ? country.label : countryValue.charAt(0).toUpperCase() + countryValue.slice(1);
+  };
+
+  const formatFelicityCompany = (companyValue: string | null | undefined) => {
+    switch (companyValue) {
+      case "felicity-singapore": return "Felicity Singapore";
+      case "felicity-japan": return "Felicity Japan";
+      default: return "Felicity Singapore"; // Default fallback
+    }
   };
 
   if (isLoading) {
@@ -168,6 +178,18 @@ function PortfolioPage() {
               </SelectContent>
             </Select>
 
+            {/* Felicity Company Filter */}
+            <Select value={filterCompany} onValueChange={setFilterCompany}>
+              <SelectTrigger className="w-[200px]" data-testid="select-felicity-company">
+                <SelectValue placeholder="Felicity Company" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Companies</SelectItem>
+                <SelectItem value="felicity-singapore">Felicity Singapore</SelectItem>
+                <SelectItem value="felicity-japan">Felicity Japan</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Country Filter */}
             <Select value={filterCountry} onValueChange={setFilterCountry}>
               <SelectTrigger className="w-[200px]" data-testid="select-country">
@@ -208,7 +230,7 @@ function PortfolioPage() {
                         {getInvestmentTypeLabel(portfolio.investmentType)}
                       </Badge>
                     </div>
-                    <div className="flex items-center text-sm text-gray-500 space-x-4">
+                    <div className="flex items-center text-sm text-gray-500 space-x-4 mb-2">
                       <div className="flex items-center">
                         <Building2 className="h-4 w-4 mr-1" />
                         <span data-testid={`text-industry-${portfolio.id}`}>{portfolio.industry}</span>
@@ -219,6 +241,9 @@ function PortfolioPage() {
                           {formatCountryName(portfolio.country)}
                         </span>
                       </div>
+                    </div>
+                    <div className="text-xs text-blue-600 font-medium" data-testid={`text-felicity-company-${portfolio.id}`}>
+                      {formatFelicityCompany(portfolio.felicityCompany)}
                     </div>
                   </CardHeader>
                   <CardContent>
