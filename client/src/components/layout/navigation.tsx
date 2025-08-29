@@ -15,16 +15,26 @@ interface NavigationProps {
 
 export function Navigation({ language, onLanguageChange }: NavigationProps) {
   const [location] = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const t = useTranslation(language);
 
+  // Check if user is admin
+  const isAdmin = isAuthenticated && user && (
+    (user as any)?.role === "admin" || 
+    (user as any)?.role === "superadmin" ||
+    (user as any)?.email === "onuma@fgcsg.com" ||
+    (user as any)?.email === "test@fgcsg.com"
+  );
+
   const navItems = [
     { href: "/", label: t.nav.home },
     { href: "/about", label: t.nav.about },
-    { href: "/news", label: t.nav.news },
-    { href: "/portfolio", label: "Portfolio" },
+    ...(isAdmin ? [
+      { href: "/news", label: t.nav.news + " (Admin)", adminOnly: true },
+      { href: "/portfolio", label: "Portfolio (Admin)", adminOnly: true },
+    ] : []),
     { href: "/contact", label: t.nav.contact },
   ];
 
@@ -66,12 +76,14 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              {navItems.map((item) => (
+              {navItems.map((item: any) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
                   className={`px-3 py-2 text-sm font-medium transition-colors ${
+                    item.adminOnly ? 'text-orange-600 hover:text-orange-700' : ''
+                  } ${
                     location === item.href
                       ? "felicity-primary"
                       : "text-muted-foreground hover:felicity-primary"

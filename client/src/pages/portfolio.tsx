@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
+import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -149,11 +150,15 @@ function PortfolioPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation
-        language={language}
-        onLanguageChange={setLanguage}
-      />
+    <AdminRoute allowPublicAccess={false}>
+      <div className="min-h-screen bg-background">
+        <Navigation
+          language={language}
+          onLanguageChange={setLanguage}
+        />
+        <div className="bg-orange-100 border border-orange-300 text-orange-800 px-4 py-2 text-center text-sm">
+          🔒 Admin Preview: This Portfolio section is currently visible only to administrators
+        </div>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
@@ -347,8 +352,9 @@ function PortfolioPage() {
         </div>
       )}
       
-      <Footer language={language} />
-    </div>
+        <Footer language={language} />
+      </div>
+    </AdminRoute>
   );
 }
 
