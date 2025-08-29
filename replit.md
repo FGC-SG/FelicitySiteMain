@@ -63,6 +63,11 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-29: Integrated comprehensive GICS (Global Industry Classification Standard) data from March 2023 CSV update containing 163 sub-industries across 11 sectors, 25 industry groups, and 74 industries
 - 2025-08-29: Replaced legacy GICS data structure with official classification system providing complete 4-level cascading dropdown selection (Sector → Industry Group → Industry → Sub-Industry)
 - 2025-08-29: Enhanced portfolio management with authentic industry classification covering all major business sectors from Energy and Materials to Technology and Financial Services
+- 2025-08-29: Completed bilingual Portfolio Management interface with comprehensive Japanese field support including Company Name (Japanese) and Description (Japanese) fields
+- 2025-08-29: Implemented seamless language persistence between public Portfolio and Portfolio Management pages using URL parameters (?lang=jp or ?lang=en)
+- 2025-08-29: Added bidirectional navigation with "Back to Portfolio" button that preserves language selection and comprehensive Japanese translations for all admin form elements
+- 2025-08-29: Enhanced form validation and reset functionality to properly handle Japanese fields (companyNameJa, descriptionJa) with clean form state management
+- 2025-08-29: Removed "(Optional)" label from Description field as requested and added full bilingual support to dialog titles, descriptions, and form buttons
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

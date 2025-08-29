@@ -25,6 +25,7 @@ import { gicsData } from '../data/gics-data';
 
 const portfolioFormSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
+  companyNameJa: z.string().optional().or(z.literal("")),
   felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
   industry: z.string().min(1, "Industry is required"),
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
@@ -33,6 +34,7 @@ const portfolioFormSchema = z.object({
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   succession: z.boolean().default(false),
   description: z.string().min(10, "Description must be at least 10 characters"),
+  descriptionJa: z.string().optional().or(z.literal("")),
 });
 
 type PortfolioFormData = z.infer<typeof portfolioFormSchema>;
@@ -58,6 +60,7 @@ export default function PortfolioManagementPage() {
     resolver: zodResolver(portfolioFormSchema),
     defaultValues: {
       companyName: "",
+      companyNameJa: "",
       felicityCompany: "felicity-singapore",
       industry: "",
       investmentType: "growthequity",
@@ -66,6 +69,7 @@ export default function PortfolioManagementPage() {
       website: "",
       succession: false,
       description: "",
+      descriptionJa: "",
     },
   });
 
@@ -181,6 +185,7 @@ export default function PortfolioManagementPage() {
     setEditingPortfolio(portfolio);
     form.reset({
       companyName: portfolio.companyName,
+      companyNameJa: portfolio.companyNameJa ?? "",
       felicityCompany: (portfolio.felicityCompany ?? "felicity-singapore") as "felicity-singapore" | "felicity-japan",
       industry: portfolio.industry,
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
@@ -189,6 +194,7 @@ export default function PortfolioManagementPage() {
       website: portfolio.website ?? "",
       succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
+      descriptionJa: portfolio.descriptionJa ?? "",
     });
     // Initialize GICS selections based on the existing industry
     initializeGicsFromIndustry(portfolio.industry);
@@ -200,6 +206,7 @@ export default function PortfolioManagementPage() {
     setEditingPortfolio(null);
     form.reset({
       companyName: "",
+      companyNameJa: "",
       felicityCompany: "felicity-singapore",
       industry: "",
       investmentType: "growthequity",
@@ -208,6 +215,7 @@ export default function PortfolioManagementPage() {
       website: "",
       succession: false,
       description: "",
+      descriptionJa: "",
     });
     setSelectedSector("");
     setSelectedIndustryGroup("");
@@ -1274,7 +1282,19 @@ export default function PortfolioManagementPage() {
                           if (!open) {
                             setIsAddDialogOpen(false);
                             setEditingPortfolio(null);
-                            form.reset();
+                            form.reset({
+                              companyName: "",
+                              companyNameJa: "",
+                              felicityCompany: "felicity-singapore",
+                              industry: "",
+                              investmentType: "growthequity",
+                              country: "",
+                              businessDescription: "",
+                              website: "",
+                              succession: false,
+                              description: "",
+                              descriptionJa: "",
+                            });
                             setSelectedSector("");
                             setSelectedIndustryGroup("");
                             setSelectedIndustry("");
@@ -1290,12 +1310,21 @@ export default function PortfolioManagementPage() {
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-portfolio-form">
                     <DialogHeader>
                       <DialogTitle>
-                        {editingPortfolio ? "Edit Portfolio Company" : "Add New Portfolio Company"}
+                        {editingPortfolio 
+                          ? (language === "en" ? "Edit Portfolio Company" : "ポートフォリオ企業を編集")
+                          : (language === "en" ? "Add New Portfolio Company" : "新しいポートフォリオ企業を追加")
+                        }
                       </DialogTitle>
                       <DialogDescription>
                         {editingPortfolio 
-                          ? "Update the portfolio company information below."
-                          : "Fill in the details for the new portfolio company."
+                          ? (language === "en" 
+                              ? "Update the portfolio company information below."
+                              : "下記のポートフォリオ企業情報を更新してください。"
+                            )
+                          : (language === "en"
+                              ? "Fill in the details for the new portfolio company."
+                              : "新しいポートフォリオ企業の詳細を入力してください。"
+                            )
                         }
                       </DialogDescription>
                     </DialogHeader>
@@ -1307,9 +1336,22 @@ export default function PortfolioManagementPage() {
                             name="companyName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Company Name</FormLabel>
+                                <FormLabel>{language === "en" ? "Company Name" : "会社名"}</FormLabel>
                                 <FormControl>
                                   <Input {...field} data-testid="input-company-name" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="companyNameJa"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{language === "en" ? "Company Name (Japanese)" : "会社名（日本語）"}</FormLabel>
+                                <FormControl>
+                                  <Input {...field} data-testid="input-company-name-ja" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1556,7 +1598,7 @@ export default function PortfolioManagementPage() {
                             name="businessDescription"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Business Description <span className="text-muted-foreground text-sm">(Optional)</span></FormLabel>
+                                <FormLabel>{language === "en" ? "Business Description" : "事業説明"}</FormLabel>
                                 <FormControl>
                                   <Textarea 
                                     {...field} 
@@ -1588,23 +1630,42 @@ export default function PortfolioManagementPage() {
                             )}
                           />
                         </div>
-                        <FormField
-                          control={form.control}
-                          name="description"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Description</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  {...field} 
-                                  rows={3}
-                                  data-testid="textarea-description"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{language === "en" ? "Description" : "説明"}</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    {...field} 
+                                    rows={3}
+                                    data-testid="textarea-description"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="descriptionJa"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{language === "en" ? "Description (Japanese)" : "説明（日本語）"}</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    {...field} 
+                                    rows={3}
+                                    data-testid="textarea-description-ja"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                         <div className="flex justify-end space-x-2">
                           <Button
                             type="button"
@@ -1612,7 +1673,19 @@ export default function PortfolioManagementPage() {
                             onClick={() => {
                               setIsAddDialogOpen(false);
                               setEditingPortfolio(null);
-                              form.reset();
+                              form.reset({
+                                companyName: "",
+                                companyNameJa: "",
+                                felicityCompany: "felicity-singapore",
+                                industry: "",
+                                investmentType: "growthequity",
+                                country: "",
+                                businessDescription: "",
+                                website: "",
+                                succession: false,
+                                description: "",
+                                descriptionJa: "",
+                              });
                               setSelectedSector("");
                               setSelectedIndustryGroup("");
                               setSelectedIndustry("");
@@ -1620,7 +1693,7 @@ export default function PortfolioManagementPage() {
                             }}
                             data-testid="button-cancel-portfolio"
                           >
-                            Cancel
+                            {language === "en" ? "Cancel" : "キャンセル"}
                           </Button>
                           <Button 
                             type="submit"
@@ -1628,10 +1701,10 @@ export default function PortfolioManagementPage() {
                             data-testid="button-submit-portfolio"
                           >
                             {addPortfolioMutation.isPending || updatePortfolioMutation.isPending 
-                              ? "Saving..." 
+                              ? (language === "en" ? "Saving..." : "保存中...") 
                               : editingPortfolio 
-                                ? "Update Company" 
-                                : "Add Company"
+                                ? (language === "en" ? "Update Company" : "企業を更新") 
+                                : (language === "en" ? "Add Company" : "企業を追加")
                             }
                           </Button>
                         </div>
