@@ -6,6 +6,7 @@ import { LoginModal } from "@/components/auth/login-modal";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { Menu, X, User } from "lucide-react";
+import logoPath from "@assets/logo_color_1756362140059.jpg";
 
 interface NavigationProps {
   language: Language;
@@ -53,7 +54,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
             <Link href="/">
               <div className="flex items-center cursor-pointer">
                 <img 
-                  src="/src/assets/logo_color_1756362140059.jpg"
+                  src={logoPath}
                   alt="Felicity Global Capital"
                   className="h-8 w-auto"
                   data-testid="img-logo"
