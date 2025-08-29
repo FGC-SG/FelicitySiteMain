@@ -57,7 +57,7 @@ export function Members({ language }: MembersProps) {
             </p>
           </div>
         ) : sortedMembers.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sortedMembers.map((member, index) => (
               <div key={member.id} className="bg-card rounded-xl p-6 shadow-lg border border-border text-center" data-testid={`card-member-${member.id}`}>
                 <div className="mb-6">
