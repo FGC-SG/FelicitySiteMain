@@ -68,6 +68,8 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-29: Added bidirectional navigation with "Back to Portfolio" button that preserves language selection and comprehensive Japanese translations for all admin form elements
 - 2025-08-29: Enhanced form validation and reset functionality to properly handle Japanese fields (companyNameJa, descriptionJa) with clean form state management
 - 2025-08-29: Removed "(Optional)" label from Description field as requested and added full bilingual support to dialog titles, descriptions, and form buttons
+- 2025-08-29: Added comprehensive navigation section to all pages including portfolio, not-found, and error pages to enable easy movement between sections as requested
+- 2025-08-29: Completed fund name selection functionality with 6 predefined Felicity fund options, bilingual interface support, database schema updates, and professional display formatting
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
+import { Navigation } from "@/components/layout/navigation";
+import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -148,17 +150,10 @@ function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Language Toggle */}
-      <div className="fixed top-4 right-4 z-50">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setLanguage(language === "en" ? "jp" : "en")}
-          data-testid="button-language-toggle"
-        >
-          {language === "en" ? "日本語" : "English"}
-        </Button>
-      </div>
+      <Navigation
+        language={language}
+        onLanguageChange={setLanguage}
+      />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
@@ -351,6 +346,8 @@ function PortfolioPage() {
           </Button>
         </div>
       )}
+      
+      <Footer language={language} />
     </div>
   );
 }
