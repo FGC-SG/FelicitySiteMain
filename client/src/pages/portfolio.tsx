@@ -247,6 +247,14 @@ function PortfolioPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
+                    {portfolio.businessDescription && (
+                      <div className="mb-3">
+                        <p className="text-xs text-gray-500 font-medium mb-1">Business Focus</p>
+                        <p className="text-sm text-gray-600" data-testid={`text-business-description-${portfolio.id}`}>
+                          {portfolio.businessDescription}
+                        </p>
+                      </div>
+                    )}
                     {portfolio.description && (
                       <p className="text-sm text-gray-600 mb-4" data-testid={`text-description-${portfolio.id}`}>
                         {portfolio.description}

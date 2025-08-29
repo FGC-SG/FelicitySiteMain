@@ -29,7 +29,7 @@ const portfolioFormSchema = z.object({
   industry: z.string().min(1, "Industry is required"),
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
   country: z.string().min(1, "Country is required"),
-  businessType: z.string().min(1, "Business type is required"),
+  businessDescription: z.string().optional().or(z.literal("")),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   succession: z.boolean().default(false),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -43,6 +43,8 @@ export default function PortfolioManagementPage() {
   const [filterType, setFilterType] = useState<string>("all");
   const [filterCountry, setFilterCountry] = useState<string>("all");
   const [filterCompany, setFilterCompany] = useState<string>("all");
+  const [gicsSearchTerm, setGicsSearchTerm] = useState<string>("");
+  const [showGicsSearch, setShowGicsSearch] = useState<boolean>(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingPortfolio, setEditingPortfolio] = useState<Portfolio | null>(null);
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -57,7 +59,7 @@ export default function PortfolioManagementPage() {
       industry: "",
       investmentType: "growthequity",
       country: "",
-      businessType: "",
+      businessDescription: "",
       website: "",
       succession: false,
       description: "",
@@ -180,7 +182,7 @@ export default function PortfolioManagementPage() {
       industry: portfolio.industry,
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
-      businessType: portfolio.businessType ?? "",
+      businessDescription: portfolio.businessDescription ?? "",
       website: portfolio.website ?? "",
       succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
@@ -199,7 +201,7 @@ export default function PortfolioManagementPage() {
       industry: "",
       investmentType: "growthequity",
       country: "",
-      businessType: "",
+      businessDescription: "",
       website: "",
       succession: false,
       description: "",
@@ -259,6 +261,94 @@ export default function PortfolioManagementPage() {
       case "felicity-japan": return "Felicity Japan";
       default: return "Felicity Singapore"; // Default fallback
     }
+  };
+
+  // GICS Search functionality
+  const searchGicsData = (searchTerm: string) => {
+    if (!searchTerm.trim() || searchTerm.length < 2) return [];
+    
+    const term = searchTerm.toLowerCase();
+    const results: Array<{
+      type: string;
+      path: string;
+      value: string;
+      sector: string;
+      industryGroup?: string;
+      industry?: string;
+      subIndustry?: string;
+    }> = [];
+
+    // Search through all GICS data
+    Object.entries(gicsData).forEach(([sectorKey, sector]) => {
+      // Check sector name
+      if (sector.label.toLowerCase().includes(term)) {
+        results.push({
+          type: 'sector',
+          path: sector.label,
+          value: sector.label,
+          sector: sectorKey
+        });
+      }
+
+      // Check industry groups
+      Object.entries(sector.industryGroups).forEach(([groupKey, group]) => {
+        if (group.label.toLowerCase().includes(term)) {
+          results.push({
+            type: 'industryGroup',
+            path: `${sector.label} → ${group.label}`,
+            value: group.label,
+            sector: sectorKey,
+            industryGroup: groupKey
+          });
+        }
+
+        // Check industries
+        Object.entries(group.industries).forEach(([industryKey, industry]) => {
+          if (industry.label.toLowerCase().includes(term)) {
+            results.push({
+              type: 'industry',
+              path: `${sector.label} → ${group.label} → ${industry.label}`,
+              value: industry.label,
+              sector: sectorKey,
+              industryGroup: groupKey,
+              industry: industryKey
+            });
+          }
+
+          // Check sub-industries
+          industry.subIndustries.forEach((subIndustry) => {
+            if (subIndustry.label.toLowerCase().includes(term)) {
+              results.push({
+                type: 'subIndustry',
+                path: `${sector.label} → ${group.label} → ${industry.label} → ${subIndustry.label}`,
+                value: subIndustry.label,
+                sector: sectorKey,
+                industryGroup: groupKey,
+                industry: industryKey,
+                subIndustry: subIndustry.value
+              });
+            }
+          });
+        });
+      });
+    });
+
+    return results.slice(0, 20); // Limit results
+  };
+
+  const handleGicsSelection = (result: any) => {
+    // Set the GICS selections based on the selected result
+    setSelectedSector(result.sector || "");
+    setSelectedIndustryGroup(result.industryGroup || "");
+    setSelectedIndustry(result.industry || "");
+    setSelectedSubIndustry(result.subIndustry || "");
+    
+    // Set the industry field in the form
+    form.setValue('industry', result.value);
+    
+    // Close the search
+    setGicsSearchTerm("");
+    setShowGicsSearch(false);
   };
 
   // Legacy GICS data (now unused but kept for reference)
@@ -1222,7 +1312,74 @@ export default function PortfolioManagementPage() {
                           />
                           {/* GICS Industry Classification - Multi-level Selection */}
                           <div className="space-y-4">
-                            <FormLabel>Industry (GICS Classification)</FormLabel>
+                            <div className="flex items-center justify-between">
+                              <FormLabel>Industry (GICS Classification)</FormLabel>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowGicsSearch(!showGicsSearch)}
+                                data-testid="button-gics-search-toggle"
+                              >
+                                <Search className="h-4 w-4 mr-1" />
+                                Search GICS
+                              </Button>
+                            </div>
+                            
+                            {/* GICS Search */}
+                            {showGicsSearch && (
+                              <div className="mb-4 relative">
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Search GICS classifications... (e.g., 'software', 'healthcare', 'retail')"
+                                    value={gicsSearchTerm}
+                                    onChange={(e) => setGicsSearchTerm(e.target.value)}
+                                    data-testid="input-gics-search"
+                                    className="flex-1"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setShowGicsSearch(false);
+                                      setGicsSearchTerm("");
+                                    }}
+                                  >
+                                    Close
+                                  </Button>
+                                </div>
+                                
+                                {/* Search Results */}
+                                {gicsSearchTerm.length >= 2 && (
+                                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+                                    {searchGicsData(gicsSearchTerm).map((result, index) => (
+                                      <div
+                                        key={index}
+                                        className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                                        onClick={() => handleGicsSelection(result)}
+                                        data-testid={`gics-result-${index}`}
+                                      >
+                                        <div className="text-sm font-medium text-gray-900">
+                                          {result.value}
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-1">
+                                          {result.path}
+                                        </div>
+                                        <div className="text-xs text-blue-600 mt-1 capitalize">
+                                          {result.type.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {searchGicsData(gicsSearchTerm).length === 0 && (
+                                      <div className="p-3 text-sm text-gray-500">
+                                        No GICS classifications found for "{gicsSearchTerm}"
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                             
                             {/* Sector Selection */}
                             <div>
@@ -1370,12 +1527,17 @@ export default function PortfolioManagementPage() {
                           />
                           <FormField
                             control={form.control}
-                            name="businessType"
+                            name="businessDescription"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Business Type</FormLabel>
+                                <FormLabel>Business Description <span className="text-muted-foreground text-sm">(Optional)</span></FormLabel>
                                 <FormControl>
-                                  <Input {...field} data-testid="input-business-type" />
+                                  <Textarea 
+                                    {...field} 
+                                    rows={2}
+                                    placeholder="Describe the business focus or industry segment..."
+                                    data-testid="textarea-business-description" 
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1497,12 +1659,14 @@ export default function PortfolioManagementPage() {
                           {formatCountryName(portfolio.country)}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Business Type:</span>
-                        <span data-testid={`text-business-type-${portfolio.id}`}>
-                          {portfolio.businessType}
-                        </span>
-                      </div>
+                      {portfolio.businessDescription && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Business:</span>
+                          <span data-testid={`text-business-description-${portfolio.id}`} className="text-right max-w-[200px] truncate">
+                            {portfolio.businessDescription}
+                          </span>
+                        </div>
+                      )}
                       {portfolio.website && (
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground">Website:</span>
