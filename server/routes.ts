@@ -13,6 +13,9 @@ import { ObjectPermission } from "./objectAcl";
 import { translateNewsArticle } from "./translation";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize default admin user for production environments
+  await storage.initializeDefaultUser();
+  
   // Auth middleware - temporarily disabled for development
   // await setupAuth(app);
 

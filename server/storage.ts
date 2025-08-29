@@ -23,6 +23,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 // Interface for storage operations
 export interface IStorage {
@@ -322,6 +323,35 @@ export class DatabaseStorage implements IStorage {
 
   private generateResetToken(): string {
     return Math.random().toString(36).substring(2) + Date.now().toString(36) + Math.random().toString(36).substring(2);
+  }
+
+  // Initialize default admin user for production environments
+  async initializeDefaultUser(): Promise<void> {
+    try {
+      const adminEmail = 'onuma@fgcsg.com';
+      const existingUser = await this.getUserByEmail(adminEmail);
+      
+      if (!existingUser) {
+        console.log('Creating default admin user for production environment...');
+        const hashedPassword = await bcrypt.hash('777777', 10);
+        
+        const adminUser: UpsertUser = {
+          email: adminEmail,
+          firstName: 'Ataru',
+          lastName: 'Onuma',
+          role: 'superadmin',
+          password: hashedPassword,
+          isActive: true
+        };
+        
+        await this.createUser(adminUser);
+        console.log('Default admin user created successfully');
+      } else {
+        console.log('Default admin user already exists');
+      }
+    } catch (error) {
+      console.error('Error initializing default user:', error);
+    }
   }
 }
 
