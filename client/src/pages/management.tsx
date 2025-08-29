@@ -99,7 +99,7 @@ export default function ManagementPage() {
       icon: Building2,
       color: "bg-orange-500",
       stats: `${(portfolios as any[])?.length || 0} Companies`,
-      action: () => window.location.href = "/portfolio-management"
+      action: () => window.location.href = `/portfolio-management?lang=${language}`
     }
   ];
 

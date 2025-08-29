@@ -11,7 +11,10 @@ import { Building2, Globe, MapPin, Search, Plus } from "lucide-react";
 import type { Portfolio } from "@shared/schema";
 
 function PortfolioPage() {
-  const [language, setLanguage] = useState<Language>("en");
+  // Check for language parameter in URL, otherwise default to 'en'
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLanguage = urlParams.get('lang') as Language;
+  const [language, setLanguage] = useState<Language>(urlLanguage === 'jp' ? 'jp' : 'en');
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterCountry, setFilterCountry] = useState<string>("all");
@@ -290,7 +293,12 @@ function PortfolioPage() {
       {/* Admin Controls */}
       {isAuthenticated && (user as any)?.role === "admin" && (
         <div className="fixed bottom-6 right-6">
-          <Button size="lg" className="rounded-full shadow-lg" data-testid="button-add-portfolio">
+          <Button 
+            size="lg" 
+            className="rounded-full shadow-lg" 
+            data-testid="button-add-portfolio"
+            onClick={() => window.location.href = `/portfolio-management?lang=${language}`}
+          >
             <Plus className="h-5 w-5 mr-2" />
             Add Portfolio
           </Button>

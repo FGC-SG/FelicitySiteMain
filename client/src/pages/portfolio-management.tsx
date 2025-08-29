@@ -38,7 +38,10 @@ const portfolioFormSchema = z.object({
 type PortfolioFormData = z.infer<typeof portfolioFormSchema>;
 
 export default function PortfolioManagementPage() {
-  const [language, setLanguage] = useState<Language>('en');
+  // Check for language parameter in URL, otherwise default to 'en'
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLanguage = urlParams.get('lang') as Language;
+  const [language, setLanguage] = useState<Language>(urlLanguage === 'jp' ? 'jp' : 'en');
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterCountry, setFilterCountry] = useState<string>("all");
@@ -1166,6 +1169,25 @@ export default function PortfolioManagementPage() {
 
   return (
     <div className="min-h-screen bg-background font-sans">
+      {/* Language Toggle and Navigation */}
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.href = `/portfolio?lang=${language}`}
+          data-testid="button-back-portfolio"
+        >
+          {language === "en" ? "← Back to Portfolio" : "← ポートフォリオに戻る"}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLanguage(language === "en" ? "jp" : "en")}
+          data-testid="button-language-toggle"
+        >
+          {language === "en" ? "日本語" : "English"}
+        </Button>
+      </div>
       <Navigation language={language} onLanguageChange={setLanguage} />
       <main className="pt-16">
         {/* Hero Section */}
@@ -1175,14 +1197,16 @@ export default function PortfolioManagementPage() {
               <div className="flex items-center justify-center mb-4">
                 <Building2 className="h-12 w-12 mr-4" />
                 <h1 className="text-4xl font-bold" data-testid="text-portfolio-management-title">
-                  Portfolio Management
+                  {language === "en" ? "Portfolio Management" : "ポートフォリオ管理"}
                 </h1>
               </div>
               <p className="text-xl opacity-90 mb-6" data-testid="text-portfolio-subtitle">
-                Manage your investment portfolio companies
+                {language === "en" 
+                  ? "Manage your investment portfolio companies" 
+                  : "投資ポートフォリオ企業の管理"}
               </p>
               <Badge variant="secondary" className="text-orange-600" data-testid="badge-portfolio-count">
-                {portfolios?.length || 0} Companies
+                {portfolios?.length || 0} {language === "en" ? "Companies" : "企業"}
               </Badge>
             </div>
           </div>
@@ -1197,7 +1221,9 @@ export default function PortfolioManagementPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search companies or industries..."
+                    placeholder={language === "en" 
+                      ? "Search companies or industries..." 
+                      : "会社や業界を検索..."}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -1258,7 +1284,7 @@ export default function PortfolioManagementPage() {
                   <DialogTrigger asChild>
                     <Button onClick={handleCreateNew} data-testid="button-add-portfolio">
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Company
+                      {language === "en" ? "Add Company" : "企業を追加"}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-portfolio-form">
