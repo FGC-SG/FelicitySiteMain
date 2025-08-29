@@ -57,6 +57,9 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-28: Fixed Japanese "Read More" functionality to display proper Japanese content instead of mixed English/Japanese text
 - 2025-08-28: Completed comprehensive Japanese translation system with all articles displaying proper business-grade Japanese translations including titles, descriptions, and full content in modal dialogs matching user-approved format
 - 2025-08-28: Disabled ChatGPT API usage per user request - translation system now operates entirely on comprehensive fallback mappings with professional Japanese business translations
+- 2025-08-28: Successfully extracted and imported 18 authentic portfolio companies from ACA Group HTML data including companies from Japan, Singapore, South Korea, Malaysia, Vietnam, Israel, Hong Kong, and UK
+- 2025-08-28: Enhanced portfolio schema with bilingual Japanese fields (companyNameJa, industryJa, countryJa, descriptionJa) and comprehensive GICS classification system (sector, industry group, industry, sub-industry)
+- 2025-08-28: Portfolio database now contains 30 companies total (12 existing + 18 newly imported) with complete investment type categorization (buyout, growth-equity, secondary, strategy) and investment period data
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

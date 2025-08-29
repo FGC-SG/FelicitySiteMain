@@ -65,14 +65,23 @@ export type User = typeof users.$inferSelect;
 export const portfolios = pgTable("portfolios", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   companyName: varchar("company_name").notNull(),
+  companyNameJa: varchar("company_name_ja"),
   industry: varchar("industry").notNull(),
-  investmentType: varchar("investment_type").notNull(), // buyout, growthequity, secondary
+  industryJa: varchar("industry_ja"),
+  investmentType: varchar("investment_type").notNull(), // buyout, growth-equity, secondary
   country: varchar("country").notNull(),
-  businessType: varchar("business_type").notNull(),
+  countryJa: varchar("country_ja"),
+  businessType: varchar("business_type"),
   succession: boolean("succession").default(false),
   description: text("description"),
+  descriptionJa: text("description_ja"),
   website: varchar("website"),
   logoUrl: varchar("logo_url"),
+  investmentPeriod: varchar("investment_period"),
+  gicsSector: varchar("gics_sector"),
+  gicsIndustryGroup: varchar("gics_industry_group"),
+  gicsIndustry: varchar("gics_industry"),
+  gicsSubIndustry: varchar("gics_sub_industry"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
