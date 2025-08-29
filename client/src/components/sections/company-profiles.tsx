@@ -111,7 +111,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                 </p>
                 <div className="flex items-center text-sm">
                   <Phone className="felicity-primary mr-2 h-4 w-4" />
-                  <span data-testid="text-japan-phone">+81-3-5375-1025</span>
+                  <span data-testid="text-japan-phone">+81-3-5357-1025</span>
                 </div>
               </div>
             </div>
