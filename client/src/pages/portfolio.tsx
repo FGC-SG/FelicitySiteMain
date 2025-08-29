@@ -33,8 +33,12 @@ function PortfolioPage() {
 
   // Filter portfolios based on search and filters
   const filteredPortfolios = portfolios?.filter(portfolio => {
-    const matchesSearch = portfolio.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         portfolio.industry.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = portfolio.companyName.toLowerCase().includes(searchLower) ||
+                         portfolio.industry.toLowerCase().includes(searchLower) ||
+                         (portfolio.companyNameJa && portfolio.companyNameJa.includes(searchTerm)) ||
+                         (portfolio.description && portfolio.description.toLowerCase().includes(searchLower)) ||
+                         (portfolio.descriptionJa && portfolio.descriptionJa.includes(searchTerm));
     const matchesType = filterType === "all" || portfolio.investmentType === filterType;
     const matchesCountry = filterCountry === "all" || portfolio.country === filterCountry;
     const matchesCompany = filterCompany === "all" || portfolio.felicityCompany === filterCompany;
@@ -56,15 +60,28 @@ function PortfolioPage() {
   };
 
   const getInvestmentTypeLabel = (type: string) => {
-    switch (type) {
-      case "buyout":
-        return "Buyout";
-      case "growthequity":
-        return "Growth Equity";
-      case "secondary":
-        return "Secondary";
-      default:
-        return type;
+    if (language === 'jp') {
+      switch (type) {
+        case "buyout":
+          return "バイアウト";
+        case "growthequity":
+          return "グロース・エクイティ";
+        case "secondary":
+          return "セカンダリー";
+        default:
+          return type;
+      }
+    } else {
+      switch (type) {
+        case "buyout":
+          return "Buyout";
+        case "growthequity":
+          return "Growth Equity";
+        case "secondary":
+          return "Secondary";
+        default:
+          return type;
+      }
     }
   };
 
@@ -227,7 +244,9 @@ function PortfolioPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
                       <CardTitle className="text-lg" data-testid={`text-company-name-${portfolio.id}`}>
-                        {portfolio.companyName}
+                        {language === 'jp' && portfolio.companyNameJa 
+                          ? portfolio.companyNameJa 
+                          : portfolio.companyName}
                       </CardTitle>
                       <Badge variant="outline" className={getInvestmentTypeColor(portfolio.investmentType)} data-testid={`badge-investment-type-${portfolio.id}`}>
                         {getInvestmentTypeLabel(portfolio.investmentType)}
@@ -252,15 +271,19 @@ function PortfolioPage() {
                   <CardContent>
                     {portfolio.businessDescription && (
                       <div className="mb-3">
-                        <p className="text-xs text-gray-500 font-medium mb-1">Business Focus</p>
+                        <p className="text-xs text-gray-500 font-medium mb-1">
+                          {language === 'jp' ? '事業分野' : 'Business Focus'}
+                        </p>
                         <p className="text-sm text-gray-600" data-testid={`text-business-description-${portfolio.id}`}>
                           {portfolio.businessDescription}
                         </p>
                       </div>
                     )}
-                    {portfolio.description && (
+                    {(portfolio.description || portfolio.descriptionJa) && (
                       <p className="text-sm text-gray-600 mb-4" data-testid={`text-description-${portfolio.id}`}>
-                        {portfolio.description}
+                        {language === 'jp' && portfolio.descriptionJa 
+                          ? portfolio.descriptionJa 
+                          : portfolio.description}
                       </p>
                     )}
                     {portfolio.website && (
@@ -273,13 +296,13 @@ function PortfolioPage() {
                           className="hover:underline"
                           data-testid={`link-website-${portfolio.id}`}
                         >
-                          Visit Website
+                          {language === 'jp' ? 'ウェブサイトを訪問' : 'Visit Website'}
                         </a>
                       </div>
                     )}
                     {portfolio.succession && (
                       <Badge variant="outline" className="mt-2" data-testid={`badge-succession-${portfolio.id}`}>
-                        Business Succession
+                        {language === 'jp' ? '事業承継' : 'Business Succession'}
                       </Badge>
                     )}
                   </CardContent>
@@ -300,7 +323,7 @@ function PortfolioPage() {
             onClick={() => window.location.href = `/portfolio-management?lang=${language}`}
           >
             <Plus className="h-5 w-5 mr-2" />
-            Add Portfolio
+            {language === 'jp' ? 'ポートフォリオを追加' : 'Add Portfolio'}
           </Button>
         </div>
       )}
