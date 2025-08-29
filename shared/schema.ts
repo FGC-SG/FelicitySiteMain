@@ -67,6 +67,7 @@ export const portfolios = pgTable("portfolios", {
   companyName: varchar("company_name").notNull(),
   companyNameJa: varchar("company_name_ja"),
   felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
+  fundName: varchar("fund_name"),
   industry: varchar("industry").notNull(),
   industryJa: varchar("industry_ja"),
   investmentType: varchar("investment_type").notNull(), // buyout, growth-equity, secondary

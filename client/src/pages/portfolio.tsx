@@ -119,6 +119,25 @@ function PortfolioPage() {
     }
   };
 
+  const formatFundName = (fundName: string) => {
+    switch (fundName) {
+      case "felicity-fund-i":
+        return "Felicity Fund I";
+      case "felicity-fund-ii":
+        return "Felicity Fund II";
+      case "felicity-fund-iii":
+        return "Felicity Fund III";
+      case "felicity-growth-fund":
+        return "Felicity Growth Fund";
+      case "felicity-secondary-fund":
+        return "Felicity Secondary Fund";
+      case "felicity-opportunity-fund":
+        return "Felicity Opportunity Fund";
+      default:
+        return fundName;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -267,6 +286,11 @@ function PortfolioPage() {
                     <div className="text-xs text-blue-600 font-medium" data-testid={`text-felicity-company-${portfolio.id}`}>
                       {formatFelicityCompany(portfolio.felicityCompany)}
                     </div>
+                    {portfolio.fundName && (
+                      <div className="text-xs text-green-600 font-medium mt-1" data-testid={`text-fund-name-${portfolio.id}`}>
+                        {language === 'jp' ? 'ファンド: ' : 'Fund: '}{formatFundName(portfolio.fundName)}
+                      </div>
+                    )}
                   </CardHeader>
                   <CardContent>
                     {portfolio.businessDescription && (

@@ -27,6 +27,7 @@ const portfolioFormSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
   companyNameJa: z.string().optional().or(z.literal("")),
   felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
+  fundName: z.string().optional().or(z.literal("")),
   industry: z.string().min(1, "Industry is required"),
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
   country: z.string().min(1, "Country is required"),
@@ -62,6 +63,7 @@ export default function PortfolioManagementPage() {
       companyName: "",
       companyNameJa: "",
       felicityCompany: "felicity-singapore",
+      fundName: "",
       industry: "",
       investmentType: "growthequity",
       country: "",
@@ -187,6 +189,7 @@ export default function PortfolioManagementPage() {
       companyName: portfolio.companyName,
       companyNameJa: portfolio.companyNameJa ?? "",
       felicityCompany: (portfolio.felicityCompany ?? "felicity-singapore") as "felicity-singapore" | "felicity-japan",
+      fundName: portfolio.fundName ?? "",
       industry: portfolio.industry,
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
@@ -208,6 +211,7 @@ export default function PortfolioManagementPage() {
       companyName: "",
       companyNameJa: "",
       felicityCompany: "felicity-singapore",
+      fundName: "",
       industry: "",
       investmentType: "growthequity",
       country: "",
@@ -271,6 +275,25 @@ export default function PortfolioManagementPage() {
       case "felicity-singapore": return "Felicity Singapore";
       case "felicity-japan": return "Felicity Japan";
       default: return "Felicity Singapore"; // Default fallback
+    }
+  };
+
+  const formatFundName = (fundName: string) => {
+    switch (fundName) {
+      case "felicity-fund-i":
+        return "Felicity Fund I";
+      case "felicity-fund-ii":
+        return "Felicity Fund II";
+      case "felicity-fund-iii":
+        return "Felicity Fund III";
+      case "felicity-growth-fund":
+        return "Felicity Growth Fund";
+      case "felicity-secondary-fund":
+        return "Felicity Secondary Fund";
+      case "felicity-opportunity-fund":
+        return "Felicity Opportunity Fund";
+      default:
+        return fundName;
     }
   };
 
@@ -1378,6 +1401,33 @@ export default function PortfolioManagementPage() {
                               </FormItem>
                             )}
                           />
+                          <FormField
+                            control={form.control}
+                            name="fundName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {language === "en" ? "Fund Name" : "ファンド名"}
+                                </FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger data-testid="select-fund-name">
+                                      <SelectValue placeholder={language === "en" ? "Select fund name" : "ファンド名を選択"} />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="felicity-fund-i">Felicity Fund I</SelectItem>
+                                    <SelectItem value="felicity-fund-ii">Felicity Fund II</SelectItem>
+                                    <SelectItem value="felicity-fund-iii">Felicity Fund III</SelectItem>
+                                    <SelectItem value="felicity-growth-fund">Felicity Growth Fund</SelectItem>
+                                    <SelectItem value="felicity-secondary-fund">Felicity Secondary Fund</SelectItem>
+                                    <SelectItem value="felicity-opportunity-fund">Felicity Opportunity Fund</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                           {/* GICS Industry Classification - Multi-level Selection */}
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
@@ -1677,6 +1727,7 @@ export default function PortfolioManagementPage() {
                                 companyName: "",
                                 companyNameJa: "",
                                 felicityCompany: "felicity-singapore",
+                                fundName: "",
                                 industry: "",
                                 investmentType: "growthequity",
                                 country: "",
@@ -1752,6 +1803,14 @@ export default function PortfolioManagementPage() {
                           {formatFelicityCompany(portfolio.felicityCompany)}
                         </span>
                       </div>
+                      {portfolio.fundName && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Fund:</span>
+                          <span data-testid={`text-fund-name-${portfolio.id}`} className="font-medium text-green-700 dark:text-green-300">
+                            {formatFundName(portfolio.fundName)}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Country:</span>
                         <span data-testid={`text-country-${portfolio.id}`}>
