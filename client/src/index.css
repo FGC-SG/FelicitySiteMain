@@ -114,19 +114,36 @@
     background: linear-gradient(45deg, #2f318d, #4338ca);
   }
 
-  /* Singapore skyline zoom-in animation */
+  /* Orbital satellite to Marina Bay Sands zoom animation */
   @keyframes zoom-in {
     0% {
+      transform: scale(8);
+      background-position: 50% 30%;
+      filter: blur(2px);
+    }
+    25% {
+      transform: scale(4);
+      background-position: 50% 40%;
+      filter: blur(1px);
+    }
+    50% {
+      transform: scale(2.5);
+      background-position: 50% 45%;
+      filter: blur(0.5px);
+    }
+    75% {
       transform: scale(1.5);
-      background-position: center top;
+      background-position: 50% 48%;
+      filter: blur(0px);
     }
     100% {
       transform: scale(1);
-      background-position: center center;
+      background-position: 50% 50%;
+      filter: blur(0px);
     }
   }
 
   .animate-zoom-in {
-    animation: zoom-in 8s ease-out forwards;
+    animation: zoom-in 12s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 }
