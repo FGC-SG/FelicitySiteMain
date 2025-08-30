@@ -1,4 +1,5 @@
 import { Phone } from "lucide-react";
+import jewelChangiImage from "@assets/generated_images/Jewel_Changi_waterfall_architecture_a9142a7a.png";
 import { useTranslation, type Language } from "@/lib/i18n";
 
 interface CompanyProfilesProps {
@@ -26,8 +27,8 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
             <div className="relative h-48">
               {/* Singapore business district with Marina Bay Financial Centre towers */}
               <img
-                src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
-                alt="Singapore Marina Bay Financial Centre"
+                src={jewelChangiImage}
+                alt="Jewel Changi Airport waterfall"
                 className="w-full h-full object-cover"
                 data-testid="img-singapore-skyline"
               />
