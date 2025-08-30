@@ -87,6 +87,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-30: Updated Tokyo office image to traditional Japanese Ukiyo-e art style featuring Mount Fuji for enhanced cultural authenticity
 - 2025-08-30: Enhanced Tokyo office image to combine high-rise buildings with Mount Fuji rendered in traditional Ukiyo-e (浮世絵) woodblock print style
 - 2025-08-30: Added Tokyo Tower to the Ukiyo-e style image creating complete Tokyo landmark composition with Tower, skyline, and Mount Fuji
+- 2025-08-30: Created comprehensive Privacy Policy page with PDPA (Singapore), GDPR (EU), and US privacy law compliance
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

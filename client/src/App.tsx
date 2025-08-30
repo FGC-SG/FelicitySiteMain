@@ -20,6 +20,7 @@ import PortfolioManagement from "@/pages/portfolio-management";
 import AddUserStandalone from "@/pages/add-user-standalone";
 import AcceptInvitation from "@/pages/accept-invitation";
 import ResetPassword from "@/pages/reset-password";
+import PrivacyPolicy from "@/pages/privacy-policy";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -81,6 +82,7 @@ function Router() {
       <Route path="/add-user" component={AddUserStandalone} />
       <Route path="/accept-invitation" component={AcceptInvitation} />
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route component={NotFound} />
     </Switch>
   );

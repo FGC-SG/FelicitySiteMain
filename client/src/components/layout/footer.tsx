@@ -75,13 +75,13 @@ export function Footer({ language }: FooterProps) {
                 </button>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-muted-foreground hover:felicity-primary transition-colors"
+                <button
+                  onClick={() => window.location.href = '/privacy-policy'}
+                  className="text-muted-foreground hover:felicity-primary transition-colors text-left"
                   data-testid="footer-link-privacy"
                 >
                   Privacy Policy
-                </a>
+                </button>
               </li>
             </ul>
           </div>
