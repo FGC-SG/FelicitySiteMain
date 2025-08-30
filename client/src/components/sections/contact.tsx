@@ -57,7 +57,11 @@ export function Contact({ language }: ContactProps) {
               </div>
             </div>
 
-            <div className="bg-secondary rounded-lg p-6" data-testid="card-business-hours">
+          </div>
+
+          {/* Business Hours - Centered */}
+          <div className="flex justify-center mt-8">
+            <div className="bg-secondary rounded-lg p-6 max-w-md w-full text-center" data-testid="card-business-hours">
               <h5 className="font-semibold felicity-primary mb-2">{t.contact.businessHours}</h5>
               <p className="text-sm text-muted-foreground whitespace-pre-line" data-testid="text-business-hours">
                 {t.contact.businessHoursTime}
