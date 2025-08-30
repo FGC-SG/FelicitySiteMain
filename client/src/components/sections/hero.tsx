@@ -29,7 +29,7 @@ export function Hero({ language }: HeroProps) {
         className="hero-background absolute inset-0 animate-zoom-in"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
-          backgroundPosition: "40% 52%",
+          backgroundPosition: "30% 48%",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover"
         }}
