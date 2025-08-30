@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useTranslation, type Language } from "@/lib/i18n";
+import singaporeSkylineUrl from "@assets/generated_images/Singapore_skyline_from_ocean_dea87d8f.png";
 
 interface HeroProps {
   language: Language;
@@ -28,7 +29,7 @@ export function Hero({ language }: HeroProps) {
       <div 
         className="hero-background absolute inset-0 animate-zoom-in"
         style={{
-          backgroundImage: "url('@assets/generated_images/Singapore_skyline_from_ocean_dea87d8f.png')",
+          backgroundImage: `url(${singaporeSkylineUrl})`,
           backgroundPosition: "center center",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover"
