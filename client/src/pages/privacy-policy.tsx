@@ -183,7 +183,7 @@ export default function PrivacyPolicyPage() {
                   <div className="bg-secondary rounded-lg p-6">
                     <h3 className="text-xl font-semibold mb-4">Data Protection Officer</h3>
                     <div className="space-y-2 text-muted-foreground">
-                      <p><strong>Email:</strong> privacy@fgcsg.com</p>
+                      <p><strong>Email:</strong> info@fgcsg.com</p>
                       <p><strong>Singapore Office:</strong><br />
                         6 Temasek Boulevard #29-04<br />
                         Suntec Tower Four<br />
