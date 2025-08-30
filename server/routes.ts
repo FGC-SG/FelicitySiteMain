@@ -15,7 +15,13 @@ import * as XLSX from "xlsx";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize default admin user for production environments
-  await storage.initializeDefaultUser();
+  try {
+    await storage.initializeDefaultUser();
+    console.log("Database initialized successfully");
+  } catch (error) {
+    console.error("Database initialization failed:", error);
+    // Continue without failing - allow application to start
+  }
   
   // Auth middleware - temporarily disabled for development
   // await setupAuth(app);
