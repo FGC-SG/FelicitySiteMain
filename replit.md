@@ -80,7 +80,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-30: Added temporary production login system with access codes (fgc2025, felicity, prod2025) for quick deployment authentication without complex setup requirements
 - 2025-08-30: Removed Gemini API dependency completely - uninstalled @google/genai package and confirmed translation system operates entirely on comprehensive fallback mappings
 - 2025-08-30: Removed OpenAI API dependency completely - uninstalled openai package, no external AI API calls remaining in application
-- 2025-08-30: Added visitor-friendly temporary login interface to home page - visitors can now access admin features using temporary codes (fgc2025, felicity, prod2025) displayed directly on the landing page
+- 2025-08-30: Added visitor-friendly temporary login interface to home page - visitors can now access admin features using temporary code (fgc2025) displayed directly on the landing page
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view

@@ -114,7 +114,7 @@ export default function Home() {
                 
                 {/* Access codes hint */}
                 <div className="text-xs text-muted-foreground text-center pt-2 border-t">
-                  <p>Try: <code className="bg-muted px-1 py-0.5 rounded">fgc2025</code>, <code className="bg-muted px-1 py-0.5 rounded">felicity</code>, or <code className="bg-muted px-1 py-0.5 rounded">prod2025</code></p>
+                  <p>Access Code: <code className="bg-muted px-1 py-0.5 rounded">fgc2025</code></p>
                 </div>
               </CardContent>
             </Card>
