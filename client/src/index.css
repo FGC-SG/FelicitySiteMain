@@ -138,12 +138,12 @@
     }
     80% {
       transform: scale(1.4);
-      background-position: 35% 45%;
+      background-position: center center;
       filter: blur(0.5px) brightness(0.95);
     }
     100% {
       transform: scale(1);
-      background-position: 30% 48%;
+      background-position: center center;
       filter: blur(0px) brightness(1);
     }
   }
