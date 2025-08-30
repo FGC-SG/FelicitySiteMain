@@ -22,13 +22,7 @@ export function Hero({ language }: HeroProps) {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center"
-      style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover"
-      }}
+      className="hero-section relative min-h-screen flex items-center"
     >
       {/* Singapore Marina Bay skyline with modern skyscrapers featuring iconic buildings */}
       <div className="hero-overlay absolute inset-0"></div>

@@ -102,7 +102,41 @@
   }
   
   .hero-overlay {
-    background: linear-gradient(135deg, rgba(47, 49, 141, 0.9) 0%, rgba(47, 49, 141, 0.7) 100%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
+  }
+
+  /* Drone-like video background animation */
+  @keyframes droneFloat {
+    0% { transform: scale(1.05) translateX(0) translateY(0); }
+    25% { transform: scale(1.08) translateX(10px) translateY(-5px); }
+    50% { transform: scale(1.06) translateX(0) translateY(-10px); }
+    75% { transform: scale(1.09) translateX(-8px) translateY(-3px); }
+    100% { transform: scale(1.05) translateX(0) translateY(0); }
+  }
+
+  .hero-section {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: -5%;
+    left: -5%;
+    width: 110%;
+    height: 110%;
+    background-image: url('@assets/generated_images/Drone_Singapore_skyline_shot_3913d375.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    animation: droneFloat 20s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .hero-section .hero-overlay {
+    position: relative;
+    z-index: 1;
   }
   
   .glass-effect {
