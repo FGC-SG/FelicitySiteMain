@@ -33,7 +33,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                 className="w-full h-full object-cover"
                 data-testid="img-singapore-skyline"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               <div className="absolute bottom-4 left-6">
                 <h3 className="text-2xl font-bold text-white">Singapore</h3>
               </div>
@@ -84,7 +84,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                 className="w-full h-full object-cover"
                 data-testid="img-tokyo-skyline"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               <div className="absolute bottom-4 left-6">
                 <h3 className="text-2xl font-bold text-white">Tokyo</h3>
               </div>
