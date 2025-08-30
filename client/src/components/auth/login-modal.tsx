@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Language } from "@/lib/i18n";
-import { Eye, EyeOff, User, Lock } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Key } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -30,6 +31,7 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose, onSuccess, language }: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [tempCode, setTempCode] = useState("");
   const { toast } = useToast();
 
   const form = useForm<LoginForm>({
@@ -67,8 +69,41 @@ export function LoginModal({ isOpen, onClose, onSuccess, language }: LoginModalP
     },
   });
 
+  const tempLoginMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const response = await apiRequest("POST", "/api/auth/temp-login", { code });
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: language === "en" ? "Production Access Granted" : "本番アクセス許可",
+        description: language === "en" 
+          ? "Temporary admin access activated" 
+          : "一時管理者アクセスが有効化されました",
+      });
+      setTempCode("");
+      onSuccess();
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: language === "en" ? "Invalid Code" : "無効なコード",
+        description: language === "en" 
+          ? "Please check your access code" 
+          : "アクセスコードを確認してください",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = (data: LoginForm) => {
     loginMutation.mutate(data);
+  };
+
+  const handleTempLogin = () => {
+    if (tempCode.trim()) {
+      tempLoginMutation.mutate(tempCode.trim());
+    }
   };
 
   const t = {
@@ -80,6 +115,12 @@ export function LoginModal({ isOpen, onClose, onSuccess, language }: LoginModalP
     cancel: language === "en" ? "Cancel" : "キャンセル",
     emailPlaceholder: language === "en" ? "Enter your email" : "メールアドレスを入力",
     passwordPlaceholder: language === "en" ? "Enter your password" : "パスワードを入力",
+    orDivider: language === "en" ? "OR" : "または",
+    tempTitle: language === "en" ? "Production Quick Access" : "本番クイックアクセス",
+    tempSubtitle: language === "en" ? "Use temporary access code for deployment" : "デプロイ用の一時アクセスコードを使用",
+    tempCodeLabel: language === "en" ? "Access Code" : "アクセスコード",
+    tempCodePlaceholder: language === "en" ? "Enter access code" : "アクセスコードを入力",
+    tempLogin: language === "en" ? "Quick Access" : "クイックアクセス",
   };
 
   return (
@@ -181,6 +222,59 @@ export function LoginModal({ isOpen, onClose, onSuccess, language }: LoginModalP
                 </div>
               </form>
             </Form>
+            
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    {t.orDivider}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-6 space-y-4">
+                <div className="text-center">
+                  <h4 className="text-sm font-medium">{t.tempTitle}</h4>
+                  <p className="text-xs text-muted-foreground mt-1">{t.tempSubtitle}</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="temp-code" className="flex items-center gap-2 text-sm">
+                      <Key className="h-4 w-4" />
+                      {t.tempCodeLabel}
+                    </Label>
+                    <Input
+                      id="temp-code"
+                      type="text"
+                      placeholder={t.tempCodePlaceholder}
+                      value={tempCode}
+                      onChange={(e) => setTempCode(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleTempLogin();
+                        }
+                      }}
+                      data-testid="input-temp-code"
+                      className="mt-1"
+                    />
+                  </div>
+                  
+                  <Button
+                    type="button"
+                    onClick={handleTempLogin}
+                    disabled={!tempCode.trim() || tempLoginMutation.isPending}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                    data-testid="button-temp-login"
+                  >
+                    {tempLoginMutation.isPending ? "..." : t.tempLogin}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </DialogContent>

@@ -136,6 +136,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Temporary production login route for quick access
+  app.post('/api/auth/temp-login', async (req, res) => {
+    try {
+      const { code } = req.body;
+      
+      // Temporary production access codes
+      const tempCodes = {
+        'fgc2025': { email: 'admin@fgcsg.com', role: 'admin' },
+        'felicity': { email: 'temp@fgcsg.com', role: 'admin' },
+        'prod2025': { email: 'production@fgcsg.com', role: 'admin' }
+      };
+      
+      if (!tempCodes[code as keyof typeof tempCodes]) {
+        return res.status(401).json({ message: "Invalid access code" });
+      }
+      
+      const tempUser = tempCodes[code as keyof typeof tempCodes];
+      
+      // Create temporary session user
+      const sessionUser = {
+        id: `temp-${Date.now()}`,
+        email: tempUser.email,
+        firstName: 'Temporary',
+        lastName: 'Admin',
+        role: tempUser.role,
+        isActive: true,
+        profileImageUrl: null,
+        isTemporary: true // Flag to identify temporary sessions
+      };
+      
+      // Set session
+      (req as any).session.user = sessionUser;
+      
+      console.log(`Temporary login successful with code: ${code}`);
+      res.json(sessionUser);
+    } catch (error) {
+      console.error("Error during temporary login:", error);
+      res.status(500).json({ message: "Temporary login failed" });
+    }
+  });
+
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
     try {

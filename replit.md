@@ -77,6 +77,7 @@ A professional corporate website for Felicity Global Capital Pte. Ltd. with bili
 - 2025-08-29: Added Reverse Display Order functionality to both Member Management admin page and public Members section with toggle button to switch between normal and reverse sorting by display order
 - 2025-08-29: Implemented Admin-Only Access Control for News and Portfolio sections - created AdminRoute component with feature toggle system allowing sections to be admin-only during development and easily opened to public later
 - 2025-08-29: Enhanced member section layout by reducing grid columns from 5 to 3 maximum, making each member card wider and more readable with better content display
+- 2025-08-30: Added temporary production login system with access codes (fgc2025, felicity, prod2025) for quick deployment authentication without complex setup requirements
 
 ## User Preferences
 - Background: Singapore skyline/skyscraper view
