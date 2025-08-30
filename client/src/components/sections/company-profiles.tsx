@@ -1,6 +1,6 @@
 import { Phone } from "lucide-react";
 import jewelChangiImage from "@assets/generated_images/Jewel_Changi_waterfall_architecture_a9142a7a.png";
-import ukiyoeTokyoImage from "@assets/generated_images/Ukiyo-e_Tokyo_skyline_Mount_Fuji_c9f2bb6a.png";
+import ukiyoeTokyoTowerImage from "@assets/generated_images/Ukiyo-e_Tokyo_Tower_skyline_Fuji_96d40aa0.png";
 import { useTranslation, type Language } from "@/lib/i18n";
 
 interface CompanyProfilesProps {
@@ -79,8 +79,8 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
             <div className="relative h-48">
               {/* Modern Tokyo business district skyline */}
               <img
-                src={ukiyoeTokyoImage}
-                alt="Tokyo skyline with Mount Fuji in Ukiyo-e style"
+                src={ukiyoeTokyoTowerImage}
+                alt="Tokyo Tower skyline with Mount Fuji in Ukiyo-e style"
                 className="w-full h-full object-cover"
                 data-testid="img-tokyo-skyline"
               />
