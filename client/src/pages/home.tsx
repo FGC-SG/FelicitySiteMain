@@ -21,12 +21,12 @@ export default function Home() {
   const [tempCode, setTempCode] = useState("");
   const [showTempLogin, setShowTempLogin] = useState(false);
 
-  // Show temporary login for visitors instead of redirecting
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      setShowTempLogin(true);
-    }
-  }, [isAuthenticated, isLoading]);
+  // No longer needed since access gate handles this
+  // useEffect(() => {
+  //   if (!isLoading && !isAuthenticated) {
+  //     setShowTempLogin(true);
+  //   }
+  // }, [isAuthenticated, isLoading]);
 
   const tempLoginMutation = useMutation({
     mutationFn: async (code: string) => {
@@ -60,8 +60,8 @@ export default function Home() {
 
 
 
-  // Show visitor interface with temporary login if not authenticated
-  if (showTempLogin && !isAuthenticated && !isLoading) {
+  // The access gate now handles visitor access, so normal home page logic
+  if (false) { // Disabled since AccessGate handles this now
     return (
       <div className="min-h-screen bg-background font-sans">
         <Navigation language={language} onLanguageChange={setLanguage} />
