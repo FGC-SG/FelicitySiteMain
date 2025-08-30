@@ -22,15 +22,18 @@ export function Hero({ language }: HeroProps) {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center"
-      style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover"
-      }}
+      className="relative min-h-screen flex items-center overflow-hidden"
     >
-      {/* Singapore Marina Bay skyline with modern skyscrapers featuring iconic buildings */}
+      {/* Singapore Marina Bay skyline with zoom-in animation */}
+      <div 
+        className="hero-background absolute inset-0 animate-zoom-in"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover"
+        }}
+      ></div>
       <div className="hero-overlay absolute inset-0"></div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <div className="max-w-4xl mx-auto">

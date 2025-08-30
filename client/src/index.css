@@ -113,4 +113,20 @@
   .news-badge {
     background: linear-gradient(45deg, #2f318d, #4338ca);
   }
+
+  /* Singapore skyline zoom-in animation */
+  @keyframes zoom-in {
+    0% {
+      transform: scale(1.5);
+      background-position: center top;
+    }
+    100% {
+      transform: scale(1);
+      background-position: center center;
+    }
+  }
+
+  .animate-zoom-in {
+    animation: zoom-in 8s ease-out forwards;
+  }
 }
