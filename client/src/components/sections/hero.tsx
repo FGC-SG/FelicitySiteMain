@@ -24,12 +24,12 @@ export function Hero({ language }: HeroProps) {
       id="home"
       className="relative min-h-screen flex items-center overflow-hidden"
     >
-      {/* Singapore Marina Bay skyline with zoom-in animation */}
+      {/* Singapore Raffles Place and Marina Bay skyline with zoom-in animation */}
       <div 
         className="hero-background absolute inset-0 animate-zoom-in"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
-          backgroundPosition: "center",
+          backgroundPosition: "40% 52%",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover"
         }}
