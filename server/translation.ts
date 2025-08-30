@@ -1,4 +1,4 @@
-// ChatGPT API disabled - no longer requiring OPENAI_API_KEY
+// OpenAI API completely removed - using comprehensive fallback translation mappings only
 
 interface TranslationRequest {
   title: string;
@@ -17,9 +17,9 @@ interface TranslationResponse {
 export async function translateToJapanese(
   text: TranslationRequest
 ): Promise<TranslationResponse> {
-  // ChatGPT API usage disabled per user request
+  // OpenAI API completely removed per user request
   // Using comprehensive fallback translation mappings only
-  console.log("Using fallback translations (ChatGPT API disabled)");
+  console.log("Using fallback translations (OpenAI API removed)");
   
   const translations = {
     title: getJapaneseTitle(text.title),
