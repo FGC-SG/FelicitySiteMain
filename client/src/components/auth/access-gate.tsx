@@ -115,11 +115,7 @@ export function AccessGate({ onAccessGranted }: AccessGateProps) {
             </form>
             
             {/* Hint for access code */}
-            <div className="mt-4 pt-4 border-t border-white/20">
-              <p className="text-xs text-blue-200 text-center">
-                Access Code: <code className="bg-white/10 px-2 py-1 rounded text-blue-100 font-mono">fgc2025</code>
-              </p>
-            </div>
+
           </CardContent>
         </Card>
         
