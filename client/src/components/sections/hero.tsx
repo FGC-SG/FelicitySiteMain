@@ -58,7 +58,7 @@ export function Hero({ language }: HeroProps) {
             </Button>
             <Button
               onClick={handleInvestmentApproach}
-              className="border-2 border-white text-white bg-red-600/80 backdrop-blur-sm px-8 py-3 rounded-lg font-semibold hover:bg-red-500 hover:text-white transition-colors shadow-lg"
+              className="border-2 border-white text-white bg-black/20 backdrop-blur-sm px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors shadow-lg"
               size="lg"
               data-testid="button-investment-approach"
             >
