@@ -73,13 +73,13 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div className="ml-6 flex items-baseline space-x-4">
+            <div className="ml-4 flex items-baseline space-x-2">
               {navItems.map((item: any) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`px-2 py-2 text-sm font-medium transition-colors ${
                     location === item.href
                       ? "felicity-primary"
                       : "text-muted-foreground hover:felicity-primary"
@@ -93,7 +93,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           </div>
 
           {/* Language & Auth */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <LanguageSwitcher
               currentLanguage={language}
               onLanguageChange={onLanguageChange}
@@ -101,7 +101,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
             {!isLoading && (
               <>
                 {isAuthenticated ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Link href="/management">
                       <Button
                         variant="outline"
