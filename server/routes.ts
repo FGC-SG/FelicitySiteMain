@@ -1179,6 +1179,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let imported = 0;
       const errors: string[] = [];
 
+      // Get a valid author ID from the database (use first real user, not temporary)
+      const users = await storage.getAllUsers();
+      let validAuthorId = users.find((u: any) => !u.id.startsWith('temp-'))?.id;
+      
+      // If no real users exist, use the default admin user
+      if (!validAuthorId) {
+        const adminUser = await storage.getUserByEmail('onuma@fgcsg.com');
+        validAuthorId = adminUser?.id || sessionUser.id;
+      }
+
       for (let index = 0; index < jsonData.length; index++) {
         const row = jsonData[index];
         try {
@@ -1196,7 +1206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             tags: rowData['Tags'] || rowData['tags'] || '',
             language: 'en',
             category: 'news',
-            authorId: sessionUser.id,
+            authorId: validAuthorId,
             publishedAt: new Date(),
           };
 
