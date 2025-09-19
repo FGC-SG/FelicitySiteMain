@@ -1246,7 +1246,6 @@ export default function PortfolioManagementPage() {
         >
           {language === "en" ? "← Back to Portfolio" : "← ポートフォリオに戻る"}
         </Button>
-        
       </div>
       <Navigation language={language} onLanguageChange={setLanguage} />
       <main className="pt-16">

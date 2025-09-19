@@ -73,13 +73,13 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div className="ml-4 flex items-baseline space-x-2">
+            <div className="ml-4 flex items-baseline space-x-3">
               {navItems.map((item: any) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className={`px-2 py-2 text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 text-sm font-medium transition-colors ${
                     location === item.href
                       ? "felicity-primary"
                       : "text-muted-foreground hover:felicity-primary"
