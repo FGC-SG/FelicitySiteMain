@@ -966,8 +966,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Configure multer for file uploads
-  const upload = multer({ storage: multer.memoryStorage() });
+  // Configure multer for file uploads with security limits
+  const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+      files: 1, // Only allow single file
+    },
+    fileFilter: (req, file, cb) => {
+      // Check MIME types
+      const allowedMimeTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'text/csv', // .csv
+        'application/csv'
+      ];
+      
+      // Check file extension
+      const allowedExtensions = ['.xlsx', '.xls', '.csv'];
+      const fileExtension = '.' + file.originalname.split('.').pop()?.toLowerCase();
+      
+      if (allowedMimeTypes.includes(file.mimetype) && allowedExtensions.includes(fileExtension)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid file type. Only Excel (.xlsx, .xls) and CSV files are allowed.'));
+      }
+    }
+  });
 
   // Portfolio bulk import route
   app.post('/api/portfolios/import', upload.single('file'), async (req, res) => {
@@ -989,15 +1014,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let workbook: XLSX.WorkBook;
 
       // Parse file based on extension
-      if (req.file.originalname.endsWith('.csv')) {
-        const csvData = buffer.toString('utf8');
-        workbook = XLSX.read(csvData, { type: 'string' });
-      } else {
-        workbook = XLSX.read(buffer, { type: 'buffer' });
+      try {
+        if (req.file.originalname.endsWith('.csv')) {
+          const csvData = buffer.toString('utf8');
+          workbook = XLSX.read(csvData, { type: 'string' });
+        } else {
+          workbook = XLSX.read(buffer, { type: 'buffer' });
+        }
+      } catch (parseError) {
+        return res.status(400).json({ 
+          message: "Failed to parse file. Please ensure it's a valid Excel or CSV file.",
+          error: parseError instanceof Error ? parseError.message : 'Unknown parse error'
+        });
+      }
+
+      // Validate workbook structure
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        return res.status(400).json({ message: "File contains no sheets" });
       }
 
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+      // Limit number of rows to prevent memory issues
+      const MAX_ROWS = 1000;
+      if (jsonData.length > MAX_ROWS) {
+        return res.status(400).json({ 
+          message: `File contains too many rows. Maximum allowed: ${MAX_ROWS}, found: ${jsonData.length}` 
+        });
+      }
+
+      if (jsonData.length === 0) {
+        return res.status(400).json({ message: "File contains no data rows" });
+      }
 
       let imported = 0;
       const errors: string[] = [];
@@ -1093,15 +1142,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let workbook: XLSX.WorkBook;
 
       // Parse file based on extension
-      if (req.file.originalname.endsWith('.csv')) {
-        const csvData = buffer.toString('utf8');
-        workbook = XLSX.read(csvData, { type: 'string' });
-      } else {
-        workbook = XLSX.read(buffer, { type: 'buffer' });
+      try {
+        if (req.file.originalname.endsWith('.csv')) {
+          const csvData = buffer.toString('utf8');
+          workbook = XLSX.read(csvData, { type: 'string' });
+        } else {
+          workbook = XLSX.read(buffer, { type: 'buffer' });
+        }
+      } catch (parseError) {
+        return res.status(400).json({ 
+          message: "Failed to parse file. Please ensure it's a valid Excel or CSV file.",
+          error: parseError instanceof Error ? parseError.message : 'Unknown parse error'
+        });
+      }
+
+      // Validate workbook structure
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        return res.status(400).json({ message: "File contains no sheets" });
       }
 
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+      // Limit number of rows to prevent memory issues
+      const MAX_ROWS = 1000;
+      if (jsonData.length > MAX_ROWS) {
+        return res.status(400).json({ 
+          message: `File contains too many rows. Maximum allowed: ${MAX_ROWS}, found: ${jsonData.length}` 
+        });
+      }
+
+      if (jsonData.length === 0) {
+        return res.status(400).json({ message: "File contains no data rows" });
+      }
 
       let imported = 0;
       const errors: string[] = [];

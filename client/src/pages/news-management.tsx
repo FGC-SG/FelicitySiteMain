@@ -92,18 +92,57 @@ export default function NewsManagementPage() {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to import news data');
-      }
-
       const result = await response.json();
+
+      if (!response.ok) {
+        // Handle specific error messages from server
+        toast({
+          title: language === "jp" ? "インポート失敗" : "Import Failed",
+          description: result.message || (language === "jp" ? "ニュースデータのインポートに失敗しました。" : "Failed to import news data."),
+          variant: "destructive",
+        });
+        return;
+      }
       
+      // Handle successful import with possible errors
+      const hasErrors = result.errors && result.errors.length > 0;
+      const successMessage = language === "jp" ? 
+        `${result.imported}件のニュース記事をインポートしました。` : 
+        `Successfully imported ${result.imported} news articles.`;
+      
+      const errorMessage = hasErrors ? 
+        (language === "jp" ? 
+          `${result.errors.length}件のエラーがありました。` : 
+          `${result.errors.length} errors occurred.`) : '';
+
       toast({
-        title: language === "jp" ? "インポート成功" : "Import Successful",
-        description: language === "jp" ? 
-          `${result.imported}件のニュース記事をインポートしました。` : 
-          `Successfully imported ${result.imported} news articles.`,
+        title: language === "jp" ? "インポート完了" : "Import Complete",
+        description: `${successMessage} ${errorMessage}`,
+        variant: hasErrors ? "destructive" : "default",
       });
+
+      // Show detailed errors if present
+      if (hasErrors && result.errors.length <= 5) {
+        // Show first 5 errors
+        result.errors.forEach((error: string, index: number) => {
+          setTimeout(() => {
+            toast({
+              title: language === "jp" ? `エラー ${index + 1}` : `Error ${index + 1}`,
+              description: error,
+              variant: "destructive",
+            });
+          }, 1000 * (index + 1));
+        });
+      } else if (hasErrors) {
+        toast({
+          title: language === "jp" ? "詳細エラー" : "Additional Errors",
+          description: language === "jp" ? 
+            `合計${result.errors.length}件のエラーがありました。詳細についてはコンソールをご確認ください。` :
+            `Total of ${result.errors.length} errors occurred. Check console for details.`,
+          variant: "destructive",
+        });
+        console.error('Import errors:', result.errors);
+      }
 
       // Refresh the news list
       refetch();
@@ -111,7 +150,7 @@ export default function NewsManagementPage() {
       console.error('Error importing news:', error);
       toast({
         title: language === "jp" ? "インポート失敗" : "Import Failed",
-        description: language === "jp" ? "ニュースデータのインポートに失敗しました。再度お試しください。" : "Failed to import news data. Please try again.",
+        description: language === "jp" ? "ネットワークエラーまたはサーバーエラーが発生しました。" : "Network or server error occurred.",
         variant: "destructive",
       });
     }
