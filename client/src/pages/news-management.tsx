@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, FileText, Calendar, User, Tag, Plus, Eye, Download } from "lucide-react";
+import { ArrowLeft, FileText, Calendar, User, Tag, Plus, Eye, Download, Upload } from "lucide-react";
 import { Link } from "wouter";
 
 interface NewsArticle {
@@ -64,6 +64,60 @@ export default function NewsManagementPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    const allowedTypes = ['.xlsx', '.xls', '.csv'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      toast({
+        title: language === "jp" ? "ファイル形式エラー" : "Invalid File Type",
+        description: language === "jp" ? "Excel (.xlsx, .xls) またはCSV (.csv) ファイルを選択してください。" : "Please select an Excel (.xlsx, .xls) or CSV (.csv) file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/news/import', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to import news data');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: language === "jp" ? "インポート成功" : "Import Successful",
+        description: language === "jp" ? 
+          `${result.imported}件のニュース記事をインポートしました。` : 
+          `Successfully imported ${result.imported} news articles.`,
+      });
+
+      // Refresh the news list
+      refetch();
+    } catch (error) {
+      console.error('Error importing news:', error);
+      toast({
+        title: language === "jp" ? "インポート失敗" : "Import Failed",
+        description: language === "jp" ? "ニュースデータのインポートに失敗しました。再度お試しください。" : "Failed to import news data. Please try again.",
+        variant: "destructive",
+      });
+    }
+
+    // Reset the input
+    event.target.value = '';
   };
 
   const { data: newsArticles, isLoading, error, refetch } = useQuery({
@@ -173,6 +227,22 @@ export default function NewsManagementPage() {
                   <Download className="h-4 w-4 mr-2" />
                   {language === "en" ? "Export Excel" : "Excelエクスポート"}
                 </Button>
+                <Button 
+                  onClick={() => document.getElementById('bulk-upload-news')?.click()}
+                  variant="outline"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                  data-testid="button-bulk-upload-news"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {language === "en" ? "Bulk Upload" : "一括アップロード"}
+                </Button>
+                <input
+                  id="bulk-upload-news"
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  style={{ display: 'none' }}
+                  onChange={handleBulkUpload}
+                />
                 <Button 
                   onClick={() => setShowAddForm(true)}
                   className="bg-blue-600 hover:bg-blue-700"

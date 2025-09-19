@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, ArrowLeft } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, Upload, ArrowLeft } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Portfolio } from "@shared/schema";
@@ -91,6 +91,60 @@ export default function PortfolioManagementPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    const allowedTypes = ['.xlsx', '.xls', '.csv'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      toast({
+        title: language === 'jp' ? "ファイル形式エラー" : "Invalid File Type",
+        description: language === 'jp' ? "Excel (.xlsx, .xls) またはCSV (.csv) ファイルを選択してください。" : "Please select an Excel (.xlsx, .xls) or CSV (.csv) file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/portfolios/import', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to import portfolio data');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: language === 'jp' ? "インポート成功" : "Import Successful",
+        description: language === 'jp' ? 
+          `${result.imported}件のポートフォリオ企業をインポートしました。` : 
+          `Successfully imported ${result.imported} portfolio companies.`,
+      });
+
+      // Refresh the portfolio list
+      queryClient.invalidateQueries({ queryKey: ['/api/portfolios'] });
+    } catch (error) {
+      console.error('Error importing portfolio:', error);
+      toast({
+        title: language === 'jp' ? "インポート失敗" : "Import Failed",
+        description: language === 'jp' ? "ポートフォリオデータのインポートに失敗しました。再度お試しください。" : "Failed to import portfolio data. Please try again.",
+        variant: "destructive",
+      });
+    }
+
+    // Reset the input
+    event.target.value = '';
   };
 
   const form = useForm<PortfolioFormData>({
@@ -1337,6 +1391,22 @@ export default function PortfolioManagementPage() {
                   <Download className="h-4 w-4 mr-2" />
                   {language === "en" ? "Export Excel" : "Excelエクスポート"}
                 </Button>
+                <Button 
+                  onClick={() => document.getElementById('bulk-upload-portfolio')?.click()}
+                  variant="outline"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                  data-testid="button-bulk-upload-portfolio"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {language === "en" ? "Bulk Upload" : "一括アップロード"}
+                </Button>
+                <input
+                  id="bulk-upload-portfolio"
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  style={{ display: 'none' }}
+                  onChange={handleBulkUpload}
+                />
                 <Dialog open={isAddDialogOpen || editingPortfolio !== null} 
                         onOpenChange={(open) => {
                           if (!open) {

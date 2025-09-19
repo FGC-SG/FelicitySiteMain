@@ -12,6 +12,8 @@ import {
 import { ObjectPermission } from "./objectAcl";
 import { translateNewsArticle } from "./translation";
 import * as XLSX from "xlsx";
+import multer from "multer";
+import { Readable } from "stream";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize default admin user for production environments
@@ -961,6 +963,206 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error exporting portfolio to Excel:', error);
       res.status(500).json({ message: 'Failed to export portfolio data' });
+    }
+  });
+
+  // Configure multer for file uploads
+  const upload = multer({ storage: multer.memoryStorage() });
+
+  // Portfolio bulk import route
+  app.post('/api/portfolios/import', upload.single('file'), async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const buffer = req.file.buffer;
+      let workbook: XLSX.WorkBook;
+
+      // Parse file based on extension
+      if (req.file.originalname.endsWith('.csv')) {
+        const csvData = buffer.toString('utf8');
+        workbook = XLSX.read(csvData, { type: 'string' });
+      } else {
+        workbook = XLSX.read(buffer, { type: 'buffer' });
+      }
+
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+      let imported = 0;
+      const errors: string[] = [];
+
+      for (let index = 0; index < jsonData.length; index++) {
+        const row = jsonData[index];
+        try {
+          const rowData = row as any;
+          
+          // Map Excel columns to database fields
+          const portfolioData = {
+            companyName: rowData['Company Name'] || rowData['companyName'] || '',
+            companyNameJa: rowData['Company Name (Japanese)'] || rowData['companyNameJa'] || '',
+            felicityCompany: rowData['Felicity Company'] || rowData['felicityCompany'] || 'felicity-singapore',
+            fundName: rowData['Fund Name'] || rowData['fundName'] || '',
+            investmentType: rowData['Investment Type'] || rowData['investmentType'] || 'growthequity',
+            country: rowData['Country'] || rowData['country'] || '',
+            industry: rowData['Industry'] || rowData['industry'] || '',
+            businessDescription: rowData['Business Description'] || rowData['businessDescription'] || '',
+            description: rowData['Description'] || rowData['description'] || '',
+            descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
+            website: rowData['Website'] || rowData['website'] || '',
+            succession: rowData['Succession'] === 'Yes' || rowData['succession'] === true || false,
+            investmentPeriod: rowData['Investment Period'] || rowData['investmentPeriod'] || '',
+          };
+
+          // Validate required fields
+          if (!portfolioData.companyName) {
+            errors.push(`Row ${index + 2}: Company name is required`);
+            continue;
+          }
+          if (!portfolioData.description) {
+            errors.push(`Row ${index + 2}: Description is required`);
+            continue;
+          }
+          if (!portfolioData.industry) {
+            errors.push(`Row ${index + 2}: Industry is required`);
+            continue;
+          }
+          if (!portfolioData.country) {
+            errors.push(`Row ${index + 2}: Country is required`);
+            continue;
+          }
+
+          // Validate investment type
+          const validInvestmentTypes = ['buyout', 'growthequity', 'secondary'];
+          if (!validInvestmentTypes.includes(portfolioData.investmentType)) {
+            portfolioData.investmentType = 'growthequity'; // Default fallback
+          }
+
+          // Validate felicity company
+          const validCompanies = ['felicity-singapore', 'felicity-japan'];
+          if (!validCompanies.includes(portfolioData.felicityCompany)) {
+            portfolioData.felicityCompany = 'felicity-singapore'; // Default fallback
+          }
+
+          await storage.createPortfolio(portfolioData);
+          imported++;
+        } catch (error) {
+          console.error(`Error importing row ${index + 2}:`, error);
+          errors.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      res.json({ 
+        imported, 
+        errors: errors.length > 0 ? errors : undefined,
+        message: `Successfully imported ${imported} portfolio companies${errors.length > 0 ? ` with ${errors.length} errors` : ''}`
+      });
+    } catch (error) {
+      console.error('Error importing portfolio data:', error);
+      res.status(500).json({ message: 'Failed to import portfolio data' });
+    }
+  });
+
+  // News bulk import route
+  app.post('/api/news/import', upload.single('file'), async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const buffer = req.file.buffer;
+      let workbook: XLSX.WorkBook;
+
+      // Parse file based on extension
+      if (req.file.originalname.endsWith('.csv')) {
+        const csvData = buffer.toString('utf8');
+        workbook = XLSX.read(csvData, { type: 'string' });
+      } else {
+        workbook = XLSX.read(buffer, { type: 'buffer' });
+      }
+
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+      let imported = 0;
+      const errors: string[] = [];
+
+      for (let index = 0; index < jsonData.length; index++) {
+        const row = jsonData[index];
+        try {
+          const rowData = row as any;
+          
+          // Map Excel columns to database fields
+          const newsData = {
+            title: rowData['Title'] || rowData['title'] || '',
+            titleJa: rowData['Title (Japanese)'] || rowData['titleJa'] || '',
+            description: rowData['Description'] || rowData['description'] || '',
+            descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
+            content: rowData['Content'] || rowData['content'] || '',
+            contentJa: rowData['Content (Japanese)'] || rowData['contentJa'] || '',
+            felicityCompany: rowData['Felicity Company'] || rowData['felicityCompany'] || 'felicity-singapore',
+            tags: rowData['Tags'] || rowData['tags'] || '',
+            language: 'en',
+            category: 'news',
+            authorId: sessionUser.id,
+            publishedAt: new Date(),
+          };
+
+          // Validate required fields
+          if (!newsData.title) {
+            errors.push(`Row ${index + 2}: Title is required`);
+            continue;
+          }
+          if (!newsData.description) {
+            errors.push(`Row ${index + 2}: Description is required`);
+            continue;
+          }
+          if (!newsData.content) {
+            errors.push(`Row ${index + 2}: Content is required`);
+            continue;
+          }
+
+          // Validate felicity company
+          const validCompanies = ['felicity-singapore', 'felicity-japan'];
+          if (!validCompanies.includes(newsData.felicityCompany)) {
+            newsData.felicityCompany = 'felicity-singapore'; // Default fallback
+          }
+
+          await storage.createNewsArticle(newsData);
+          imported++;
+        } catch (error) {
+          console.error(`Error importing row ${index + 2}:`, error);
+          errors.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      res.json({ 
+        imported, 
+        errors: errors.length > 0 ? errors : undefined,
+        message: `Successfully imported ${imported} news articles${errors.length > 0 ? ` with ${errors.length} errors` : ''}`
+      });
+    } catch (error) {
+      console.error('Error importing news data:', error);
+      res.status(500).json({ message: 'Failed to import news data' });
     }
   });
 
