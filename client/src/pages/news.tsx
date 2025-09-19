@@ -9,13 +9,10 @@ export default function NewsPage() {
   const [language, setLanguage] = useState<Language>('en');
 
   return (
-    <AdminRoute allowPublicAccess={false}>
+    <AdminRoute allowPublicAccess={true}>
       <div className="min-h-screen bg-background font-sans">
         <Navigation language={language} onLanguageChange={setLanguage} />
         <main className="pt-16">
-          <div className="bg-orange-100 border border-orange-300 text-orange-800 px-4 py-2 text-center text-sm">
-            📝 Admin Preview: This News section is currently visible only to administrators
-          </div>
           <NewsSection language={language} />
         </main>
         <Footer language={language} />

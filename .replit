@@ -40,3 +40,11 @@ integrations = ["javascript_database==1.0.0", "javascript_gemini==1.0.0", "javas
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 36957
+externalPort = 3000
+
+[[ports]]
+localPort = 45525
+externalPort = 3001

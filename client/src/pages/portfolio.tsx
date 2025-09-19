@@ -150,15 +150,12 @@ function PortfolioPage() {
   }
 
   return (
-    <AdminRoute allowPublicAccess={false}>
+    <AdminRoute allowPublicAccess={true}>
       <div className="min-h-screen bg-background">
         <Navigation
           language={language}
           onLanguageChange={setLanguage}
         />
-        <div className="bg-orange-100 border border-orange-300 text-orange-800 px-4 py-2 text-center text-sm">
-          🔒 Admin Preview: This Portfolio section is currently visible only to administrators
-        </div>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
