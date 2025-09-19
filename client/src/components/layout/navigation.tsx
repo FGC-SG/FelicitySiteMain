@@ -31,10 +31,8 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
   const navItems = [
     { href: "/", label: t.nav.home },
     { href: "/about", label: t.nav.about },
-    ...(isAdmin ? [
-      { href: "/news", label: t.nav.news + " (Admin)", adminOnly: true },
-      { href: "/portfolio", label: "Portfolio (Admin)", adminOnly: true },
-    ] : []),
+    { href: "/news", label: t.nav.news },
+    { href: "/portfolio", label: t.nav.portfolio },
     { href: "/contact", label: t.nav.contact },
   ];
 
@@ -82,8 +80,6 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   href={item.href}
                   onClick={handleNavClick}
                   className={`px-3 py-2 text-sm font-medium transition-colors ${
-                    item.adminOnly ? 'text-orange-600 hover:text-orange-700' : ''
-                  } ${
                     location === item.href
                       ? "felicity-primary"
                       : "text-muted-foreground hover:felicity-primary"

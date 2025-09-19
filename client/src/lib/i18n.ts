@@ -3,6 +3,7 @@ export interface TranslationStrings {
     home: string;
     about: string;
     news: string;
+    portfolio: string;
     contact: string;
     login: string;
     logout: string;
@@ -107,6 +108,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       home: "Home",
       about: "About",
       news: "News",
+      portfolio: "Portfolio",
       contact: "Contact",
       login: "Login",
       logout: "Logout"
@@ -209,6 +211,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       home: "ホーム",
       about: "企業情報",
       news: "ニュース",
+      portfolio: "ポートフォリオ",
       contact: "お問い合わせ",
       login: "ログイン",
       logout: "ログアウト"
