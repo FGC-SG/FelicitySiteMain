@@ -1246,14 +1246,7 @@ export default function PortfolioManagementPage() {
         >
           {language === "en" ? "← Back to Portfolio" : "← ポートフォリオに戻る"}
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setLanguage(language === "en" ? "jp" : "en")}
-          data-testid="button-language-toggle"
-        >
-          {language === "en" ? "日本語" : "English"}
-        </Button>
+        
       </div>
       <Navigation language={language} onLanguageChange={setLanguage} />
       <main className="pt-16">
