@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { NewsManagement } from "@/components/news-management";
 import { Users, FileText, UserPlus, Building2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
 
 export default function ManagementPage() {
@@ -19,6 +19,136 @@ export default function ManagementPage() {
   const [showNewsList, setShowNewsList] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleExportNews = async () => {
+    try {
+      const response = await fetch('/api/news/export', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export news data');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-news-export-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: language === "jp" ? "エクスポート成功" : "Export Successful",
+        description: language === "jp" ? "ニュース記事がExcelファイルにエクスポートされました。" : "News articles have been exported to Excel file.",
+      });
+    } catch (error) {
+      console.error('Error exporting news:', error);
+      toast({
+        title: language === "jp" ? "エクスポート失敗" : "Export Failed",
+        description: language === "jp" ? "ニュース記事のエクスポートに失敗しました。再度お試しください。" : "Failed to export news articles. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    const allowedTypes = ['.xlsx', '.xls', '.csv'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      toast({
+        title: language === "jp" ? "ファイル形式エラー" : "Invalid File Type",
+        description: language === "jp" ? "Excel (.xlsx, .xls) またはCSV (.csv) ファイルを選択してください。" : "Please select an Excel (.xlsx, .xls) or CSV (.csv) file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/news/import', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Handle specific error messages from server
+        toast({
+          title: language === "jp" ? "インポート失敗" : "Import Failed",
+          description: result.message || (language === "jp" ? "ニュースデータのインポートに失敗しました。" : "Failed to import news data."),
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Handle successful import with possible errors
+      const hasErrors = result.errors && result.errors.length > 0;
+      const successMessage = language === "jp" ? 
+        `${result.imported}件のニュース記事をインポートしました。` : 
+        `Successfully imported ${result.imported} news articles.`;
+      
+      const errorMessage = hasErrors ? 
+        (language === "jp" ? 
+          `${result.errors.length}件のエラーがありました。` : 
+          `${result.errors.length} errors occurred.`) : '';
+
+      toast({
+        title: language === "jp" ? "インポート完了" : "Import Complete",
+        description: `${successMessage} ${errorMessage}`,
+        variant: hasErrors ? "destructive" : "default",
+      });
+
+      // Show detailed errors if present
+      if (hasErrors && result.errors.length <= 5) {
+        // Show first 5 errors
+        result.errors.forEach((error: string, index: number) => {
+          setTimeout(() => {
+            toast({
+              title: language === "jp" ? `エラー ${index + 1}` : `Error ${index + 1}`,
+              description: error,
+              variant: "destructive",
+            });
+          }, 1000 * (index + 1));
+        });
+      } else if (hasErrors) {
+        toast({
+          title: language === "jp" ? "詳細エラー" : "Additional Errors",
+          description: language === "jp" ? 
+            `合計${result.errors.length}件のエラーがありました。詳細についてはコンソールをご確認ください。` :
+            `Total of ${result.errors.length} errors occurred. Check console for details.`,
+          variant: "destructive",
+        });
+        console.error('Import errors:', result.errors);
+      }
+
+      // Refresh the news list
+      queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+    } catch (error) {
+      console.error('Error importing news:', error);
+      toast({
+        title: language === "jp" ? "インポート失敗" : "Import Failed",
+        description: language === "jp" ? "ネットワークエラーまたはサーバーエラーが発生しました。" : "Network or server error occurred.",
+        variant: "destructive",
+      });
+    }
+
+    // Reset the input
+    event.target.value = '';
+  };
 
   // Fetch users count
   const { data: users } = useQuery({
@@ -216,6 +346,8 @@ export default function ManagementPage() {
                 language={language}
                 onClose={() => setShowNewsList(false)}
                 currentUser={user}
+                handleExportNews={handleExportNews}
+                handleBulkUpload={handleBulkUpload}
               />
             </div>
           </div>

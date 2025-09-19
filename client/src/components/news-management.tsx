@@ -10,15 +10,17 @@ import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { type Language } from "@/lib/i18n";
 import { type NewsArticle } from "@shared/schema";
-import { Plus, Calendar, User, Globe, Trash2, Edit, FileText } from "lucide-react";
+import { Plus, Calendar, User, Globe, Trash2, Edit, FileText, Download, Upload } from "lucide-react";
 
 interface NewsManagementProps {
   language: Language;
   onClose?: () => void;
   currentUser?: any;
+  handleExportNews?: () => void;
+  handleBulkUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export function NewsManagement({ language, onClose, currentUser }: NewsManagementProps) {
+export function NewsManagement({ language, onClose, currentUser, handleExportNews, handleBulkUpload }: NewsManagementProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<NewsArticle | null>(null);
   const { toast } = useToast();
@@ -199,6 +201,28 @@ export function NewsManagement({ language, onClose, currentUser }: NewsManagemen
           </p>
         </div>
         <div className="flex gap-2">
+          {handleExportNews && (
+            <Button 
+              onClick={handleExportNews}
+              variant="outline"
+              className="border-green-600 text-green-600 hover:bg-green-50 gap-2"
+              data-testid="button-export-news"
+            >
+              <Download className="h-4 w-4" />
+              {language === "en" ? "Export Excel" : "Excelエクスポート"}
+            </Button>
+          )}
+          {handleBulkUpload && (
+            <Button 
+              onClick={() => document.getElementById('bulk-upload-news')?.click()}
+              variant="outline"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50 gap-2"
+              data-testid="button-bulk-upload-news"
+            >
+              <Upload className="h-4 w-4" />
+              {language === "en" ? "Bulk Upload" : "一括アップロード"}
+            </Button>
+          )}
           <Button 
             onClick={() => setShowAddForm(true)}
             className="gap-2"
@@ -218,6 +242,15 @@ export function NewsManagement({ language, onClose, currentUser }: NewsManagemen
           )}
         </div>
       </div>
+      {handleBulkUpload && (
+        <input
+          id="bulk-upload-news"
+          type="file"
+          accept=".xlsx,.xls,.csv"
+          style={{ display: 'none' }}
+          onChange={handleBulkUpload}
+        />
+      )}
 
       {/* Articles List */}
       {isLoading ? (
