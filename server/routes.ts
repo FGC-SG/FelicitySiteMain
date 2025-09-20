@@ -905,31 +905,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      // Create template data with headers and example row
+      // Create template data with headers only
       const templateData = [
-        // Headers
-        {
-          'Company Name': 'ENTER COMPANY NAME',
-          'Company Name (Japanese)': 'ENTER JAPANESE NAME (Optional)',
-          'Felicity Company': 'SELECT: felicity-singapore OR felicity-japan',
-          'Fund Name': 'SELECT FROM: felicity-fund-i, felicity-fund-ii, felicity-fund-iii, felicity-growth-fund, felicity-secondary-fund, felicity-opportunity-fund',
-          'Investment Type': 'SELECT: buyout, growthequity, secondary',
-          'Country': 'SELECT FROM: singapore, malaysia, japan, indonesia, thailand, philippines, vietnam, hongkong, taiwan, southkorea, china, india, australia, newzealand, unitedstates, unitedkingdom, other',
-          'Industry': 'SEE INDUSTRIES SHEET FOR OPTIONS',
-          'Investment Year': 'FORMAT: MM/YYYY (e.g., 03/2023)',
-          'Description': 'ENTER DESCRIPTION (Min 10 characters)',
-          'Description (Japanese)': 'ENTER JAPANESE DESCRIPTION (Optional)',
-          'Website': 'ENTER WEBSITE URL (Optional)',
-          'Created Date': 'LEAVE BLANK - Auto-generated',
-          'Updated Date': 'LEAVE BLANK - Auto-generated'
-        },
-        // Empty row for data entry
         {
           'Company Name': '',
           'Company Name (Japanese)': '',
-          'Felicity Company': '',
+          'Felicity Company': 'felicity-singapore',
           'Fund Name': '',
-          'Investment Type': '',
+          'Investment Type': 'growthequity',
           'Country': '',
           'Industry': '',
           'Investment Year': '',
@@ -944,97 +927,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create workbook and worksheet
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(templateData);
-      
-      // Define dropdown options for reference sheets
-      const felicityCompanyOptions = [
-        'felicity-singapore', 
-        'felicity-japan'
-      ];
-      
-      const fundNameOptions = [
-        'felicity-fund-i', 
-        'felicity-fund-ii', 
-        'felicity-fund-iii', 
-        'felicity-growth-fund', 
-        'felicity-secondary-fund', 
-        'felicity-opportunity-fund'
-      ];
-      
-      const investmentTypeOptions = [
-        'buyout', 
-        'growthequity', 
-        'secondary'
-      ];
-      
-      const countryOptions = [
-        'singapore', 'malaysia', 'japan', 'indonesia', 'thailand', 'philippines', 
-        'vietnam', 'hongkong', 'taiwan', 'southkorea', 'china', 'india', 
-        'australia', 'newzealand', 'unitedstates', 'unitedkingdom', 'other'
-      ];
-      
-      // Comprehensive industry options (simplified GICS)
-      const industryOptions = [
-        'Energy Equipment & Services', 'Oil, Gas & Consumable Fuels', 'Chemicals', 'Construction Materials', 
-        'Metals & Mining', 'Paper & Forest Products', 'Aerospace & Defense', 'Building Products',
-        'Construction & Engineering', 'Electrical Equipment', 'Industrial Conglomerates', 'Machinery',
-        'Trading Companies & Distributors', 'Commercial Services & Supplies', 'Professional Services',
-        'Transportation Infrastructure', 'Airlines', 'Marine Transportation', 'Ground Transportation',
-        'Auto Components', 'Automobiles', 'Household Durables', 'Leisure Products', 
-        'Textiles, Apparel & Luxury Goods', 'Hotels, Restaurants & Leisure', 'Diversified Consumer Services', 
-        'Media', 'Retailing', 'Consumer Staples Distribution & Retail', 'Beverages', 'Food Products', 
-        'Tobacco', 'Household Products', 'Personal Products', 'Health Care Equipment & Supplies', 
-        'Health Care Providers & Services', 'Health Care Technology', 'Biotechnology', 'Pharmaceuticals', 
-        'Life Sciences Tools & Services', 'Banks', 'Financial Services', 'Consumer Finance', 
-        'Capital Markets', 'Mortgage REITs', 'Equity REITs', 'Real Estate Management & Development', 
-        'Technology Hardware, Storage & Peripherals', 'Electronic Equipment, Instruments & Components', 
-        'Semiconductors & Semiconductor Equipment', 'Communications Equipment', 'Software', 'IT Services', 
-        'Entertainment', 'Interactive Media & Services', 'Wireless Telecommunication Services', 
-        'Diversified Telecommunication Services', 'Electric Utilities', 'Gas Utilities', 'Multi-Utilities', 
-        'Water Utilities', 'Independent Power and Renewable Electricity Producers'
-      ];
-
-      // Create reference sheets with options
-      const felicitySheet = XLSX.utils.aoa_to_sheet([
-        ['FELICITY COMPANY OPTIONS:'],
-        ['Copy and paste ONE of these values:'],
-        [''],
-        ...felicityCompanyOptions.map(o => [o])
-      ]);
-      
-      const fundSheet = XLSX.utils.aoa_to_sheet([
-        ['FUND NAME OPTIONS:'],
-        ['Copy and paste ONE of these values:'],
-        [''],
-        ...fundNameOptions.map(o => [o])
-      ]);
-      
-      const typeSheet = XLSX.utils.aoa_to_sheet([
-        ['INVESTMENT TYPE OPTIONS:'],
-        ['Copy and paste ONE of these values:'],
-        [''],
-        ...investmentTypeOptions.map(o => [o])
-      ]);
-      
-      const countrySheet = XLSX.utils.aoa_to_sheet([
-        ['COUNTRY OPTIONS:'],
-        ['Copy and paste ONE of these values:'],
-        [''],
-        ...countryOptions.map(o => [o])
-      ]);
-      
-      const industrySheet = XLSX.utils.aoa_to_sheet([
-        ['INDUSTRY OPTIONS:'],
-        ['Copy and paste ONE of these values:'],
-        [''],
-        ...industryOptions.map(o => [o])
-      ]);
-
-      // Add reference sheets to workbook
-      XLSX.utils.book_append_sheet(wb, felicitySheet, 'Felicity Companies');
-      XLSX.utils.book_append_sheet(wb, fundSheet, 'Fund Names');
-      XLSX.utils.book_append_sheet(wb, typeSheet, 'Investment Types');
-      XLSX.utils.book_append_sheet(wb, countrySheet, 'Countries');
-      XLSX.utils.book_append_sheet(wb, industrySheet, 'Industries');
       
       // Auto-size columns
       const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
