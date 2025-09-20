@@ -952,15 +952,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const timestamp = new Date().toISOString().split('T')[0];
       const filename = `felicity-portfolio-template-${timestamp}.xlsx`;
 
-      // Generate buffer
-      const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
-
       // Set headers for file download
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Length', buffer.length);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
-      // Send the file
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
       res.send(buffer);
     } catch (error) {
       console.error('Error exporting portfolio template:', error);
