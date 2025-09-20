@@ -928,6 +928,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(templateData);
       
+      // Define dropdown options
+      const felicityCompanyOptions = ['felicity-singapore', 'felicity-japan'];
+      const fundNameOptions = ['felicity-fund-i', 'felicity-fund-ii', 'felicity-fund-iii', 'felicity-growth-fund', 'felicity-secondary-fund', 'felicity-opportunity-fund'];
+      const investmentTypeOptions = ['buyout', 'growthequity', 'secondary'];
+      const countryOptions = ['singapore', 'malaysia', 'japan', 'indonesia', 'thailand', 'philippines', 'vietnam', 'hongkong', 'taiwan', 'southkorea', 'china', 'india', 'australia', 'newzealand', 'unitedstates', 'unitedkingdom', 'other'];
+      
+      // Common industry options (simplified GICS list for Excel compatibility)
+      const industryOptions = [
+        'Energy Equipment & Services', 'Oil, Gas & Consumable Fuels', 'Chemicals', 'Construction Materials', 
+        'Metals & Mining', 'Paper & Forest Products', 'Aerospace & Defense', 'Building Products',
+        'Construction & Engineering', 'Electrical Equipment', 'Industrial Conglomerates', 'Machinery',
+        'Trading Companies & Distributors', 'Commercial Services & Supplies', 'Professional Services',
+        'Transportation Infrastructure', 'Airlines', 'Marine Transportation', 'Ground Transportation',
+        'Transportation Infrastructure', 'Auto Components', 'Automobiles', 'Household Durables',
+        'Leisure Products', 'Textiles, Apparel & Luxury Goods', 'Hotels, Restaurants & Leisure',
+        'Diversified Consumer Services', 'Media', 'Retailing', 'Consumer Staples Distribution & Retail',
+        'Beverages', 'Food Products', 'Tobacco', 'Household Products', 'Personal Products',
+        'Health Care Equipment & Supplies', 'Health Care Providers & Services', 'Health Care Technology',
+        'Biotechnology', 'Pharmaceuticals', 'Life Sciences Tools & Services', 'Banks',
+        'Financial Services', 'Consumer Finance', 'Capital Markets', 'Mortgage REITs',
+        'Equity REITs', 'Real Estate Management & Development', 'Technology Hardware, Storage & Peripherals',
+        'Electronic Equipment, Instruments & Components', 'Semiconductors & Semiconductor Equipment',
+        'Communications Equipment', 'Software', 'IT Services', 'Entertainment', 'Interactive Media & Services',
+        'Wireless Telecommunication Services', 'Diversified Telecommunication Services', 'Electric Utilities',
+        'Gas Utilities', 'Multi-Utilities', 'Water Utilities', 'Independent Power and Renewable Electricity Producers'
+      ];
+
+      // Create dropdown validation lists on separate sheets
+      const felicitySheet = XLSX.utils.aoa_to_sheet([['Felicity Companies'], ...felicityCompanyOptions.map(o => [o])]);
+      const fundSheet = XLSX.utils.aoa_to_sheet([['Fund Names'], ...fundNameOptions.map(o => [o])]);
+      const typeSheet = XLSX.utils.aoa_to_sheet([['Investment Types'], ...investmentTypeOptions.map(o => [o])]);
+      const countrySheet = XLSX.utils.aoa_to_sheet([['Countries'], ...countryOptions.map(o => [o])]);
+      const industrySheet = XLSX.utils.aoa_to_sheet([['Industries'], ...industryOptions.map(o => [o])]);
+
+      // Add validation sheets to workbook
+      XLSX.utils.book_append_sheet(wb, felicitySheet, 'FelicityCompanies');
+      XLSX.utils.book_append_sheet(wb, fundSheet, 'FundNames');
+      XLSX.utils.book_append_sheet(wb, typeSheet, 'InvestmentTypes');
+      XLSX.utils.book_append_sheet(wb, countrySheet, 'Countries');
+      XLSX.utils.book_append_sheet(wb, industrySheet, 'Industries');
+
+      // Add data validation to main sheet
+      if (!ws['!dataValidation']) ws['!dataValidation'] = [];
+      
+      // Felicity Company dropdown (Column C)
+      ws['!dataValidation'].push({
+        ref: 'C2:C1000',
+        type: 'list',
+        allowBlank: true,
+        formula1: 'FelicityCompanies!$A$2:$A$' + (felicityCompanyOptions.length + 1)
+      });
+
+      // Fund Name dropdown (Column D)
+      ws['!dataValidation'].push({
+        ref: 'D2:D1000',
+        type: 'list',
+        allowBlank: true,
+        formula1: 'FundNames!$A$2:$A$' + (fundNameOptions.length + 1)
+      });
+
+      // Investment Type dropdown (Column E)
+      ws['!dataValidation'].push({
+        ref: 'E2:E1000',
+        type: 'list',
+        allowBlank: true,
+        formula1: 'InvestmentTypes!$A$2:$A$' + (investmentTypeOptions.length + 1)
+      });
+
+      // Country dropdown (Column F)
+      ws['!dataValidation'].push({
+        ref: 'F2:F1000',
+        type: 'list',
+        allowBlank: true,
+        formula1: 'Countries!$A$2:$A$' + (countryOptions.length + 1)
+      });
+
+      // Industry dropdown (Column G)
+      ws['!dataValidation'].push({
+        ref: 'G2:G1000',
+        type: 'list',
+        allowBlank: true,
+        formula1: 'Industries!$A$2:$A$' + (industryOptions.length + 1)
+      });
+      
       // Auto-size columns
       const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
       const colWidths = [];
