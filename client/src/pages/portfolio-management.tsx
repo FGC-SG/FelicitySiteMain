@@ -1473,7 +1473,7 @@ export default function PortfolioManagementPage() {
                   <DialogTrigger asChild>
                     <Button onClick={handleCreateNew} data-testid="button-add-portfolio">
                       <Plus className="h-4 w-4 mr-2" />
-                      {language === "en" ? "Add Company" : "企業を追加"}
+                      {language === "en" ? "Add Portfolio" : "ポートフォリオを追加"}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-portfolio-form">
@@ -1901,7 +1901,7 @@ export default function PortfolioManagementPage() {
                               ? (language === "en" ? "Saving..." : "保存中...") 
                               : editingPortfolio 
                                 ? (language === "en" ? "Update Company" : "企業を更新") 
-                                : (language === "en" ? "Add Company" : "企業を追加")
+                                : (language === "en" ? "Add Portfolio" : "ポートフォリオを追加")
                             }
                           </Button>
                         </div>
