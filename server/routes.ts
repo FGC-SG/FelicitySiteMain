@@ -894,6 +894,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/portfolios/export-template', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Create template data with headers only
+      const templateData = [
+        {
+          'Company Name': '',
+          'Company Name (Japanese)': '',
+          'Felicity Company': 'felicity-singapore',
+          'Fund Name': '',
+          'Investment Type': 'growthequity',
+          'Country': '',
+          'Industry': '',
+          'Investment Year': '',
+          'Description': '',
+          'Description (Japanese)': '',
+          'Website': '',
+          'Created Date': '',
+          'Updated Date': ''
+        }
+      ];
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        // Set minimum width for better usability
+        colWidths.push({ wch: Math.max(maxWidth, 15) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Portfolio Template');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-portfolio-template-${timestamp}.xlsx`;
+
+      // Generate buffer
+      const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+      // Set headers for file download
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Length', buffer.length);
+
+      // Send the file
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting portfolio template:', error);
+      res.status(500).json({ message: "Failed to export portfolio template" });
+    }
+  });
+
   app.get('/api/portfolios/export', async (req, res) => {
     try {
       const sessionUser = (req as any).session?.user;

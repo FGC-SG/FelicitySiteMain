@@ -92,6 +92,42 @@ export default function PortfolioManagementPage() {
     }
   };
 
+  const handleExportTemplate = async () => {
+    try {
+      const response = await fetch('/api/portfolios/export-template', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export template');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-portfolio-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: language === 'jp' ? "テンプレートエクスポート成功" : "Template Export Successful",
+        description: language === 'jp' ? "ポートフォリオテンプレートがExcelファイルにエクスポートされました。" : "Portfolio template has been exported to Excel file.",
+      });
+    } catch (error) {
+      console.error('Error exporting template:', error);
+      toast({
+        title: language === 'jp' ? "テンプレートエクスポート失敗" : "Template Export Failed",
+        description: language === 'jp' ? "ポートフォリオテンプレートのエクスポートに失敗しました。再度お試しください。" : "Failed to export portfolio template. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1419,6 +1455,15 @@ export default function PortfolioManagementPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Button 
+                  onClick={handleExportTemplate}
+                  variant="outline"
+                  className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                  data-testid="button-export-template"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {language === "en" ? "Export Template" : "テンプレートエクスポート"}
+                </Button>
                 <Button 
                   onClick={handleExportPortfolio}
                   variant="outline"
