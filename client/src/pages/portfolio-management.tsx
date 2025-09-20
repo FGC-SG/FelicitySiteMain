@@ -31,6 +31,7 @@ const portfolioFormSchema = z.object({
   industry: z.string().min(1, "Industry is required"),
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
   country: z.string().min(1, "Country is required"),
+  investmentYear: z.string().regex(/^(0[1-9]|1[0-2])\/\d{4}$/, "Investment year must be in MM/YYYY format").optional().or(z.literal("")),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   succession: z.boolean().default(false),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -195,6 +196,7 @@ export default function PortfolioManagementPage() {
       industry: "",
       investmentType: "growthequity",
       country: "",
+      investmentYear: "",
       website: "",
       succession: false,
       description: "",
@@ -320,6 +322,7 @@ export default function PortfolioManagementPage() {
       industry: portfolio.industry,
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
+      investmentYear: portfolio.investmentYear ?? "",
       website: portfolio.website ?? "",
       succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
@@ -341,6 +344,7 @@ export default function PortfolioManagementPage() {
       industry: "",
       investmentType: "growthequity",
       country: "",
+      investmentYear: "",
       website: "",
       succession: false,
       description: "",
@@ -1454,6 +1458,7 @@ export default function PortfolioManagementPage() {
                               industry: "",
                               investmentType: "growthequity",
                               country: "",
+                              investmentYear: "",
                               website: "",
                               succession: false,
                               description: "",
@@ -1787,6 +1792,24 @@ export default function PortfolioManagementPage() {
                           
                           <FormField
                             control={form.control}
+                            name="investmentYear"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{language === "en" ? "Investment Year" : "投資年"}</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    placeholder="MM/YYYY (e.g., 03/2023)"
+                                    data-testid="input-investment-year" 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
                             name="website"
                             render={({ field }) => (
                               <FormItem>
@@ -1855,6 +1878,7 @@ export default function PortfolioManagementPage() {
                                 industry: "",
                                 investmentType: "growthequity",
                                 country: "",
+                                investmentYear: "",
                                 website: "",
                                 succession: false,
                                 description: "",
@@ -1940,11 +1964,11 @@ export default function PortfolioManagementPage() {
                           {formatCountryName(portfolio.country)}
                         </span>
                       </div>
-                      {portfolio.businessDescription && (
+                      {portfolio.investmentYear && (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Business:</span>
-                          <span data-testid={`text-business-description-${portfolio.id}`} className="text-right max-w-[200px] truncate">
-                            {portfolio.businessDescription}
+                          <span className="text-muted-foreground">Investment Year:</span>
+                          <span data-testid={`text-investment-year-${portfolio.id}`} className="font-medium text-purple-700 dark:text-purple-300">
+                            {portfolio.investmentYear}
                           </span>
                         </div>
                       )}

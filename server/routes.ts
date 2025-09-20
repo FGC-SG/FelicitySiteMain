@@ -916,12 +916,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Investment Type': portfolio.investmentType,
         'Country': portfolio.country,
         'Industry': portfolio.industry,
-        'Business Description': portfolio.businessDescription || '',
+        'Investment Year': portfolio.investmentYear || '',
         'Description': portfolio.description || '',
         'Description (Japanese)': portfolio.descriptionJa || '',
         'Website': portfolio.website || '',
         'Succession': portfolio.succession ? 'Yes' : 'No',
-        'Investment Period': portfolio.investmentPeriod || '',
         'Created Date': portfolio.createdAt ? new Date(portfolio.createdAt).toLocaleDateString() : '',
         'Updated Date': portfolio.updatedAt ? new Date(portfolio.updatedAt).toLocaleDateString() : ''
       }));
@@ -1065,12 +1064,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             investmentType: rowData['Investment Type'] || rowData['investmentType'] || 'growthequity',
             country: rowData['Country'] || rowData['country'] || '',
             industry: rowData['Industry'] || rowData['industry'] || '',
-            businessDescription: rowData['Business Description'] || rowData['businessDescription'] || '',
+            investmentYear: rowData['Investment Year'] || rowData['investmentYear'] || '',
             description: rowData['Description'] || rowData['description'] || '',
             descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
             website: rowData['Website'] || rowData['website'] || '',
             succession: rowData['Succession'] === 'Yes' || rowData['succession'] === true || false,
-            investmentPeriod: rowData['Investment Period'] || rowData['investmentPeriod'] || '',
           };
 
           // Validate required fields
