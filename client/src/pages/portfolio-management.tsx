@@ -426,6 +426,21 @@ export default function PortfolioManagementPage() {
     }
   };
 
+  const getInvestmentTypeColor = (type: string) => {
+    switch (type) {
+      case "buyout": return "border-blue-200 text-blue-700 bg-blue-50";
+      case "growthequity": return "border-green-200 text-green-700 bg-green-50";
+      case "secondary": return "border-purple-200 text-purple-700 bg-purple-50";
+      default: return "border-gray-200 text-gray-700 bg-gray-50";
+    }
+  };
+
+  const handleDeletePortfolio = (portfolioId: string, companyName: string) => {
+    if (window.confirm(`Are you sure you want to delete ${companyName}? This action cannot be undone.`)) {
+      deletePortfolioMutation.mutate(portfolioId);
+    }
+  };
+
   // GICS Search functionality
   const searchGicsData = (searchTerm: string) => {
     if (!searchTerm.trim() || searchTerm.length < 2) return [];
@@ -1540,7 +1555,7 @@ export default function PortfolioManagementPage() {
                             className="gap-1"
                             data-testid={`button-edit-portfolio-${portfolio.id}`}
                           >
-                            <Edit className="h-3 w-3" />
+                            <Pencil className="h-3 w-3" />
                             {language === "en" ? "Edit" : "編集"}
                           </Button>
                           <Button 
@@ -2071,8 +2086,7 @@ export default function PortfolioManagementPage() {
           </Button>
         </div>
       </div>
-    </section>
-  </main>
+    </main>
   <Footer language={language} />
 </div>
 );
