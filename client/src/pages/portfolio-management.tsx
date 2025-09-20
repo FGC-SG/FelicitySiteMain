@@ -1367,7 +1367,79 @@ export default function PortfolioManagementPage() {
         {/* Management Section */}
         <section className="py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Controls */}
+            {/* Header */}
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-xl font-bold mb-2">
+                  {language === "en" ? "Portfolio Management" : "ポートフォリオ管理"}
+                </h3>
+                <p className="text-muted-foreground">
+                  {language === "en" 
+                    ? "Manage portfolio companies and investment details" 
+                    : "ポートフォリオ企業と投資詳細を管理"}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleExportPortfolio}
+                  variant="outline"
+                  className="border-green-600 text-green-600 hover:bg-green-50 gap-2"
+                  data-testid="button-export-portfolio"
+                >
+                  <Download className="h-4 w-4" />
+                  {language === "en" ? "Export Excel" : "Excelエクスポート"}
+                </Button>
+                <Button 
+                  onClick={() => document.getElementById('bulk-upload-portfolio')?.click()}
+                  variant="outline"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50 gap-2"
+                  data-testid="button-bulk-upload-portfolio"
+                >
+                  <Upload className="h-4 w-4" />
+                  {language === "en" ? "Bulk Upload" : "一括アップロード"}
+                </Button>
+                <Dialog open={isAddDialogOpen || editingPortfolio !== null} 
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            setIsAddDialogOpen(false);
+                            setEditingPortfolio(null);
+                            form.reset({
+                              companyName: "",
+                              companyNameJa: "",
+                              felicityCompany: "felicity-singapore",
+                              industry: "",
+                              investmentType: "growthequity",
+                              country: "",
+                              businessDescription: "",
+                              website: "",
+                              succession: false,
+                              description: "",
+                              descriptionJa: "",
+                            });
+                            setSelectedSector("");
+                            setSelectedIndustryGroup("");
+                            setSelectedIndustry("");
+                            setSelectedSubIndustry("");
+                          }
+                        }}>
+                  <DialogTrigger asChild>
+                    <Button onClick={handleCreateNew} className="gap-2" data-testid="button-add-portfolio">
+                      <Plus className="h-4 w-4" />
+                      {language === "en" ? "Add Company" : "企業を追加"}
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+              </div>
+            </div>
+            <input
+              id="bulk-upload-portfolio"
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              style={{ display: 'none' }}
+              onChange={handleBulkUpload}
+            />
+
+            {/* Search and Filter Controls */}
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <div className="flex-1">
                 <div className="relative">
@@ -1421,83 +1493,141 @@ export default function PortfolioManagementPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button 
-                  onClick={handleExportPortfolio}
-                  variant="outline"
-                  className="border-green-600 text-green-600 hover:bg-green-50"
-                  data-testid="button-export-portfolio"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  {language === "en" ? "Export Excel" : "Excelエクスポート"}
+              </div>
+            </div>
+
+            {/* Portfolio Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredPortfolios?.map((portfolio) => (
+                <Card key={portfolio.id} className="hover:shadow-lg transition-shadow" data-testid={`card-portfolio-${portfolio.id}`}>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg mb-1" data-testid={`text-company-name-${portfolio.id}`}>
+                          {portfolio.companyName}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground" data-testid={`text-industry-${portfolio.id}`}>
+                          {portfolio.industry}
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant="outline" 
+                          className={getInvestmentTypeColor(portfolio.investmentType)}
+                          data-testid={`badge-investment-type-${portfolio.id}`}
+                        >
+                          {formatInvestmentType(portfolio.investmentType)}
+                        </Badge>
+                        <Badge variant="secondary" data-testid={`badge-country-${portfolio.id}`}>
+                          {formatCountryName(portfolio.country)}
+                        </Badge>
+                      </div>
+                      {portfolio.businessDescription && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {portfolio.businessDescription}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEdit(portfolio)}
+                            className="gap-1"
+                            data-testid={`button-edit-portfolio-${portfolio.id}`}
+                          >
+                            <Edit className="h-3 w-3" />
+                            {language === "en" ? "Edit" : "編集"}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDeletePortfolio(portfolio.id, portfolio.companyName)}
+                            className="gap-1"
+                            data-testid={`button-delete-portfolio-${portfolio.id}`}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            {language === "en" ? "Delete" : "削除"}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {filteredPortfolios?.length === 0 && (
+              <div className="text-center py-12">
+                <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {language === "en" ? "No portfolio companies yet" : "ポートフォリオ企業がありません"}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {language === "en" 
+                    ? "Get started by adding your first portfolio company" 
+                    : "最初のポートフォリオ企業を追加して開始しましょう"}
+                </p>
+                <Button onClick={handleCreateNew} data-testid="button-add-first-portfolio">
+                  {language === "en" ? "Add First Company" : "最初の企業を追加"}
                 </Button>
-                <Button 
-                  onClick={() => document.getElementById('bulk-upload-portfolio')?.click()}
-                  variant="outline"
-                  className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                  data-testid="button-bulk-upload-portfolio"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {language === "en" ? "Bulk Upload" : "一括アップロード"}
-                </Button>
-                <input
-                  id="bulk-upload-portfolio"
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  style={{ display: 'none' }}
-                  onChange={handleBulkUpload}
-                />
-                <Dialog open={isAddDialogOpen || editingPortfolio !== null} 
-                        onOpenChange={(open) => {
-                          if (!open) {
-                            setIsAddDialogOpen(false);
-                            setEditingPortfolio(null);
-                            form.reset({
-                              companyName: "",
-                              companyNameJa: "",
-                              felicityCompany: "felicity-singapore",
-                              industry: "",
-                              investmentType: "growthequity",
-                              country: "",
-                              businessDescription: "",
-                              website: "",
-                              succession: false,
-                              description: "",
-                              descriptionJa: "",
-                            });
-                            setSelectedSector("");
-                            setSelectedIndustryGroup("");
-                            setSelectedIndustry("");
-                            setSelectedSubIndustry("");
-                          }
-                        }}>
-                  <DialogTrigger asChild>
-                    <Button onClick={handleCreateNew} data-testid="button-add-portfolio">
-                      <Plus className="h-4 w-4 mr-2" />
-                      {language === "en" ? "Add Company" : "企業を追加"}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-portfolio-form">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingPortfolio 
-                          ? (language === "en" ? "Edit Portfolio Company" : "ポートフォリオ企業を編集")
-                          : (language === "en" ? "Add New Portfolio Company" : "新しいポートフォリオ企業を追加")
-                        }
-                      </DialogTitle>
-                      <DialogDescription>
-                        {editingPortfolio 
-                          ? (language === "en" 
-                              ? "Update the portfolio company information below."
-                              : "下記のポートフォリオ企業情報を更新してください。"
-                            )
-                          : (language === "en"
-                              ? "Fill in the details for the new portfolio company."
-                              : "新しいポートフォリオ企業の詳細を入力してください。"
-                            )
-                        }
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Form {...form}>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Add/Edit Dialog */}
+        <Dialog open={isAddDialogOpen || editingPortfolio !== null} 
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setIsAddDialogOpen(false);
+                    setEditingPortfolio(null);
+                    form.reset({
+                      companyName: "",
+                      companyNameJa: "",
+                      felicityCompany: "felicity-singapore",
+                      industry: "",
+                      investmentType: "growthequity",
+                      country: "",
+                      businessDescription: "",
+                      website: "",
+                      succession: false,
+                      description: "",
+                      descriptionJa: "",
+                    });
+                    setSelectedSector("");
+                    setSelectedIndustryGroup("");
+                    setSelectedIndustry("");
+                    setSelectedSubIndustry("");
+                  }
+                }}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-portfolio-form">
+            <DialogHeader>
+              <DialogTitle>
+                {editingPortfolio 
+                  ? (language === "en" ? "Edit Portfolio Company" : "ポートフォリオ企業を編集")
+                  : (language === "en" ? "Add New Portfolio Company" : "新しいポートフォリオ企業を追加")
+                }
+              </DialogTitle>
+              <DialogDescription>
+                {editingPortfolio 
+                  ? (language === "en" 
+                      ? "Update the portfolio company information below."
+                      : "下記のポートフォリオ企業情報を更新してください。"
+                    )
+                  : (language === "en"
+                      ? "Fill in the details for the new portfolio company."
+                      : "新しいポートフォリオ企業の詳細を入力してください。"
+                    )
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
                       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
@@ -1909,162 +2039,41 @@ export default function PortfolioManagementPage() {
                     </Form>
                   </DialogContent>
                 </Dialog>
-              </div>
-            </div>
 
-            {/* Portfolio Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPortfolios?.map((portfolio) => (
-                <Card key={portfolio.id} className="hover:shadow-lg transition-shadow" data-testid={`card-portfolio-${portfolio.id}`}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg mb-1" data-testid={`text-company-name-${portfolio.id}`}>
-                          {portfolio.companyName}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground" data-testid={`text-industry-${portfolio.id}`}>
-                          {portfolio.industry}
-                        </p>
-                      </div>
-                      <Badge 
-                        variant="outline" 
-                        className={
-                          portfolio.investmentType === "buyout" 
-                            ? "border-blue-500 text-blue-700 bg-blue-50 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-400" 
-                            : portfolio.investmentType === "growthequity"
-                            ? "border-green-500 text-green-700 bg-green-50 dark:bg-green-950 dark:text-green-300 dark:border-green-400"
-                            : "border-purple-500 text-purple-700 bg-purple-50 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-400"
-                        }
-                        data-testid={`badge-investment-type-${portfolio.id}`}
-                      >
-                        {formatInvestmentType(portfolio.investmentType)}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Company:</span>
-                        <span data-testid={`text-felicity-company-${portfolio.id}`} className="font-medium text-blue-700 dark:text-blue-300">
-                          {formatFelicityCompany(portfolio.felicityCompany)}
-                        </span>
-                      </div>
-                      {portfolio.fundName && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Fund:</span>
-                          <span data-testid={`text-fund-name-${portfolio.id}`} className="font-medium text-green-700 dark:text-green-300">
-                            {formatFundName(portfolio.fundName)}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Country:</span>
-                        <span data-testid={`text-country-${portfolio.id}`}>
-                          {formatCountryName(portfolio.country)}
-                        </span>
-                      </div>
-                      {portfolio.businessDescription && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Business:</span>
-                          <span data-testid={`text-business-description-${portfolio.id}`} className="text-right max-w-[200px] truncate">
-                            {portfolio.businessDescription}
-                          </span>
-                        </div>
-                      )}
-                      {portfolio.website && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Website:</span>
-                          <a 
-                            href={portfolio.website.startsWith('http') ? portfolio.website : `https://${portfolio.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 text-sm underline"
-                            data-testid={`link-website-${portfolio.id}`}
-                          >
-                            Visit Website
-                          </a>
-                        </div>
-                      )}
-                      {portfolio.succession && (
-                        <Badge variant="secondary" className="text-xs" data-testid={`badge-succession-${portfolio.id}`}>
-                          Succession
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-4 line-clamp-2" data-testid={`text-description-${portfolio.id}`}>
-                      {portfolio.description}
-                    </p>
-                    <div className="flex justify-end space-x-2 mt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(portfolio)}
-                        data-testid={`button-edit-${portfolio.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" data-testid={`button-delete-${portfolio.id}`}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent data-testid={`dialog-delete-${portfolio.id}`}>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Portfolio Company</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete {portfolio.companyName}? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel data-testid={`button-cancel-delete-${portfolio.id}`}>
-                              Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deletePortfolioMutation.mutate(portfolio.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              data-testid={`button-confirm-delete-${portfolio.id}`}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
+            {/* Empty State */}
             {filteredPortfolios?.length === 0 && (
               <div className="text-center py-12">
-                <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-muted-foreground mb-2" data-testid="text-no-companies">
-                  No companies found
+                <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {language === "en" ? "No portfolio companies yet" : "ポートフォリオ企業がありません"}
                 </h3>
-                <p className="text-muted-foreground" data-testid="text-no-companies-description">
-                  {searchTerm || filterType !== "all" || filterCountry !== "all"
-                    ? "Try adjusting your search or filters."
-                    : "Get started by adding your first portfolio company."
-                  }
+                <p className="text-muted-foreground mb-4">
+                  {language === "en" 
+                    ? "Get started by adding your first portfolio company" 
+                    : "最初のポートフォリオ企業を追加して開始しましょう"}
                 </p>
+                <Button onClick={handleCreateNew} data-testid="button-add-first-portfolio">
+                  {language === "en" ? "Add First Company" : "最初の企業を追加"}
+                </Button>
               </div>
             )}
-
-            {/* Back to Management */}
-            <div className="flex justify-center mt-12">
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.href = "/management"}
-                data-testid="button-back-management"
-              >
-                Back to Management Portal
-              </Button>
-            </div>
           </div>
         </section>
-      </main>
-      <Footer language={language} />
-    </div>
-  );
+
+        {/* Back to Management */}
+        <div className="flex justify-center mt-12">
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.href = "/management"}
+            data-testid="button-back-management"
+          >
+            Back to Management Portal
+          </Button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer language={language} />
+</div>
+);
 }
