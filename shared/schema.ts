@@ -69,20 +69,12 @@ export const portfolios = pgTable("portfolios", {
   felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
   fundName: varchar("fund_name"),
   industry: varchar("industry").notNull(),
-  industryJa: varchar("industry_ja"),
   investmentType: varchar("investment_type").notNull(), // buyout, growth-equity, secondary
   country: varchar("country").notNull(),
-  countryJa: varchar("country_ja"),
   investmentYear: varchar("investment_year"), // MM/YYYY format
-  succession: boolean("succession").default(false),
   description: text("description"),
   descriptionJa: text("description_ja"),
   website: varchar("website"),
-  logoUrl: varchar("logo_url"),
-  gicsSector: varchar("gics_sector"),
-  gicsIndustryGroup: varchar("gics_industry_group"),
-  gicsIndustry: varchar("gics_industry"),
-  gicsSubIndustry: varchar("gics_sub_industry"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

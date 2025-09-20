@@ -33,7 +33,6 @@ const portfolioFormSchema = z.object({
   country: z.string().min(1, "Country is required"),
   investmentYear: z.string().regex(/^(0[1-9]|1[0-2])\/\d{4}$/, "Investment year must be in MM/YYYY format").optional().or(z.literal("")),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
-  succession: z.boolean().default(false),
   description: z.string().min(10, "Description must be at least 10 characters"),
   descriptionJa: z.string().optional().or(z.literal("")),
 });
@@ -198,7 +197,7 @@ export default function PortfolioManagementPage() {
       country: "",
       investmentYear: "",
       website: "",
-      succession: false,
+
       description: "",
       descriptionJa: "",
     },
@@ -324,7 +323,6 @@ export default function PortfolioManagementPage() {
       country: portfolio.country,
       investmentYear: portfolio.investmentYear ?? "",
       website: portfolio.website ?? "",
-      succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
       descriptionJa: portfolio.descriptionJa ?? "",
     });
@@ -346,7 +344,7 @@ export default function PortfolioManagementPage() {
       country: "",
       investmentYear: "",
       website: "",
-      succession: false,
+
       description: "",
       descriptionJa: "",
     });
@@ -1460,7 +1458,7 @@ export default function PortfolioManagementPage() {
                               country: "",
                               investmentYear: "",
                               website: "",
-                              succession: false,
+                        
                               description: "",
                               descriptionJa: "",
                             });
@@ -1880,7 +1878,7 @@ export default function PortfolioManagementPage() {
                                 country: "",
                                 investmentYear: "",
                                 website: "",
-                                succession: false,
+                          
                                 description: "",
                                 descriptionJa: "",
                               });
@@ -1985,11 +1983,6 @@ export default function PortfolioManagementPage() {
                             Visit Website
                           </a>
                         </div>
-                      )}
-                      {portfolio.succession && (
-                        <Badge variant="secondary" className="text-xs" data-testid={`badge-succession-${portfolio.id}`}>
-                          Succession
-                        </Badge>
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground mt-4 line-clamp-2" data-testid={`text-description-${portfolio.id}`}>

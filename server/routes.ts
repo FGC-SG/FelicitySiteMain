@@ -920,7 +920,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Description': portfolio.description || '',
         'Description (Japanese)': portfolio.descriptionJa || '',
         'Website': portfolio.website || '',
-        'Succession': portfolio.succession ? 'Yes' : 'No',
         'Created Date': portfolio.createdAt ? new Date(portfolio.createdAt).toLocaleDateString() : '',
         'Updated Date': portfolio.updatedAt ? new Date(portfolio.updatedAt).toLocaleDateString() : ''
       }));
@@ -1068,7 +1067,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description: rowData['Description'] || rowData['description'] || '',
             descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
             website: rowData['Website'] || rowData['website'] || '',
-            succession: rowData['Succession'] === 'Yes' || rowData['succession'] === true || false,
           };
 
           // Validate required fields
