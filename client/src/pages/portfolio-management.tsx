@@ -31,7 +31,6 @@ const portfolioFormSchema = z.object({
   industry: z.string().min(1, "Industry is required"),
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
   country: z.string().min(1, "Country is required"),
-  businessDescription: z.string().optional().or(z.literal("")),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   succession: z.boolean().default(false),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -196,7 +195,6 @@ export default function PortfolioManagementPage() {
       industry: "",
       investmentType: "growthequity",
       country: "",
-      businessDescription: "",
       website: "",
       succession: false,
       description: "",
@@ -322,7 +320,6 @@ export default function PortfolioManagementPage() {
       industry: portfolio.industry,
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
-      businessDescription: portfolio.businessDescription ?? "",
       website: portfolio.website ?? "",
       succession: portfolio.succession ?? false,
       description: portfolio.description ?? "",
@@ -344,7 +341,6 @@ export default function PortfolioManagementPage() {
       industry: "",
       investmentType: "growthequity",
       country: "",
-      businessDescription: "",
       website: "",
       succession: false,
       description: "",
@@ -1458,7 +1454,6 @@ export default function PortfolioManagementPage() {
                               industry: "",
                               investmentType: "growthequity",
                               country: "",
-                              businessDescription: "",
                               website: "",
                               succession: false,
                               description: "",
@@ -1789,24 +1784,7 @@ export default function PortfolioManagementPage() {
                               </FormItem>
                             )}
                           />
-                          <FormField
-                            control={form.control}
-                            name="businessDescription"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>{language === "en" ? "Business Description" : "事業説明"}</FormLabel>
-                                <FormControl>
-                                  <Textarea 
-                                    {...field} 
-                                    rows={2}
-                                    placeholder="Describe the business focus or industry segment..."
-                                    data-testid="textarea-business-description" 
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          
                           <FormField
                             control={form.control}
                             name="website"
@@ -1877,7 +1855,6 @@ export default function PortfolioManagementPage() {
                                 industry: "",
                                 investmentType: "growthequity",
                                 country: "",
-                                businessDescription: "",
                                 website: "",
                                 succession: false,
                                 description: "",
