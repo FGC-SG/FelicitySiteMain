@@ -541,6 +541,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fund management routes
+  app.get('/api/funds', async (req, res) => {
+    try {
+      console.log("Fetching funds...");
+      const funds = await storage.getAllFunds();
+      console.log(`Retrieved ${funds.length} funds`);
+      res.json(funds);
+    } catch (error) {
+      console.error("Error fetching funds:", error);
+      res.status(500).json({ message: "Failed to fetch funds" });
+    }
+  });
+
+  app.post('/api/funds', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required" });
+      }
+
+      const fund = await storage.createFund(req.body);
+      res.json(fund);
+    } catch (error) {
+      console.error("Error creating fund:", error);
+      res.status(500).json({ message: "Failed to create fund" });
+    }
+  });
+
+  app.put('/api/funds/:id', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required" });
+      }
+
+      const { id } = req.params;
+      const fund = await storage.updateFund(id, req.body);
+      res.json(fund);
+    } catch (error) {
+      console.error("Error updating fund:", error);
+      res.status(500).json({ message: "Failed to update fund" });
+    }
+  });
+
+  app.delete('/api/funds/:id', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for delete operations" });
+      }
+
+      const { id } = req.params;
+      await storage.deleteFund(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting fund:", error);
+      res.status(500).json({ message: "Failed to delete fund" });
+    }
+  });
+
   // User invitation routes
   app.post('/api/invitations', async (req: any, res) => {
     try {

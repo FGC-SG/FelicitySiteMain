@@ -17,6 +17,7 @@ import NewsManagement from "@/pages/news-management";
 import UserManagement from "@/pages/user-management";
 import MemberManagement from "@/pages/member-management";
 import PortfolioManagement from "@/pages/portfolio-management";
+import FundManagement from "@/pages/fund-management";
 import AddUserStandalone from "@/pages/add-user-standalone";
 import AcceptInvitation from "@/pages/accept-invitation";
 import ResetPassword from "@/pages/reset-password";
@@ -79,6 +80,7 @@ function Router() {
       <Route path="/user-management" component={UserManagement} />
       <Route path="/member-management" component={MemberManagement} />
       <Route path="/portfolio-management" component={PortfolioManagement} />
+      <Route path="/fund-management" component={FundManagement} />
       <Route path="/add-user" component={AddUserStandalone} />
       <Route path="/accept-invitation" component={AcceptInvitation} />
       <Route path="/reset-password" component={ResetPassword} />
