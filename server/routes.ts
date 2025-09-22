@@ -1213,10 +1213,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             errors.push(`Row ${index + 2}: Company name is required`);
             continue;
           }
-          if (!portfolioData.description) {
-            errors.push(`Row ${index + 2}: Description is required`);
-            continue;
-          }
           if (!portfolioData.industry) {
             errors.push(`Row ${index + 2}: Industry is required`);
             continue;
