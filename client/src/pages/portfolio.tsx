@@ -290,25 +290,35 @@ function PortfolioPage() {
                     )}
                   </CardHeader>
                   <CardContent>
-                    {portfolio.businessDescription && (
-                      <div className="mb-3">
+                    {/* Company Description */}
+                    {(portfolio.description || portfolio.descriptionJa) && (
+                      <div className="mb-4">
                         <p className="text-xs text-gray-500 font-medium mb-1">
-                          {language === 'jp' ? '事業分野' : 'Business Focus'}
+                          {language === 'jp' ? '会社説明' : 'Company Description'}
                         </p>
-                        <p className="text-sm text-gray-600" data-testid={`text-business-description-${portfolio.id}`}>
-                          {portfolio.businessDescription}
+                        <p className="text-sm text-gray-600" data-testid={`text-description-${portfolio.id}`}>
+                          {language === 'jp' && portfolio.descriptionJa 
+                            ? portfolio.descriptionJa 
+                            : portfolio.description}
                         </p>
                       </div>
                     )}
-                    {(portfolio.description || portfolio.descriptionJa) && (
-                      <p className="text-sm text-gray-600 mb-4" data-testid={`text-description-${portfolio.id}`}>
-                        {language === 'jp' && portfolio.descriptionJa 
-                          ? portfolio.descriptionJa 
-                          : portfolio.description}
-                      </p>
+                    
+                    {/* Investment Year */}
+                    {portfolio.investmentYear && (
+                      <div className="mb-3">
+                        <p className="text-xs text-gray-500 font-medium mb-1">
+                          {language === 'jp' ? '投資年' : 'Investment Year'}
+                        </p>
+                        <p className="text-sm text-gray-600" data-testid={`text-investment-year-${portfolio.id}`}>
+                          {portfolio.investmentYear}
+                        </p>
+                      </div>
                     )}
+
+                    {/* Website */}
                     {portfolio.website && (
-                      <div className="flex items-center text-sm text-blue-600">
+                      <div className="flex items-center text-sm text-blue-600 mb-3">
                         <Globe className="h-4 w-4 mr-1" />
                         <a
                           href={portfolio.website}
@@ -321,11 +331,34 @@ function PortfolioPage() {
                         </a>
                       </div>
                     )}
-                    {portfolio.succession && (
-                      <Badge variant="outline" className="mt-2" data-testid={`badge-succession-${portfolio.id}`}>
-                        {language === 'jp' ? '事業承継' : 'Business Succession'}
-                      </Badge>
-                    )}
+
+                    {/* Database Timestamps */}
+                    <div className="pt-2 border-t border-gray-100">
+                      <div className="grid grid-cols-2 gap-2 text-xs text-gray-400">
+                        {portfolio.createdAt && (
+                          <div data-testid={`text-created-at-${portfolio.id}`}>
+                            <span className="font-medium">
+                              {language === 'jp' ? '作成日:' : 'Created:'}
+                            </span>
+                            <br />
+                            {new Date(portfolio.createdAt).toLocaleDateString(
+                              language === 'jp' ? 'ja-JP' : 'en-US'
+                            )}
+                          </div>
+                        )}
+                        {portfolio.updatedAt && (
+                          <div data-testid={`text-updated-at-${portfolio.id}`}>
+                            <span className="font-medium">
+                              {language === 'jp' ? '更新日:' : 'Updated:'}
+                            </span>
+                            <br />
+                            {new Date(portfolio.updatedAt).toLocaleDateString(
+                              language === 'jp' ? 'ja-JP' : 'en-US'
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
