@@ -849,7 +849,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Content': article.content,
         'Content (Japanese)': article.contentJa || '',
         'Felicity Company': article.felicityCompany,
-        'Tags': Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags || ''),
         'Created Date': article.createdAt ? new Date(article.createdAt).toLocaleDateString() : '',
         'Updated Date': article.updatedAt ? new Date(article.updatedAt).toLocaleDateString() : ''
       }));
@@ -914,7 +913,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Title (Japanese)': '',
           'Description (Japanese)': '',
           'Content (Japanese)': '',
-          'Tags': '',
           'Publication Date': '',
           'Author': '',
           'Company': '',
