@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, Upload, ArrowLeft } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { type Portfolio } from "@shared/schema";
+import { type Portfolio, type Fund } from "@shared/schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -242,6 +242,12 @@ export default function PortfolioManagementPage() {
   // Fetch portfolio companies
   const { data: portfolios, isLoading: portfoliosLoading } = useQuery<Portfolio[]>({
     queryKey: ["/api/portfolios"],
+    enabled: isAuthenticated,
+  });
+
+  // Fetch funds for fund name selection
+  const { data: funds = [] } = useQuery<Fund[]>({
+    queryKey: ["/api/funds"],
     enabled: isAuthenticated,
   });
 
@@ -1657,12 +1663,11 @@ export default function PortfolioManagementPage() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="felicity-fund-i">Felicity Fund I</SelectItem>
-                                    <SelectItem value="felicity-fund-ii">Felicity Fund II</SelectItem>
-                                    <SelectItem value="felicity-fund-iii">Felicity Fund III</SelectItem>
-                                    <SelectItem value="felicity-growth-fund">Felicity Growth Fund</SelectItem>
-                                    <SelectItem value="felicity-secondary-fund">Felicity Secondary Fund</SelectItem>
-                                    <SelectItem value="felicity-opportunity-fund">Felicity Opportunity Fund</SelectItem>
+                                    {funds.map((fund) => (
+                                      <SelectItem key={fund.id} value={fund.name}>
+                                        {fund.displayName}
+                                      </SelectItem>
+                                    ))}
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
