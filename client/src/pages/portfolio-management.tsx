@@ -398,15 +398,6 @@ export default function PortfolioManagementPage() {
     }
   };
 
-  const formatInvestmentType = (type: string) => {
-    switch (type) {
-      case "buyout": return "Buyout";
-      case "growthequity": return "Growth Equity";
-      case "secondary": return "Secondary";
-      default: return type;
-    }
-  };
-
   // Standardized country list based on portfolio companies and major Asian markets
   const countryOptions = [
     { value: "singapore", label: "Singapore" },
@@ -457,6 +448,67 @@ export default function PortfolioManagementPage() {
         return "Felicity Opportunity Fund";
       default:
         return fundName;
+    }
+  };
+
+  const getSectorFromIndustry = (industry: string): string => {
+    // Map industries to GICS sectors
+    const industryToSector: Record<string, string> = {
+      'Technology': 'Information Technology',
+      'Information Technologies': 'Information Technology',
+      'Information Technology': 'Information Technology',
+      'Software': 'Information Technology',
+      'Internet': 'Information Technology',
+      'Healthcare': 'Health Care',
+      'Health Care': 'Health Care',
+      'Medical': 'Health Care',
+      'Pharmaceuticals': 'Health Care',
+      'Biotechnology': 'Health Care',
+      'Financial Services': 'Financials',
+      'Financials': 'Financials',
+      'Banking': 'Financials',
+      'Insurance': 'Financials',
+      'Real Estate': 'Real Estate',
+      'Energy': 'Energy',
+      'Renewable Energy': 'Energy',
+      'Oil & Gas': 'Energy',
+      'Materials': 'Materials',
+      'Chemicals': 'Materials',
+      'Construction': 'Materials',
+      'Consumer Discretionary': 'Consumer Discretionary',
+      'Consumer Goods': 'Consumer Discretionary',
+      'Retail': 'Consumer Discretionary',
+      'Automotive': 'Consumer Discretionary',
+      'Consumer Staples': 'Consumer Staples',
+      'Food & Beverages': 'Consumer Staples',
+      'Food': 'Consumer Staples',
+      'Beverages': 'Consumer Staples',
+      'Industrials': 'Industrials',
+      'Manufacturing': 'Industrials',
+      'Transportation': 'Industrials',
+      'Utilities': 'Utilities',
+      'Telecommunications': 'Communication Services',
+      'Media': 'Communication Services',
+    };
+    
+    return industryToSector[industry] || 'Others';
+  };
+
+  const formatInvestmentType = (type: string) => {
+    if (language === 'jp') {
+      switch (type) {
+        case "buyout": return "バイアウト";
+        case "growthequity": return "グロース・エクイティ";
+        case "secondary": return "セカンダリー";
+        default: return type;
+      }
+    } else {
+      switch (type) {
+        case "buyout": return "Buyout";
+        case "growthequity": return "Growth Equity";
+        case "secondary": return "Secondary";
+        default: return type;
+      }
     }
   };
 
@@ -1964,10 +2016,16 @@ export default function PortfolioManagementPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <CardTitle className="text-lg mb-1" data-testid={`text-company-name-${portfolio.id}`}>
-                          {portfolio.companyName}
+                          {language === 'jp' && portfolio.companyNameJa 
+                            ? portfolio.companyNameJa 
+                            : portfolio.companyName}
                         </CardTitle>
                         <p className="text-sm text-muted-foreground" data-testid={`text-industry-${portfolio.id}`}>
                           {portfolio.industry}
+                        </p>
+                        {/* Sector Information */}
+                        <p className="text-xs text-blue-600 font-medium mt-1" data-testid={`text-sector-${portfolio.id}`}>
+                          {language === 'jp' ? 'セクター:' : 'Sector:'} {getSectorFromIndustry(portfolio.industry)}
                         </p>
                       </div>
                       <Badge 
@@ -1988,28 +2046,28 @@ export default function PortfolioManagementPage() {
                   <CardContent className="pt-0">
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Company:</span>
+                        <span className="text-muted-foreground">{language === 'jp' ? '会社:' : 'Company:'}</span>
                         <span data-testid={`text-felicity-company-${portfolio.id}`} className="font-medium text-blue-700 dark:text-blue-300">
                           {formatFelicityCompany(portfolio.felicityCompany)}
                         </span>
                       </div>
                       {portfolio.fundName && (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Fund:</span>
+                          <span className="text-muted-foreground">{language === 'jp' ? 'ファンド:' : 'Fund:'}</span>
                           <span data-testid={`text-fund-name-${portfolio.id}`} className="font-medium text-green-700 dark:text-green-300">
                             {formatFundName(portfolio.fundName)}
                           </span>
                         </div>
                       )}
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Country:</span>
+                        <span className="text-muted-foreground">{language === 'jp' ? '国:' : 'Country:'}</span>
                         <span data-testid={`text-country-${portfolio.id}`}>
                           {formatCountryName(portfolio.country)}
                         </span>
                       </div>
                       {portfolio.investmentYear && (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Investment Year:</span>
+                          <span className="text-muted-foreground">{language === 'jp' ? '投資年:' : 'Investment Year:'}</span>
                           <span data-testid={`text-investment-year-${portfolio.id}`} className="font-medium text-purple-700 dark:text-purple-300">
                             {portfolio.investmentYear}
                           </span>
@@ -2017,7 +2075,7 @@ export default function PortfolioManagementPage() {
                       )}
                       {portfolio.website && (
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Website:</span>
+                          <span className="text-muted-foreground">{language === 'jp' ? 'ウェブサイト:' : 'Website:'}</span>
                           <a 
                             href={portfolio.website.startsWith('http') ? portfolio.website : `https://${portfolio.website}`}
                             target="_blank"
@@ -2025,14 +2083,53 @@ export default function PortfolioManagementPage() {
                             className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 text-sm underline"
                             data-testid={`link-website-${portfolio.id}`}
                           >
-                            Visit Website
+                            {language === 'jp' ? 'ウェブサイトを訪問' : 'Visit Website'}
                           </a>
                         </div>
                       )}
+                      
+                      {/* Database Timestamps */}
+                      <div className="pt-2 border-t border-gray-100">
+                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-400">
+                          {portfolio.createdAt && (
+                            <div data-testid={`text-created-at-${portfolio.id}`}>
+                              <span className="font-medium">
+                                {language === 'jp' ? '作成日:' : 'Created:'}
+                              </span>
+                              <br />
+                              {new Date(portfolio.createdAt).toLocaleDateString(
+                                language === 'jp' ? 'ja-JP' : 'en-US'
+                              )}
+                            </div>
+                          )}
+                          {portfolio.updatedAt && (
+                            <div data-testid={`text-updated-at-${portfolio.id}`}>
+                              <span className="font-medium">
+                                {language === 'jp' ? '更新日:' : 'Updated:'}
+                              </span>
+                              <br />
+                              {new Date(portfolio.updatedAt).toLocaleDateString(
+                                language === 'jp' ? 'ja-JP' : 'en-US'
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-4 line-clamp-2" data-testid={`text-description-${portfolio.id}`}>
-                      {portfolio.description}
-                    </p>
+                    
+                    {/* Company Description with language selection */}
+                    {(portfolio.description || portfolio.descriptionJa) && (
+                      <div className="mt-4">
+                        <p className="text-xs text-gray-500 font-medium mb-1">
+                          {language === 'jp' ? '会社説明:' : 'Company Description:'}
+                        </p>
+                        <p className="text-sm text-muted-foreground line-clamp-2" data-testid={`text-description-${portfolio.id}`}>
+                          {language === 'jp' && portfolio.descriptionJa 
+                            ? portfolio.descriptionJa 
+                            : portfolio.description}
+                        </p>
+                      </div>
+                    )}
                     <div className="flex justify-end space-x-2 mt-4">
                       <Button
                         variant="outline"
@@ -2090,14 +2187,22 @@ export default function PortfolioManagementPage() {
               </div>
             )}
 
-            {/* Back to Management */}
-            <div className="flex justify-center mt-12">
+            {/* Navigation Buttons */}
+            <div className="flex justify-center gap-4 mt-12">
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = `/portfolio?lang=${language}`}
+                data-testid="button-back-portfolio"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                {language === 'jp' ? 'ポートフォリオに戻る' : 'Back to Portfolio'}
+              </Button>
               <Button 
                 variant="outline" 
                 onClick={() => window.location.href = "/management"}
                 data-testid="button-back-management"
               >
-                Back to Management Portal
+                {language === 'jp' ? '管理ポータルに戻る' : 'Back to Management Portal'}
               </Button>
             </div>
           </div>
