@@ -33,6 +33,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
     { href: "/about", label: t.nav.about },
     { href: "/news", label: t.nav.news },
     { href: "/portfolio", label: t.nav.portfolio },
+    { href: "/fund", label: t.nav.fund },
     { href: "/contact", label: t.nav.contact },
   ];
 

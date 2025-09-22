@@ -4,6 +4,7 @@ export interface TranslationStrings {
     about: string;
     news: string;
     portfolio: string;
+    fund: string;
     contact: string;
     login: string;
     logout: string;
@@ -109,6 +110,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       about: "About",
       news: "News",
       portfolio: "Portfolio",
+      fund: "Fund",
       contact: "Contact",
       login: "Login",
       logout: "Logout"
@@ -212,6 +214,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       about: "企業情報",
       news: "ニュース",
       portfolio: "ポートフォリオ",
+      fund: "ファンド",
       contact: "お問い合わせ",
       login: "ログイン",
       logout: "ログアウト"
