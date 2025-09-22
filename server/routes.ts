@@ -1457,6 +1457,237 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fund export routes
+  app.get('/api/funds/export', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const funds = await storage.getAllFunds();
+      
+      // Prepare data for Excel
+      const excelData = funds.map((fund: any) => ({
+        'Fund Name': fund.name,
+        'Display Name': fund.displayName,
+        'Description': fund.description,
+        'Description (Japanese)': fund.descriptionJa || '',
+        'Created Date': fund.createdAt ? new Date(fund.createdAt).toLocaleDateString() : '',
+        'Updated Date': fund.updatedAt ? new Date(fund.updatedAt).toLocaleDateString() : ''
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        colWidths.push({ wch: Math.min(maxWidth, 50) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Funds');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-funds-export-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting funds to Excel:', error);
+      res.status(500).json({ message: 'Failed to export funds data' });
+    }
+  });
+
+  app.get('/api/funds/export-template', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Create template data with headers only
+      const templateData = [
+        {
+          'Fund Name': '',
+          'Display Name': '',
+          'Description': '',
+          'Description (Japanese)': '',
+          'Created Date': '',
+          'Updated Date': ''
+        }
+      ];
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        // Set minimum width for better usability
+        colWidths.push({ wch: Math.max(maxWidth, 15) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Fund Template');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-funds-template-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting fund template:', error);
+      res.status(500).json({ message: "Failed to export fund template" });
+    }
+  });
+
+  // Fund bulk import route
+  app.post('/api/funds/import', upload.single('file'), async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const buffer = req.file.buffer;
+      let workbook: XLSX.WorkBook;
+
+      // Parse file based on extension
+      try {
+        if (req.file.originalname.endsWith('.csv')) {
+          const csvData = buffer.toString('utf8');
+          workbook = XLSX.read(csvData, { type: 'string' });
+        } else {
+          workbook = XLSX.read(buffer, { type: 'buffer' });
+        }
+      } catch (parseError) {
+        return res.status(400).json({ 
+          message: "Failed to parse file. Please ensure it's a valid Excel or CSV file.",
+          error: parseError instanceof Error ? parseError.message : 'Unknown parse error'
+        });
+      }
+
+      // Validate workbook structure
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        return res.status(400).json({ message: "File contains no sheets" });
+      }
+
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+      // Limit number of rows to prevent memory issues
+      const MAX_ROWS = 1000;
+      if (jsonData.length > MAX_ROWS) {
+        return res.status(400).json({ 
+          message: `File contains too many rows. Maximum allowed: ${MAX_ROWS}, found: ${jsonData.length}` 
+        });
+      }
+
+      if (jsonData.length === 0) {
+        return res.status(400).json({ message: "File contains no data rows" });
+      }
+
+      let imported = 0;
+      const errors: string[] = [];
+
+      for (let index = 0; index < jsonData.length; index++) {
+        const row = jsonData[index];
+        try {
+          const rowData = row as any;
+          
+          // Map Excel columns to database fields
+          const fundData = {
+            name: rowData['Fund Name'] || rowData['name'] || '',
+            displayName: rowData['Display Name'] || rowData['displayName'] || '',
+            description: rowData['Description'] || rowData['description'] || '',
+            descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
+          };
+
+          // Validate required fields
+          if (!fundData.name) {
+            errors.push(`Row ${index + 2}: Fund Name is required`);
+            continue;
+          }
+          if (!fundData.displayName) {
+            errors.push(`Row ${index + 2}: Display Name is required`);
+            continue;
+          }
+          if (!fundData.description) {
+            errors.push(`Row ${index + 2}: Description is required`);
+            continue;
+          }
+
+          await storage.createFund(fundData);
+          imported++;
+        } catch (error) {
+          console.error(`Error importing row ${index + 2}:`, error);
+          errors.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      res.json({ 
+        imported, 
+        errors: errors.length > 0 ? errors : undefined,
+        message: `Successfully imported ${imported} funds${errors.length > 0 ? ` with ${errors.length} errors` : ''}`
+      });
+    } catch (error) {
+      console.error('Error importing fund data:', error);
+      res.status(500).json({ message: 'Failed to import fund data' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

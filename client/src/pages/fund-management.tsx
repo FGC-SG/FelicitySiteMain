@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { DollarSign, Plus, Pencil, Trash2, Search, ArrowLeft } from "lucide-react";
+import { DollarSign, Plus, Pencil, Trash2, Search, ArrowLeft, Download, Upload, FileSpreadsheet } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Fund as FundType } from "@shared/schema";
@@ -149,6 +149,158 @@ export default function FundManagementPage() {
     form.reset();
   };
 
+  // Export fund data to Excel
+  const handleExportFunds = async () => {
+    try {
+      const response = await fetch('/api/funds/export', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export fund data');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-funds-export-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: language === 'jp' ? "エクスポート成功" : "Export Successful",
+        description: language === 'jp' ? "ファンドデータがExcelファイルにエクスポートされました。" : "Fund data has been exported to Excel file.",
+      });
+    } catch (error) {
+      console.error('Error exporting funds:', error);
+      toast({
+        title: language === 'jp' ? "エクスポート失敗" : "Export Failed",
+        description: language === 'jp' ? "ファンドデータのエクスポートに失敗しました。再度お試しください。" : "Failed to export fund data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Export template for fund import
+  const handleExportTemplate = async () => {
+    try {
+      const response = await fetch('/api/funds/export-template', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export template');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-funds-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: language === 'jp' ? "テンプレートエクスポート成功" : "Template Export Successful",
+        description: language === 'jp' ? "ファンドテンプレートがExcelファイルにエクスポートされました。" : "Fund template has been exported to Excel file.",
+      });
+    } catch (error) {
+      console.error('Error exporting template:', error);
+      toast({
+        title: language === 'jp' ? "テンプレートエクスポート失敗" : "Template Export Failed",
+        description: language === 'jp' ? "ファンドテンプレートのエクスポートに失敗しました。再度お試しください。" : "Failed to export fund template. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle bulk upload
+  const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
+      'text/csv'
+    ];
+    
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: language === 'jp' ? "無効なファイル形式" : "Invalid File Type",
+        description: language === 'jp' ? "Excel (.xlsx, .xls) またはCSVファイルをアップロードしてください。" : "Please upload an Excel (.xlsx, .xls) or CSV file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/funds/import', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Upload failed');
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['/api/funds'] });
+
+      toast({
+        title: language === 'jp' ? "アップロード成功" : "Upload Successful",
+        description: result.message || (language === 'jp' 
+          ? `${result.imported || 0}件のファンドが正常にインポートされました。` 
+          : `Successfully imported ${result.imported || 0} funds.`),
+      });
+
+      if (result.errors && result.errors.length > 0) {
+        console.warn('Import errors:', result.errors);
+        toast({
+          title: language === 'jp' ? "インポート警告" : "Import Warnings",
+          description: language === 'jp' ? `${result.errors.length}件のエラーがありました。詳細はコンソールをご確認ください。` : `${result.errors.length} errors occurred. Check console for details.`,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      
+      let errorMessage = language === 'jp' ? "ファイルのアップロードに失敗しました。" : "Failed to upload file.";
+      
+      if (error.message?.includes('400')) {
+        errorMessage = language === 'jp' ? "ファイル形式が無効です。" : "Invalid file format.";
+      } else if (error.message?.includes('413')) {
+        errorMessage = language === 'jp' ? "ファイルサイズが大きすぎます。" : "File size too large.";
+      } else if (error.message?.includes('Network')) {
+        errorMessage = language === 'jp' ? "ネットワークエラーまたはサーバーエラーが発生しました。" : "Network or server error occurred.";
+      }
+      
+      toast({
+        title: language === 'jp' ? "アップロード失敗" : "Upload Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+
+    // Reset the input
+    event.target.value = '';
+  };
+
   // Filter funds based on search term
   const filteredFunds = (funds as FundType[]).filter((fund: FundType) =>
     fund.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -213,6 +365,9 @@ export default function FundManagementPage() {
     confirmDeleteDesc: language === 'jp' ? "このファンドを削除してもよろしいですか？この操作は元に戻すことができません。" : "Are you sure you want to delete this fund? This action cannot be undone.",
     noFunds: language === 'jp' ? "ファンドが見つかりません" : "No funds found",
     backToManagement: language === 'jp' ? "管理画面に戻る" : "Back to Management",
+    exportFunds: language === 'jp' ? "ファンドをエクスポート" : "Export Funds",
+    exportTemplate: language === 'jp' ? "テンプレートをダウンロード" : "Download Template",
+    bulkUpload: language === 'jp' ? "一括アップロード" : "Bulk Upload",
   };
 
   return (
@@ -350,6 +505,45 @@ export default function FundManagementPage() {
                   </Form>
                 </DialogContent>
               </Dialog>
+            </div>
+          </div>
+
+          {/* Export/Import Section */}
+          <div className="mb-6 flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              onClick={handleExportFunds}
+              className="flex items-center gap-2"
+              data-testid="button-export-funds"
+            >
+              <Download className="w-4 h-4" />
+              {t.exportFunds}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleExportTemplate}
+              className="flex items-center gap-2"
+              data-testid="button-export-template"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              {t.exportTemplate}
+            </Button>
+            <div className="relative">
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                onChange={handleBulkUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                data-testid="input-bulk-upload"
+              />
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                data-testid="button-bulk-upload"
+              >
+                <Upload className="w-4 h-4" />
+                {t.bulkUpload}
+              </Button>
             </div>
           </div>
 
