@@ -23,7 +23,6 @@ const addNewsSchema = z.object({
   language: z.enum(["en", "jp"]),
   category: z.string().min(1, "Category is required"),
   felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
-  tags: z.string().optional(),
   publishedAt: z.string().min(1, "Announcement date is required"),
 });
 
@@ -52,7 +51,6 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       language: language,
       category: "",
       felicityCompany: "felicity-singapore",
-      tags: "",
       publishedAt: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     },
   });
@@ -336,27 +334,6 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               />
             </div>
 
-            <div className="grid md:grid-cols-1 gap-6">
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel data-testid="label-news-tags">
-                      {language === "en" ? "Tags (Optional)" : "タグ（オプション）"}
-                    </FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={language === "en" ? "Comma-separated tags" : "コンマ区切りのタグ"}
-                        {...field}
-                        data-testid="input-news-tags"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <div className="flex justify-end space-x-4 pt-6 border-t">
               {onCancel && (

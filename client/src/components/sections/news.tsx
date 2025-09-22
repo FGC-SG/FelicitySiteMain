@@ -21,7 +21,6 @@ interface NewsArticle {
   contentJa?: string;
   language: string;
   category: string;
-  tags?: string;
   authorId: string;
   createdAt: string;
   updatedAt: string;
@@ -186,16 +185,6 @@ export function News({ language }: NewsProps) {
                   
                   <CardContent>
                     <div className="space-y-3">
-                      {article.tags && (
-                        <div className="flex flex-wrap gap-1">
-                          {article.tags.split(',').map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {tag.trim()}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                      
                       <div className="flex justify-between items-center pt-2">
                         <div className="flex items-center text-sm text-muted-foreground">
                           <User className="h-4 w-4 mr-1" />
@@ -294,18 +283,6 @@ export function News({ language }: NewsProps) {
                     </div>
                   </div>
 
-                  {/* Article Tags */}
-                  {selectedArticle.tags && (
-                    <div className="border-t pt-4">
-                      <div className="flex flex-wrap gap-2">
-                        {selectedArticle.tags.split(',').map((tag, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tag.trim()}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </>
             );
