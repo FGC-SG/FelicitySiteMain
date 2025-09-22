@@ -894,6 +894,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/news/export-template', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Create template data with headers only
+      const templateData = [
+        {
+          'Title': '',
+          'Description': '',
+          'Content': '',
+          'Title (Japanese)': '',
+          'Description (Japanese)': '',
+          'Content (Japanese)': '',
+          'Tags': '',
+          'Publication Date': '',
+          'Author': '',
+          'Company': '',
+          'Created Date': '',
+          'Updated Date': ''
+        }
+      ];
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        // Set minimum width for better usability
+        colWidths.push({ wch: Math.max(maxWidth, 15) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'News Template');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-news-template-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting news template:', error);
+      res.status(500).json({ message: "Failed to export news template" });
+    }
+  });
+
   app.get('/api/portfolios/export-template', async (req, res) => {
     try {
       const sessionUser = (req as any).session?.user;
