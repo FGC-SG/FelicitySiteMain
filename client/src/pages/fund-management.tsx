@@ -61,7 +61,7 @@ export default function FundManagementPage() {
   // Create fund mutation
   const createFundMutation = useMutation({
     mutationFn: (fundData: FundFormData) =>
-      apiRequest('/api/funds', 'POST', fundData),
+      apiRequest('POST', '/api/funds', fundData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/funds'] });
       toast({
@@ -83,7 +83,7 @@ export default function FundManagementPage() {
   // Update fund mutation
   const updateFundMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<FundFormData> }) =>
-      apiRequest(`/api/funds/${id}`, 'PUT', data),
+      apiRequest('PUT', `/api/funds/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/funds'] });
       toast({
@@ -105,7 +105,7 @@ export default function FundManagementPage() {
   // Delete fund mutation
   const deleteFundMutation = useMutation({
     mutationFn: (id: string) =>
-      apiRequest(`/api/funds/${id}`, 'DELETE'),
+      apiRequest('DELETE', `/api/funds/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/funds'] });
       toast({
