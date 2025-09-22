@@ -57,6 +57,42 @@ export default function ManagementPage() {
     }
   };
 
+  const handleExportTemplate = async () => {
+    try {
+      const response = await fetch('/api/news/export-template', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export template');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-news-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: language === "jp" ? "テンプレートエクスポート成功" : "Template Export Successful",
+        description: language === "jp" ? "ニューステンプレートがExcelファイルにエクスポートされました。" : "News template has been exported to Excel file.",
+      });
+    } catch (error) {
+      console.error('Error exporting template:', error);
+      toast({
+        title: language === "jp" ? "テンプレートエクスポート失敗" : "Template Export Failed",
+        description: language === "jp" ? "ニューステンプレートのエクスポートに失敗しました。再度お試しください。" : "Failed to export news template. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -347,6 +383,7 @@ export default function ManagementPage() {
                 onClose={() => setShowNewsList(false)}
                 currentUser={user}
                 handleExportNews={handleExportNews}
+                handleExportTemplate={handleExportTemplate}
                 handleBulkUpload={handleBulkUpload}
               />
             </div>

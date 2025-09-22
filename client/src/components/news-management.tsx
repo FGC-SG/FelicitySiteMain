@@ -17,10 +17,11 @@ interface NewsManagementProps {
   onClose?: () => void;
   currentUser?: any;
   handleExportNews?: () => void;
+  handleExportTemplate?: () => void;
   handleBulkUpload?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export function NewsManagement({ language, onClose, currentUser, handleExportNews, handleBulkUpload }: NewsManagementProps) {
+export function NewsManagement({ language, onClose, currentUser, handleExportNews, handleExportTemplate, handleBulkUpload }: NewsManagementProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<NewsArticle | null>(null);
   const { toast } = useToast();
@@ -201,6 +202,17 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
           </p>
         </div>
         <div className="flex gap-2">
+          {handleExportTemplate && (
+            <Button 
+              onClick={handleExportTemplate}
+              variant="outline"
+              className="border-orange-600 text-orange-600 hover:bg-orange-50 gap-2"
+              data-testid="button-export-template-news"
+            >
+              <Download className="h-4 w-4" />
+              {language === "en" ? "Export Template" : "テンプレートエクスポート"}
+            </Button>
+          )}
           {handleExportNews && (
             <Button 
               onClick={handleExportNews}
