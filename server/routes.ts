@@ -1338,7 +1338,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             content: rowData['Content'] || rowData['content'] || '',
             contentJa: rowData['Content (Japanese)'] || rowData['contentJa'] || '',
             felicityCompany: rowData['Felicity Company'] || rowData['felicityCompany'] || 'felicity-singapore',
-            tags: rowData['Tags'] || rowData['tags'] || '',
             language: 'en',
             category: 'news',
             authorId: validAuthorId,
