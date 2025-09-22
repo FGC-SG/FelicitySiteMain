@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { apiRequest } from "@/lib/queryClient";
+import { Trash2 } from "lucide-react";
 import type { UploadResult } from "@uppy/core";
 import type { Language } from "@/lib/i18n";
 import type { Member } from "@shared/schema";
@@ -110,6 +111,16 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
     }
   };
 
+  const handleDeletePhoto = () => {
+    setPhotoUrl("");
+    toast({
+      title: language === "en" ? "Success" : "成功",
+      description: language === "en" 
+        ? "Photo removed successfully" 
+        : "写真が正常に削除されました",
+    });
+  };
+
   const onSubmit = (data: MemberFormData) => {
     updateMemberMutation.mutate({
       ...data,
@@ -129,6 +140,7 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
           
           {/* Photo Upload Section */}
           <div className="space-y-4">
+            <Label>{language === "en" ? "Photo (Optional)" : "写真（任意）"}</Label>
             <div className="flex items-center gap-4">
               {photoUrl && (
                 <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200">
@@ -139,19 +151,32 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
                   />
                 </div>
               )}
-              <div className="flex-1">
+              <div className="flex flex-col gap-2">
                 <ObjectUploader
                   maxNumberOfFiles={1}
                   maxFileSize={5242880} // 5MB
                   onGetUploadParameters={handleGetUploadParameters}
                   onComplete={handleUploadComplete}
-                  buttonClassName="w-full"
+                  buttonClassName="w-fit"
                 >
                   <div className="flex items-center gap-2">
                     <span>📸</span>
                     <span>{language === "en" ? "Change Photo" : "写真を変更"}</span>
                   </div>
                 </ObjectUploader>
+                {photoUrl && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDeletePhoto}
+                    className="w-fit text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                    data-testid="button-delete-photo-edit"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    {language === "en" ? "Delete Photo" : "写真を削除"}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

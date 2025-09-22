@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { apiRequest } from "@/lib/queryClient";
+import { Trash2 } from "lucide-react";
 import type { UploadResult } from "@uppy/core";
 import type { Language } from "@/lib/i18n";
 
@@ -110,6 +111,16 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
     }
   };
 
+  const handleDeletePhoto = () => {
+    setPhotoUrl("");
+    toast({
+      title: language === "en" ? "Success" : "成功",
+      description: language === "en" 
+        ? "Photo removed successfully" 
+        : "写真が正常に削除されました",
+    });
+  };
+
   const onSubmit = (data: MemberFormData) => {
     createMemberMutation.mutate({
       ...data,
@@ -128,7 +139,7 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Photo Upload Section */}
           <div className="space-y-2">
-            <Label>{language === "en" ? "Photo" : "写真"}</Label>
+            <Label>{language === "en" ? "Photo (Optional)" : "写真（任意）"}</Label>
             <div className="flex items-center gap-4">
               {photoUrl && (
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-muted">
@@ -139,18 +150,33 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
                   />
                 </div>
               )}
-              <ObjectUploader
-                maxNumberOfFiles={1}
-                maxFileSize={5242880} // 5MB
-                onGetUploadParameters={handleGetUploadParameters}
-                onComplete={handleUploadComplete}
-                buttonClassName="w-fit"
-              >
-                <div className="flex items-center gap-2">
-                  <span>📷</span>
-                  <span>{language === "en" ? "Upload Photo" : "写真をアップロード"}</span>
-                </div>
-              </ObjectUploader>
+              <div className="flex flex-col gap-2">
+                <ObjectUploader
+                  maxNumberOfFiles={1}
+                  maxFileSize={5242880} // 5MB
+                  onGetUploadParameters={handleGetUploadParameters}
+                  onComplete={handleUploadComplete}
+                  buttonClassName="w-fit"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>📷</span>
+                    <span>{language === "en" ? "Upload Photo" : "写真をアップロード"}</span>
+                  </div>
+                </ObjectUploader>
+                {photoUrl && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDeletePhoto}
+                    className="w-fit text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                    data-testid="button-delete-photo"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    {language === "en" ? "Delete Photo" : "写真を削除"}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
