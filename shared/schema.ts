@@ -99,6 +99,23 @@ export const members = pgTable("members", {
 export type InsertMember = typeof members.$inferInsert;
 export type Member = typeof members.$inferSelect;
 
+// Funds table
+export const funds = pgTable("funds", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull().unique(),
+  displayName: varchar("display_name").notNull(),
+  displayNameJa: varchar("display_name_ja"),
+  description: text("description").notNull(),
+  descriptionJa: text("description_ja"),
+  status: varchar("status").notNull().default("active"), // active, inactive
+  felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Fund = typeof funds.$inferSelect;
+export type InsertFund = typeof funds.$inferInsert;
+
 // News articles table
 export const newsArticles = pgTable("news_articles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

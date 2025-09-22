@@ -4,6 +4,7 @@ import {
   newsArticles,
   members,
   portfolios,
+  funds,
   userInvitations,
   passwordResets,
   type User,
@@ -16,6 +17,8 @@ import {
   type InsertMember,
   type Portfolio,
   type InsertPortfolio,
+  type Fund,
+  type InsertFund,
   type UserInvitation,
   type InsertUserInvitation,
   type PasswordReset,
@@ -59,6 +62,12 @@ export interface IStorage {
   getAllPortfolios(): Promise<Portfolio[]>;
   updatePortfolio(id: string, portfolioData: Partial<InsertPortfolio>): Promise<Portfolio>;
   deletePortfolio(id: string): Promise<void>;
+  
+  // Fund operations
+  createFund(fundData: InsertFund): Promise<Fund>;
+  getAllFunds(): Promise<Fund[]>;
+  updateFund(id: string, fundData: Partial<InsertFund>): Promise<Fund>;
+  deleteFund(id: string): Promise<void>;
   
   // User invitation operations
   createInvitation(invitationData: Partial<UserInvitation>): Promise<UserInvitation>;
@@ -216,6 +225,29 @@ export class DatabaseStorage implements IStorage {
 
   async deletePortfolio(id: string): Promise<void> {
     await db.delete(portfolios).where(eq(portfolios.id, id));
+  }
+
+  // Fund operations
+  async createFund(fundData: InsertFund): Promise<Fund> {
+    const [fund] = await db.insert(funds).values(fundData).returning();
+    return fund;
+  }
+
+  async getAllFunds(): Promise<Fund[]> {
+    return await db.select().from(funds).orderBy(desc(funds.createdAt));
+  }
+
+  async updateFund(id: string, fundData: Partial<InsertFund>): Promise<Fund> {
+    const [fund] = await db
+      .update(funds)
+      .set({ ...fundData, updatedAt: new Date() })
+      .where(eq(funds.id, id))
+      .returning();
+    return fund;
+  }
+
+  async deleteFund(id: string): Promise<void> {
+    await db.delete(funds).where(eq(funds.id, id));
   }
 
   // User invitation operations
