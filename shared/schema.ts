@@ -109,6 +109,7 @@ export const funds = pgTable("funds", {
   descriptionJa: text("description_ja"),
   status: varchar("status").notNull().default("active"), // active, inactive
   felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
+  isVisible: boolean("is_visible").default(true), // Controls visibility on public Fund page
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
