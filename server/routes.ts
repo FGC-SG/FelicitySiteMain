@@ -1539,8 +1539,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Display Name': '',
           'Description': '',
           'Description (Japanese)': '',
-          'Created Date': '',
-          'Updated Date': ''
+          'Vintage': '',
+          'Status': '',
+          'Felicity Company': '',
+          'Visible': ''
         }
       ];
 
