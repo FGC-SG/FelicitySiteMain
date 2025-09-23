@@ -318,10 +318,6 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline" data-testid={`badge-language-${article.id}`}>
-                        <Globe className="h-3 w-3 mr-1" />
-                        {article.language === "en" ? "English" : "日本語"}
-                      </Badge>
                       <Badge variant="secondary" data-testid={`badge-category-${article.id}`}>
                         {article.category}
                       </Badge>
