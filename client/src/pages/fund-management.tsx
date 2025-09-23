@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { DollarSign, Plus, Pencil, Trash2, Search, ArrowLeft, Download, Upload, FileSpreadsheet } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DollarSign, Plus, Pencil, Trash2, Search, ArrowLeft, Download, Upload, FileSpreadsheet, Eye, EyeOff } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Fund as FundType } from "@shared/schema";
@@ -122,6 +123,26 @@ export default function FundManagementPage() {
     },
   });
 
+  // Toggle fund visibility mutation
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, isVisible }: { id: string; isVisible: boolean }) =>
+      apiRequest('PUT', `/api/funds/${id}`, { isVisible }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/funds'] });
+      toast({
+        title: language === 'jp' ? "表示設定が更新されました" : "Visibility updated",
+        description: language === 'jp' ? "ファンドの表示設定が正常に更新されました。" : "Fund visibility has been successfully updated.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: error.message || (language === 'jp' ? "表示設定の更新に失敗しました。" : "Failed to update visibility."),
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: FundFormData) => {
     if (editingFund) {
       updateFundMutation.mutate({ id: editingFund.id, data });
@@ -141,6 +162,10 @@ export default function FundManagementPage() {
 
   const handleDelete = (fundId: string) => {
     deleteFundMutation.mutate(fundId);
+  };
+
+  const handleToggleVisibility = (fundId: string, currentVisibility: boolean) => {
+    toggleVisibilityMutation.mutate({ id: fundId, isVisible: !currentVisibility });
   };
 
   const handleCloseDialog = () => {
@@ -368,6 +393,9 @@ export default function FundManagementPage() {
     exportFunds: language === 'jp' ? "ファンドをエクスポート" : "Export Funds",
     exportTemplate: language === 'jp' ? "テンプレートをダウンロード" : "Download Template",
     bulkUpload: language === 'jp' ? "一括アップロード" : "Bulk Upload",
+    visibilityLabel: language === 'jp' ? "Fund Pageに表示" : "Show on Fund Page",
+    visible: language === 'jp' ? "表示中" : "Visible",
+    hidden: language === 'jp' ? "非表示" : "Hidden",
   };
 
   return (
@@ -592,6 +620,26 @@ export default function FundManagementPage() {
                       <p className="text-gray-700 text-sm line-clamp-3 mb-4" data-testid={`text-fund-description-${fund.id}`}>
                         {language === 'jp' && fund.descriptionJa ? fund.descriptionJa : fund.description}
                       </p>
+
+                      {/* Visibility Checkbox */}
+                      <div className="mb-4 flex items-center space-x-2">
+                        <Checkbox
+                          id={`visibility-${fund.id}`}
+                          checked={fund.isVisible ?? true}
+                          onCheckedChange={() => handleToggleVisibility(fund.id, fund.isVisible ?? true)}
+                          data-testid={`checkbox-visibility-${fund.id}`}
+                        />
+                        <label
+                          htmlFor={`visibility-${fund.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1"
+                        >
+                          {fund.isVisible ?? true ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                          {t.visibilityLabel}
+                        </label>
+                        <Badge variant={fund.isVisible ?? true ? "default" : "secondary"} className="text-xs">
+                          {fund.isVisible ?? true ? t.visible : t.hidden}
+                        </Badge>
+                      </div>
                       
                       <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-500">
