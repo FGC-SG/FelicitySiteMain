@@ -15,9 +15,12 @@ export default function FundPage() {
   const [language, setLanguage] = useState<Language>(urlLanguage === 'jp' ? 'jp' : 'en');
 
   // Fetch funds data
-  const { data: funds = [], isLoading } = useQuery({
+  const { data: allFunds = [], isLoading } = useQuery({
     queryKey: ['/api/funds'],
   });
+
+  // Filter only visible funds for public display
+  const funds = (allFunds as FundType[]).filter((fund: FundType) => fund.isVisible !== false);
 
   const t = {
     title: language === 'jp' ? "投資ファンド" : "Investment Funds",
