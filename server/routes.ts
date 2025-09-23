@@ -922,8 +922,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const excelData = newsArticles.map(article => ({
         'Title': article.title,
         'Title (Japanese)': article.titleJa || '',
-        'Description': article.description,
-        'Description (Japanese)': article.descriptionJa || '',
         'Content': article.content,
         'Content (Japanese)': article.contentJa || '',
         'Category': article.category,
@@ -987,8 +985,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           'Title': '',
           'Title (Japanese)': '',
-          'Description': '',
-          'Description (Japanese)': '',
           'Content': '',
           'Content (Japanese)': '',
           'Category': '',

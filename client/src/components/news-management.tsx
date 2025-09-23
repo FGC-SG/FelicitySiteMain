@@ -375,11 +375,6 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                     <CardTitle className="text-lg line-clamp-2" data-testid={`text-news-title-${article.id}`}>
                       {article.title}
                     </CardTitle>
-                    {article.description && (
-                      <CardDescription className="line-clamp-2 mt-1" data-testid={`text-news-description-${article.id}`}>
-                        {article.description}
-                      </CardDescription>
-                    )}
                   </div>
                 </div>
               </CardHeader>

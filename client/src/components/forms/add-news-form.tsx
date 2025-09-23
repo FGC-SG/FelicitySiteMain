@@ -15,10 +15,8 @@ import { type Language } from "@/lib/i18n";
 
 const addNewsSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
-  description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
   content: z.string().min(1, "Content is required"),
   titleJa: z.string().optional(),
-  descriptionJa: z.string().optional(),
   contentJa: z.string().optional(),
   language: z.enum(["en", "jp"]),
   category: z.string().min(1, "Category is required"),
@@ -43,10 +41,8 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
     resolver: zodResolver(addNewsSchema),
     defaultValues: {
       title: "",
-      description: "",
       content: "",
       titleJa: "",
-      descriptionJa: "",
       contentJa: "",
       language: language,
       category: "",
@@ -220,26 +216,6 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel data-testid="label-news-description">
-                    {language === "en" ? "Short Description" : "短い説明"}
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder={language === "en" ? "Brief summary of the article" : "記事の簡潔な要約"}
-                      className="min-h-[100px]"
-                      {...field}
-                      data-testid="textarea-news-description"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
@@ -288,26 +264,6 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="descriptionJa"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel data-testid="label-news-description-ja">
-                      {language === "en" ? "Short Description (Japanese)" : "短い説明（日本語）"}
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder={language === "en" ? "Brief summary in Japanese" : "日本語での簡潔な要約"}
-                        className="min-h-[100px]"
-                        {...field}
-                        data-testid="textarea-news-description-ja"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <FormField
                 control={form.control}
