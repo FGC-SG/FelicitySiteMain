@@ -36,6 +36,11 @@ function PortfolioPage() {
 
   // Filter portfolios based on search and filters
   const filteredPortfolios = portfolios?.filter(portfolio => {
+    // First, check if portfolio is visible (only show visible portfolios on public page)
+    if ((portfolio as any).isVisible === false) {
+      return false;
+    }
+    
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = portfolio.companyName.toLowerCase().includes(searchLower) ||
                          portfolio.industry.toLowerCase().includes(searchLower) ||
