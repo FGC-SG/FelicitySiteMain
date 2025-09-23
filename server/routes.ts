@@ -926,12 +926,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Description (Japanese)': article.descriptionJa || '',
         'Content': article.content,
         'Content (Japanese)': article.contentJa || '',
-        'Language': article.language,
         'Category': article.category,
         'Felicity Company': article.felicityCompany,
-        'Tags': article.tags || '',
-        'Published Date': article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : '',
-        'Visible': article.isVisible !== false ? 'TRUE' : 'FALSE'
+        'Published Date': article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : ''
       }));
 
       // Create workbook and worksheet
@@ -994,12 +991,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Description (Japanese)': '',
           'Content': '',
           'Content (Japanese)': '',
-          'Language': '',
           'Category': '',
           'Felicity Company': '',
-          'Tags': '',
-          'Published Date': '',
-          'Visible': ''
+          'Published Date': ''
         }
       ];
 

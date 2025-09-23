@@ -121,10 +121,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Language section title - fixed as English */}
-            <div className="border-b pb-2 mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">English</h3>
-            </div>
+            
 
             <div className="grid md:grid-cols-2 gap-6">
               <FormField
