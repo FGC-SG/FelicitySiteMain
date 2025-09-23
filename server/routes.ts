@@ -1477,8 +1477,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Display Name': fund.displayName,
         'Description': fund.description,
         'Description (Japanese)': fund.descriptionJa || '',
-        'Created Date': fund.createdAt ? new Date(fund.createdAt).toLocaleDateString() : '',
-        'Updated Date': fund.updatedAt ? new Date(fund.updatedAt).toLocaleDateString() : ''
+        'Vintage': fund.vintage || '',
+        'Status': fund.status || '',
+        'Felicity Company': fund.felicityCompany || '',
+        'Visible': fund.isVisible !== false ? 'TRUE' : 'FALSE'
       }));
 
       // Create workbook and worksheet
