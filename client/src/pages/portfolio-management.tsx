@@ -2160,6 +2160,28 @@ export default function PortfolioManagementPage() {
                         </p>
                       </div>
                     )}
+                    
+                    {/* Visibility Control */}
+                    <div className="mt-4 mb-3 flex items-center space-x-2 pb-2 border-b border-gray-100">
+                      <Checkbox
+                        id={`visibility-${portfolio.id}`}
+                        checked={portfolio.isVisible !== false}
+                        onCheckedChange={() => handleToggleVisibility(portfolio.id, portfolio.isVisible !== false)}
+                        data-testid={`checkbox-visibility-${portfolio.id}`}
+                      />
+                      <label
+                        htmlFor={`visibility-${portfolio.id}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1"
+                      >
+                        {portfolio.isVisible !== false ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                        {language === 'en' ? 'Show on Portfolio Page' : 'ポートフォリオページに表示'}
+                      </label>
+                      <Badge variant={portfolio.isVisible !== false ? "default" : "secondary"} className="text-xs">
+                        {portfolio.isVisible !== false 
+                          ? (language === 'en' ? 'Visible' : '表示中') 
+                          : (language === 'en' ? 'Hidden' : '非表示')}
+                      </Badge>
+                    </div>
                     <div className="flex justify-end space-x-2 mt-4">
                       <Button
                         variant="outline"
