@@ -129,7 +129,12 @@ export function News({ language }: NewsProps) {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {newsArticles
               .filter((article: NewsArticle) => {
-                // Show all articles that have content for the requested language
+                // First, filter by visibility (only show visible articles)
+                if ((article as any).isVisible === false) {
+                  return false;
+                }
+                
+                // Then filter by language content availability
                 if (language === "jp") {
                   // Show articles that have Japanese content or can fallback to English
                   return article.titleJa || article.title;
