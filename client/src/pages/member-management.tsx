@@ -7,13 +7,14 @@ import { type Language } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AddMemberForm } from "@/components/forms/add-member-form";
 import { EditMemberForm } from "@/components/forms/edit-member-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { type Member } from "@shared/schema";
-import { Users, Edit, Trash2, Plus, ArrowUpDown } from "lucide-react";
+import { Users, Edit, Trash2, Plus, ArrowUpDown, Eye, EyeOff } from "lucide-react";
 
 export default function MemberManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
@@ -79,6 +80,45 @@ export default function MemberManagementPage() {
       });
     },
   });
+
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: async ({ id, isVisible }: { id: string; isVisible: boolean }) => {
+      return apiRequest("PUT", `/api/members/${id}`, { isVisible: !isVisible });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/members"] });
+      toast({
+        title: language === "en" ? "Success" : "成功",
+        description: language === "en" 
+          ? "Member visibility updated successfully" 
+          : "メンバーの表示設定が正常に更新されました",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" 
+          ? "Failed to update member visibility" 
+          : "メンバーの表示設定の更新に失敗しました",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleToggleVisibility = (id: string, isVisible: boolean) => {
+    toggleVisibilityMutation.mutate({ id, isVisible });
+  };
 
   const handleDeleteMember = (id: string, name: string) => {
     if (confirm(language === "en" 
@@ -212,6 +252,31 @@ export default function MemberManagementPage() {
                           </p>
                         )}
                       </div>
+                      
+                      {/* Visibility Control */}
+                      {isSuperadmin && (
+                        <div className="mt-4 mb-3 flex items-center space-x-2 pb-2 border-b border-gray-100">
+                          <Checkbox
+                            id={`visibility-${member.id}`}
+                            checked={member.isVisible !== false}
+                            onCheckedChange={() => handleToggleVisibility(member.id, member.isVisible !== false)}
+                            data-testid={`checkbox-visibility-${member.id}`}
+                          />
+                          <label
+                            htmlFor={`visibility-${member.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1"
+                          >
+                            {member.isVisible !== false ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                            {language === 'en' ? 'Show on Members Page' : 'メンバーページに表示'}
+                          </label>
+                          <Badge variant={member.isVisible !== false ? "default" : "secondary"} className="text-xs">
+                            {member.isVisible !== false 
+                              ? (language === 'en' ? 'Visible' : '表示中') 
+                              : (language === 'en' ? 'Hidden' : '非表示')}
+                          </Badge>
+                        </div>
+                      )}
+                      
                       {isSuperadmin && (
                         <div className="flex gap-2">
                           <Button 

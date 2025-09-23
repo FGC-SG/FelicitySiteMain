@@ -20,7 +20,11 @@ export function Members({ language }: MembersProps) {
   });
 
   // Sort members by display order
-  let sortedMembers = members ? [...members].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)) : [];
+  let sortedMembers = members 
+    ? [...members]
+        .filter(member => member.isVisible !== false)  // Only show visible members
+        .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)) 
+    : [];
   if (reverseOrder) {
     sortedMembers = sortedMembers.reverse();
   }
