@@ -109,6 +109,7 @@ export const funds = pgTable("funds", {
   description: text("description").notNull(),
   descriptionJa: text("description_ja"),
   status: varchar("status").notNull().default("active"), // active, inactive
+  vintage: varchar("vintage", { length: 4 }), // Fund starting year (YYYY)
   felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
   isVisible: boolean("is_visible").default(true), // Controls visibility on public Fund page
   createdAt: timestamp("created_at").defaultNow(),
