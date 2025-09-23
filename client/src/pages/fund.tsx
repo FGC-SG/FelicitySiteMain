@@ -28,7 +28,7 @@ export default function FundPage() {
     description: language === 'jp' ? "アジア太平洋地域をフォーカスした当社の専門的な投資ファンドをご覧ください。各ファンドは、高成長企業への投資機会を通じて、持続的な価値創造を追求しています。" : "Explore our specialized investment funds focused on the Asia-Pacific region. Each fund pursues sustainable value creation through investment opportunities in high-growth companies.",
     noFunds: language === 'jp' ? "現在、表示できるファンドはありません。" : "No funds are currently available for display.",
     fundCode: language === 'jp' ? "ファンドコード" : "Fund Code",
-    established: language === 'jp' ? "設立" : "Established",
+    vintage: language === 'jp' ? "ビンテージ" : "Vintage",
   };
 
   return (
@@ -107,7 +107,7 @@ export default function FundPage() {
                       
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                         <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                          {t.established}: {fund.createdAt ? new Date(fund.createdAt).getFullYear() : 'TBD'}
+                          {t.vintage}: {fund.vintage || 'TBD'}
                         </Badge>
                       </div>
                     </div>
