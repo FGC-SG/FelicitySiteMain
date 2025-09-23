@@ -75,6 +75,7 @@ export const portfolios = pgTable("portfolios", {
   description: text("description"),
   descriptionJa: text("description_ja"),
   website: varchar("website"),
+  isVisible: boolean("is_visible").default(true), // Controls visibility on public Portfolio page
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -131,6 +132,7 @@ export const newsArticles = pgTable("news_articles", {
   felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
   tags: varchar("tags"),
   authorId: varchar("author_id").references(() => users.id),
+  isVisible: boolean("is_visible").default(true), // Controls visibility on public News page
   publishedAt: timestamp("published_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
