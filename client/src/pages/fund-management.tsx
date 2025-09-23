@@ -28,6 +28,7 @@ const fundFormSchema = z.object({
   displayName: z.string().min(1, "Display name is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   descriptionJa: z.string().optional().or(z.literal("")),
+  vintage: z.string().regex(/^\d{4}$/, "Vintage must be a 4-digit year (YYYY)").optional().or(z.literal("")),
 });
 
 type FundFormData = z.infer<typeof fundFormSchema>;
@@ -50,6 +51,7 @@ export default function FundManagementPage() {
       displayName: "",
       description: "",
       descriptionJa: "",
+      vintage: "",
     },
   });
 
@@ -157,6 +159,7 @@ export default function FundManagementPage() {
     form.setValue("displayName", fund.displayName);
     form.setValue("description", fund.description);
     form.setValue("descriptionJa", fund.descriptionJa || "");
+    form.setValue("vintage", fund.vintage || "");
     setIsAddDialogOpen(true);
   };
 
@@ -381,6 +384,7 @@ export default function FundManagementPage() {
     displayName: language === 'jp' ? "表示名" : "Display Name", 
     description: language === 'jp' ? "説明" : "Description",
     descriptionJa: language === 'jp' ? "説明（日本語）" : "Description (Japanese)",
+    vintage: language === 'jp' ? "ビンテージ（年）" : "Vintage (Year)",
     cancel: language === 'jp' ? "キャンセル" : "Cancel",
     save: language === 'jp' ? "保存" : "Save",
     update: language === 'jp' ? "更新" : "Update",
@@ -504,6 +508,25 @@ export default function FundManagementPage() {
                                 {...field}
                                 rows={4}
                                 data-testid="textarea-fund-description-ja"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="vintage"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t.vintage}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="2024"
+                                maxLength={4}
+                                data-testid="input-fund-vintage"
                               />
                             </FormControl>
                             <FormMessage />
