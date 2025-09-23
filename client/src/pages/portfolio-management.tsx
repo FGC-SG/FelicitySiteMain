@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, Upload, ArrowLeft } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, Upload, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Portfolio, type Fund } from "@shared/schema";
@@ -319,6 +320,30 @@ export default function PortfolioManagementPage() {
       });
     },
   });
+
+  // Toggle portfolio visibility mutation
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, isVisible }: { id: string; isVisible: boolean }) =>
+      apiRequest('PUT', `/api/portfolios/${id}`, { isVisible }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/portfolios'] });
+      toast({
+        title: language === 'en' ? "Visibility updated" : "表示設定が更新されました",
+        description: language === 'en' ? "Portfolio visibility has been successfully updated." : "ポートフォリオの表示設定が正常に更新されました。",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: language === 'en' ? "Error" : "エラー",
+        description: error.message || (language === 'en' ? "Failed to update visibility." : "表示設定の更新に失敗しました。"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleToggleVisibility = (id: string, currentVisibility: boolean) => {
+    toggleVisibilityMutation.mutate({ id, isVisible: !currentVisibility });
+  };
 
   // Filter portfolios
   const filteredPortfolios = portfolios?.filter(portfolio => {
