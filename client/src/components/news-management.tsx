@@ -10,7 +10,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { type Language } from "@/lib/i18n";
 import { type NewsArticle } from "@shared/schema";
-import { Plus, Calendar, User, Globe, Trash2, Edit, FileText, Download, Upload } from "lucide-react";
+import { Plus, Calendar, User, Globe, Trash2, Edit, FileText, Download, Upload, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface NewsManagementProps {
   language: Language;
@@ -113,6 +114,42 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
     },
   });
 
+  // Visibility toggle mutation
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: async (data: { id: string; isVisible: boolean }) => {
+      return apiRequest("PUT", `/api/news/${data.id}`, { isVisible: data.isVisible });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      toast({
+        title: language === "en" ? "Success" : "成功",
+        description: language === "en" 
+          ? "Visibility updated" 
+          : "表示設定が更新されました",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 500);
+        return;
+      }
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" 
+          ? "Failed to update visibility" 
+          : "表示設定の更新に失敗しました",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleDeleteNews = (id: string, title: string) => {
     if (window.confirm(
       language === "en" 
@@ -121,6 +158,10 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
     )) {
       deleteNewsMutation.mutate(id);
     }
+  };
+
+  const handleToggleVisibility = (id: string, currentVisibility: boolean) => {
+    toggleVisibilityMutation.mutate({ id, isVisible: !currentVisibility });
   };
 
   const formatDate = (date: string | Date) => {
@@ -298,6 +339,35 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                           : (language === "en" ? "Felicity Singapore" : "フェリシティ・シンガポール")
                         }
                       </Badge>
+                      
+                      {/* Visibility Control */}
+                      <div className="flex items-center gap-2 ml-2">
+                        <Checkbox
+                          checked={article.isVisible !== false}
+                          onCheckedChange={() => handleToggleVisibility(article.id, article.isVisible !== false)}
+                          data-testid={`checkbox-visibility-${article.id}`}
+                          className="h-3 w-3"
+                        />
+                        {article.isVisible !== false ? (
+                          <Eye className="h-3 w-3 text-blue-600" />
+                        ) : (
+                          <EyeOff className="h-3 w-3 text-gray-400" />
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {language === "en" ? "Show on News" : "ニュース表示"}
+                        </span>
+                        <Badge 
+                          variant={article.isVisible !== false ? "default" : "secondary"}
+                          className={article.isVisible !== false 
+                            ? "bg-blue-100 text-blue-800 text-xs" 
+                            : "bg-gray-100 text-gray-600 text-xs"}
+                        >
+                          {article.isVisible !== false 
+                            ? (language === "en" ? "Visible" : "表示中") 
+                            : (language === "en" ? "Hidden" : "非表示")}
+                        </Badge>
+                      </div>
+                      
                       <div className="flex items-center text-xs text-muted-foreground gap-1">
                         <Calendar className="h-3 w-3" />
                         <span data-testid={`text-announcement-date-${article.id}`}>
