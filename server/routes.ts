@@ -926,9 +926,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Description (Japanese)': article.descriptionJa || '',
         'Content': article.content,
         'Content (Japanese)': article.contentJa || '',
+        'Language': article.language,
+        'Category': article.category,
         'Felicity Company': article.felicityCompany,
-        'Created Date': article.createdAt ? new Date(article.createdAt).toLocaleDateString() : '',
-        'Updated Date': article.updatedAt ? new Date(article.updatedAt).toLocaleDateString() : ''
+        'Tags': article.tags || '',
+        'Published Date': article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : '',
+        'Visible': article.isVisible !== false ? 'TRUE' : 'FALSE'
       }));
 
       // Create workbook and worksheet
@@ -986,16 +989,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const templateData = [
         {
           'Title': '',
-          'Description': '',
-          'Content': '',
           'Title (Japanese)': '',
+          'Description': '',
           'Description (Japanese)': '',
+          'Content': '',
           'Content (Japanese)': '',
-          'Publication Date': '',
-          'Author': '',
-          'Company': '',
-          'Created Date': '',
-          'Updated Date': ''
+          'Language': '',
+          'Category': '',
+          'Felicity Company': '',
+          'Tags': '',
+          'Published Date': '',
+          'Visible': ''
         }
       ];
 
