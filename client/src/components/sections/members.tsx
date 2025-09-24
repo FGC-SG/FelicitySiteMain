@@ -44,7 +44,7 @@ export function Members({ language }: MembersProps) {
           </div>
         ) : sortedMembers.length > 0 ? (
           <div className="flex justify-center">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl justify-items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl justify-items-center">
             {sortedMembers.map((member, index) => (
               <div key={member.id} className="bg-card rounded-xl p-6 shadow-lg border border-border text-center" data-testid={`card-member-${member.id}`}>
                 <div className="mb-6">
