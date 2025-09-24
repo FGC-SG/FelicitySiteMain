@@ -61,7 +61,8 @@ export function Members({ language }: MembersProps) {
             </p>
           </div>
         ) : sortedMembers.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex justify-center">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl">
             {sortedMembers.map((member, index) => (
               <div key={member.id} className="bg-card rounded-xl p-6 shadow-lg border border-border text-center" data-testid={`card-member-${member.id}`}>
                 <div className="mb-6">
@@ -94,6 +95,7 @@ export function Members({ language }: MembersProps) {
                 </p>
               </div>
             ))}
+            </div>
           </div>
         ) : (
           <div className="text-center py-12">
