@@ -3,7 +3,7 @@ import { useTranslation, type Language } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { type Member } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Users } from "lucide-react";
 
 interface MembersProps {
   language: Language;
@@ -65,7 +65,20 @@ export function Members({ language }: MembersProps) {
             {sortedMembers.map((member, index) => (
               <div key={member.id} className="bg-card rounded-xl p-6 shadow-lg border border-border text-center" data-testid={`card-member-${member.id}`}>
                 <div className="mb-6">
-                  
+                  <div className="flex justify-center mb-4">
+                    {member.photoUrl ? (
+                      <img
+                        src={member.photoUrl}
+                        alt={member.name}
+                        className="w-6 h-6 rounded-full object-cover border border-primary/10"
+                        data-testid={`img-member-photo-${member.id}`}
+                      />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center border border-primary/10" data-testid={`placeholder-member-photo-${member.id}`}>
+                        <Users className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
                   <h3 className="text-xl font-bold felicity-primary mb-2" data-testid={`text-member-name-${member.id}`}>
                     {member.name}
                   </h3>
