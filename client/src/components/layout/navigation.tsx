@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { LoginModal } from "@/components/auth/login-modal";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { Menu, X, User } from "lucide-react";
@@ -95,6 +96,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Language & Auth */}
           <div className="flex items-center space-x-2">
+            <ThemeToggle />
             <LanguageSwitcher
               currentLanguage={language}
               onLanguageChange={onLanguageChange}
@@ -171,6 +173,10 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   {item.label}
                 </Link>
               ))}
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-base font-medium text-muted-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         )}
