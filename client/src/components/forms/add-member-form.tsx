@@ -86,7 +86,7 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
     };
   };
 
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+  const handleUploadComplete = async (result: { successful: Array<{ uploadURL: string }> }) => {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       const uploadURL = (uploadedFile as any).uploadURL || "";

@@ -86,7 +86,7 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
     };
   };
 
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+  const handleUploadComplete = async (result: { successful: Array<{ uploadURL: string }> }) => {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       const uploadURL = (uploadedFile as any).uploadURL || "";
@@ -111,14 +111,35 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
     }
   };
 
-  const handleDeletePhoto = () => {
-    setPhotoUrl("");
-    toast({
-      title: language === "en" ? "Success" : "成功",
-      description: language === "en" 
-        ? "Photo removed successfully" 
-        : "写真が正常に削除されました",
-    });
+  const handleDeletePhoto = async () => {
+    try {
+      // Update the member record in the database to remove the photo
+      await apiRequest("PUT", `/api/members/${member.id}`, {
+        ...form.getValues(),
+        photoUrl: ""
+      });
+      
+      // Update local state
+      setPhotoUrl("");
+      
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/members"] });
+      
+      toast({
+        title: language === "en" ? "Success" : "成功",
+        description: language === "en" 
+          ? "Photo removed successfully" 
+          : "写真が正常に削除されました",
+      });
+    } catch (error) {
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" 
+          ? "Failed to remove photo" 
+          : "写真の削除に失敗しました",
+        variant: "destructive",
+      });
+    }
   };
 
   const onSubmit = (data: MemberFormData) => {
