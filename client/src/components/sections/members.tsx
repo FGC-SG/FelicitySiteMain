@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { type Member } from "@shared/schema";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Users } from "lucide-react";
+import { Users } from "lucide-react";
 
 interface MembersProps {
   language: Language;
@@ -11,7 +9,6 @@ interface MembersProps {
 
 export function Members({ language }: MembersProps) {
   const t = useTranslation(language);
-  const [reverseOrder, setReverseOrder] = useState(false);
 
   // Fetch members from the database
   const { data: members, isLoading } = useQuery<Member[]>({
@@ -20,14 +17,11 @@ export function Members({ language }: MembersProps) {
   });
 
   // Sort members by display order
-  let sortedMembers = members 
+  const sortedMembers = members 
     ? [...members]
         .filter(member => member.isVisible !== false)  // Only show visible members
         .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)) 
     : [];
-  if (reverseOrder) {
-    sortedMembers = sortedMembers.reverse();
-  }
 
   return (
     <section id="members" className="py-20 bg-background">
@@ -39,18 +33,6 @@ export function Members({ language }: MembersProps) {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6" data-testid="text-members-subtitle">
             {t.members.subtitle}
           </p>
-          <Button 
-            onClick={() => setReverseOrder(!reverseOrder)}
-            variant="outline"
-            className="gap-2"
-            data-testid="button-reverse-members-order"
-          >
-            <ArrowUpDown className="h-4 w-4" />
-            {language === "en" 
-              ? (reverseOrder ? "Normal Order" : "Reverse Order")
-              : (reverseOrder ? "通常順序" : "逆順序")
-            }
-          </Button>
         </div>
 
         {isLoading ? (
