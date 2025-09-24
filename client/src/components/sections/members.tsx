@@ -90,7 +90,7 @@ export function Members({ language }: MembersProps) {
                     {member.company}
                   </p>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed" data-testid={`text-member-bio-${member.id}`}>
+                <p className="text-sm text-muted-foreground leading-relaxed text-left" data-testid={`text-member-bio-${member.id}`}>
                   {member.bio}
                 </p>
               </div>
