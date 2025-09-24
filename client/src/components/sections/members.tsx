@@ -65,12 +65,7 @@ export function Members({ language }: MembersProps) {
             {sortedMembers.map((member, index) => (
               <div key={member.id} className="bg-card rounded-xl p-6 shadow-lg border border-border text-center" data-testid={`card-member-${member.id}`}>
                 <div className="mb-6">
-                  <img
-                    src={member.photoUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300"}
-                    alt={member.name}
-                    className="w-32 h-32 rounded-full mx-auto object-cover mb-4"
-                    data-testid={`img-member-${member.id}`}
-                  />
+                  
                   <h3 className="text-xl font-bold felicity-primary mb-2" data-testid={`text-member-name-${member.id}`}>
                     {member.name}
                   </h3>
