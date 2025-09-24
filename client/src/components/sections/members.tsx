@@ -63,35 +63,22 @@ export function Members({ language }: MembersProps) {
         ) : sortedMembers.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sortedMembers.map((member, index) => (
-              <div key={member.id} className="bg-card rounded-xl p-6 shadow-lg border border-border" data-testid={`card-member-${member.id}`}>
-                <div className="flex gap-4">
-                  {member.photoUrl && (
-                    <div className="flex-shrink-0">
-                      <img
-                        src={member.photoUrl}
-                        alt={member.name}
-                        className="w-20 h-20 rounded-full object-cover"
-                        data-testid={`img-member-${member.id}`}
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold felicity-primary mb-2" data-testid={`text-member-name-${member.id}`}>
-                      {member.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground font-medium mb-1" data-testid={`text-member-position-${member.id}`}>
-                      {member.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mb-3" data-testid={`text-member-company-${member.id}`}>
-                      {member.company}
-                    </p>
-                    {member.bio && (
-                      <p className="text-sm text-muted-foreground leading-relaxed" data-testid={`text-member-bio-${member.id}`}>
-                        {member.bio}
-                      </p>
-                    )}
-                  </div>
+              <div key={member.id} className="bg-card rounded-xl p-6 shadow-lg border border-border text-center" data-testid={`card-member-${member.id}`}>
+                <div className="mb-6">
+                  
+                  <h3 className="text-xl font-bold felicity-primary mb-2" data-testid={`text-member-name-${member.id}`}>
+                    {member.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground font-medium mb-1" data-testid={`text-member-position-${member.id}`}>
+                    {member.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-4" data-testid={`text-member-company-${member.id}`}>
+                    {member.company}
+                  </p>
                 </div>
+                <p className="text-sm text-muted-foreground leading-relaxed" data-testid={`text-member-bio-${member.id}`}>
+                  {member.bio}
+                </p>
               </div>
             ))}
           </div>
