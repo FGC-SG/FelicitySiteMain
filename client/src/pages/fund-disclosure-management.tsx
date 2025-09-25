@@ -68,8 +68,6 @@ export default function FundDisclosureManagementPage() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      titleJa: "",
       fundId: "",
       descriptionJa: "",
       pdfUrl: "",
@@ -156,8 +154,6 @@ export default function FundDisclosureManagementPage() {
   const handleEdit = (disclosure: FundDisclosure) => {
     setEditingDisclosure(disclosure);
     form.reset({
-      title: disclosure.title,
-      titleJa: disclosure.titleJa ?? "",
       fundId: disclosure.fundId,
       descriptionJa: disclosure.descriptionJa ?? "",
       pdfUrl: disclosure.pdfUrl,
@@ -169,7 +165,8 @@ export default function FundDisclosureManagementPage() {
   };
 
   const handleDelete = (disclosure: FundDisclosure) => {
-    if (window.confirm(`Are you sure you want to delete "${disclosure.title}"? This action cannot be undone.`)) {
+    const disclosureTypeText = disclosure.disclosureType === 'business-report' ? 'Business Report' : 'Semi-annual Report';
+    if (window.confirm(`Are you sure you want to delete this ${disclosureTypeText}? This action cannot be undone.`)) {
       deleteMutation.mutate(disclosure.id);
     }
   };
@@ -268,35 +265,6 @@ export default function FundDisclosureManagementPage() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Title Fields */}
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Title (English) *</FormLabel>
-                          <FormControl>
-                            <Input {...field} data-testid="input-disclosure-title" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="titleJa"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Title (Japanese)</FormLabel>
-                          <FormControl>
-                            <Input {...field} value={field.value || ""} data-testid="input-disclosure-title-ja" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
                     {/* Fund Selection and Disclosure Type */}
                     <FormField
                       control={form.control}
@@ -304,7 +272,7 @@ export default function FundDisclosureManagementPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Fund *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                             <FormControl>
                               <SelectTrigger data-testid="select-fund">
                                 <SelectValue placeholder="Select fund" />
@@ -329,7 +297,7 @@ export default function FundDisclosureManagementPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Disclosure Type *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                             <FormControl>
                               <SelectTrigger data-testid="select-disclosure-type">
                                 <SelectValue placeholder="Select disclosure type" />
@@ -503,7 +471,7 @@ export default function FundDisclosureManagementPage() {
                     <div className="flex items-center gap-2 mb-2">
                       <CardTitle className="flex items-center gap-2" data-testid={`text-disclosure-title-${disclosure.id}`}>
                         <FileText className="h-5 w-5 text-blue-600" />
-                        {disclosure.title}
+                        {formatDisclosureType(disclosure.disclosureType)}
                       </CardTitle>
                       <Badge variant={disclosure.isVisible ? "default" : "secondary"}>
                         {disclosure.isVisible ? "Visible" : "Hidden"}
@@ -592,36 +560,7 @@ export default function FundDisclosureManagementPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Title Fields */}
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title (English) *</FormLabel>
-                      <FormControl>
-                        <Input {...field} data-testid="input-edit-disclosure-title" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="titleJa"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title (Japanese)</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value || ""} data-testid="input-edit-disclosure-title-ja" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Company and Publication Date */}
+                {/* Disclosure Type and Publication Date */}
                 <FormField
                   control={form.control}
                   name="disclosureType"
