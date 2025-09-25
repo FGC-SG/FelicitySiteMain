@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { NewsManagement } from "@/components/news-management";
-import { Users, FileText, UserPlus, Building2, DollarSign } from "lucide-react";
+import { Users, FileText, UserPlus, Building2, DollarSign, Upload } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
 
@@ -209,6 +209,12 @@ export default function ManagementPage() {
     enabled: isAuthenticated,
   });
 
+  // Fetch fund disclosures count
+  const { data: fundDisclosures } = useQuery({
+    queryKey: ["/api/fund-disclosures"],
+    enabled: isAuthenticated,
+  });
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -279,6 +285,14 @@ export default function ManagementPage() {
       color: "bg-purple-500",
       stats: `${(funds as any[])?.length || 0} Funds`,
       action: () => window.location.href = `/fund-management?lang=${language}`
+    },
+    {
+      title: "Fund Disclosure Management",
+      description: "Upload and manage fund disclosure documents and publications",
+      icon: Upload,
+      color: "bg-blue-600",
+      stats: `${(fundDisclosures as any[])?.length || 0} Disclosures`,
+      action: () => window.location.href = `/fund-disclosure-management?lang=${language}`
     }
   ];
 
@@ -315,7 +329,7 @@ export default function ManagementPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {managementSections.map((section, index) => (
                 <Card 
                   key={index} 

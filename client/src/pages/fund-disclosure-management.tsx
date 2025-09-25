@@ -89,7 +89,6 @@ export default function FundDisclosureManagementPage() {
       toast({ title: "Success", description: "Fund disclosure created successfully" });
       setIsAddDialogOpen(false);
       form.reset();
-      setPdfFile(null);
     },
     onError: (error: any) => {
       toast({ 
@@ -115,7 +114,6 @@ export default function FundDisclosureManagementPage() {
       setIsEditDialogOpen(false);
       setEditingDisclosure(null);
       form.reset();
-      setPdfFile(null);
     },
     onError: (error: any) => {
       toast({ 
