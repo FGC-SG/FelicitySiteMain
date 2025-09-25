@@ -268,7 +268,7 @@ export default function FundDisclosureManagementPage() {
                         <FormItem>
                           <FormLabel>Title (Japanese)</FormLabel>
                           <FormControl>
-                            <Input {...field} data-testid="input-disclosure-title-ja" />
+                            <Input {...field} value={field.value || ""} data-testid="input-disclosure-title-ja" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -353,6 +353,7 @@ export default function FundDisclosureManagementPage() {
                           <FormControl>
                             <Textarea 
                               {...field} 
+                              value={field.value || ""}
                               rows={3}
                               data-testid="textarea-disclosure-description"
                             />
@@ -371,6 +372,7 @@ export default function FundDisclosureManagementPage() {
                           <FormControl>
                             <Textarea 
                               {...field} 
+                              value={field.value || ""}
                               rows={3}
                               data-testid="textarea-disclosure-description-ja"
                             />
@@ -593,7 +595,7 @@ export default function FundDisclosureManagementPage() {
                     <FormItem>
                       <FormLabel>Title (Japanese)</FormLabel>
                       <FormControl>
-                        <Input {...field} data-testid="input-edit-disclosure-title-ja" />
+                        <Input {...field} value={field.value || ""} data-testid="input-edit-disclosure-title-ja" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -678,6 +680,7 @@ export default function FundDisclosureManagementPage() {
                       <FormControl>
                         <Textarea 
                           {...field} 
+                          value={field.value || ""}
                           rows={3}
                           data-testid="textarea-edit-disclosure-description"
                         />
@@ -696,6 +699,7 @@ export default function FundDisclosureManagementPage() {
                       <FormControl>
                         <Textarea 
                           {...field} 
+                          value={field.value || ""}
                           rows={3}
                           data-testid="textarea-edit-disclosure-description-ja"
                         />
