@@ -62,6 +62,7 @@ export interface IStorage {
   getAllPortfolios(): Promise<Portfolio[]>;
   updatePortfolio(id: string, portfolioData: Partial<InsertPortfolio>): Promise<Portfolio>;
   deletePortfolio(id: string): Promise<void>;
+  deleteAllPortfolios(): Promise<void>;
   
   // Fund operations
   createFund(fundData: InsertFund): Promise<Fund>;
@@ -225,6 +226,10 @@ export class DatabaseStorage implements IStorage {
 
   async deletePortfolio(id: string): Promise<void> {
     await db.delete(portfolios).where(eq(portfolios.id, id));
+  }
+
+  async deleteAllPortfolios(): Promise<void> {
+    await db.delete(portfolios);
   }
 
   // Fund operations

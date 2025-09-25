@@ -541,6 +541,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/portfolios', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required for delete all operations" });
+      }
+
+      await storage.deleteAllPortfolios();
+      res.json({ success: true, message: "All portfolios deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting all portfolios:", error);
+      res.status(500).json({ message: "Failed to delete all portfolios" });
+    }
+  });
+
   // Fund management routes
   app.get('/api/funds', async (req, res) => {
     try {
