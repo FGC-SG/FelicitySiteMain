@@ -72,6 +72,7 @@ export const portfolios = pgTable("portfolios", {
   investmentType: varchar("investment_type").notNull(), // buyout, growth-equity, secondary
   country: varchar("country").notNull(),
   investmentYear: varchar("investment_year"), // MM/YYYY format
+  status: varchar("status").notNull().default("ongoing"), // ongoing, exit
   description: text("description"),
   descriptionJa: text("description_ja"),
   website: varchar("website"),
