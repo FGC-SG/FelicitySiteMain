@@ -187,8 +187,6 @@ export type InsertPasswordReset = typeof passwordResets.$inferInsert;
 // Fund disclosures table for PDF document uploads
 export const fundDisclosures = pgTable("fund_disclosures", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  title: varchar("title").notNull(),
-  titleJa: varchar("title_ja"),
   fundId: varchar("fund_id").notNull().references(() => funds.id), // Reference to specific fund
   descriptionJa: text("description_ja"),
   pdfUrl: varchar("pdf_url").notNull(), // Path to uploaded PDF file
