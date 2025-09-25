@@ -184,10 +184,10 @@ export const passwordResets = pgTable("password_resets", {
 export type PasswordReset = typeof passwordResets.$inferSelect;
 export type InsertPasswordReset = typeof passwordResets.$inferInsert;
 
-// Fund disclosures table for PDF document uploads
+// Fund disclosures table for PDF document uploads  
 export const fundDisclosures = pgTable("fund_disclosures", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  fundId: varchar("fund_id").notNull().references(() => funds.id), // Reference to specific fund
+  fundId: varchar("fund_id").references(() => funds.id), // Reference to specific fund (nullable initially)
   descriptionJa: text("description_ja"),
   pdfUrl: varchar("pdf_url").notNull(), // Path to uploaded PDF file
   publishedAt: timestamp("published_at").notNull(),
