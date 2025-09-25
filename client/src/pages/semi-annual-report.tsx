@@ -81,10 +81,7 @@ export default function SemiAnnualReportPage() {
             {language === 'jp' ? '半期運用報告書' : 'Semi-annual Management Reports'}
           </h1>
           <p className="text-xl md:text-2xl text-purple-100 mb-8" data-testid="text-semi-annual-report-subtitle">
-            {language === 'jp' 
-              ? 'フェリシティ・ジャパンの半期運用実績と投資状況に関する詳細な報告書をご確認いただけます'
-              : 'Detailed semi-annual investment performance and management reports from Felicity Japan'
-            }
+            金融商品取引法第63条に関わる開示
           </p>
           <div className="grid md:grid-cols-2 gap-6 mt-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
