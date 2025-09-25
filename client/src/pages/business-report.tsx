@@ -81,7 +81,7 @@ export default function BusinessReportPage() {
             {language === 'jp' ? '事業報告書' : 'Business Reports'}
           </h1>
           <p className="text-xl md:text-2xl text-green-100 mb-8" data-testid="text-business-report-subtitle">
-            【法第63条の4第3項】に関わる開示
+            金融商品取引法第63条に関わる開示
           </p>
           <div className="grid md:grid-cols-2 gap-6 mt-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
