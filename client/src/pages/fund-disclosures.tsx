@@ -133,8 +133,8 @@ export default function FundDisclosuresPage() {
                 </CardTitle>
                 <CardDescription>
                   {language === 'jp' 
-                    ? 'フェリシティ・ジャパンの事業活動に関する詳細な報告書'
-                    : 'Detailed business activity reports from Felicity Japan'
+                    ? '全てのファンドに関する年次開示情報'
+                    : 'Annual disclosure information for all funds'
                   }
                 </CardDescription>
               </CardHeader>
