@@ -189,11 +189,11 @@ export const fundDisclosures = pgTable("fund_disclosures", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
   titleJa: varchar("title_ja"),
-  description: text("description"),
+  fundId: varchar("fund_id").notNull().references(() => funds.id), // Reference to specific fund
   descriptionJa: text("description_ja"),
   pdfUrl: varchar("pdf_url").notNull(), // Path to uploaded PDF file
   publishedAt: timestamp("published_at").notNull(),
-  disclosureType: varchar("disclosure_type").notNull().default("general"), // business-report, semi-annual-report, general
+  disclosureType: varchar("disclosure_type").notNull().default("business-report"), // business-report, semi-annual-report
   isVisible: boolean("is_visible").default(true), // Controls visibility on public Fund Disclosure page
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

@@ -59,16 +59,21 @@ export default function FundDisclosureManagementPage() {
     queryKey: ['/api/fund-disclosures']
   });
 
+  // Fetch funds for selection
+  const { data: funds } = useQuery({
+    queryKey: ['/api/funds']
+  });
+
   // Form setup
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       titleJa: "",
-      description: "",
+      fundId: "",
       descriptionJa: "",
       pdfUrl: "",
-      disclosureType: "general",
+      disclosureType: "business-report",
       isVisible: true,
       publishedAt: new Date()
     }
@@ -153,7 +158,7 @@ export default function FundDisclosureManagementPage() {
     form.reset({
       title: disclosure.title,
       titleJa: disclosure.titleJa ?? "",
-      description: disclosure.description ?? "",
+      fundId: disclosure.fundId,
       descriptionJa: disclosure.descriptionJa ?? "",
       pdfUrl: disclosure.pdfUrl,
       disclosureType: disclosure.disclosureType,
@@ -214,10 +219,8 @@ export default function FundDisclosureManagementPage() {
         return language === 'jp' ? '事業報告書' : 'Business Report';
       case "semi-annual-report":
         return language === 'jp' ? '半期運用報告書' : 'Semi-annual Management Report';
-      case "general":
-        return language === 'jp' ? '一般開示資料' : 'General Disclosure';
       default:
-        return language === 'jp' ? '一般開示資料' : 'General Disclosure';
+        return language === 'jp' ? '事業報告書' : 'Business Report';
     }
   };
 
@@ -294,7 +297,32 @@ export default function FundDisclosureManagementPage() {
                       )}
                     />
 
-                    {/* Company and Publication Date */}
+                    {/* Fund Selection and Disclosure Type */}
+                    <FormField
+                      control={form.control}
+                      name="fundId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fund *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-fund">
+                                <SelectValue placeholder="Select fund" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {(funds as any[])?.map((fund: any) => (
+                                <SelectItem key={fund.id} value={fund.id}>
+                                  {fund.displayName}
+                                </SelectItem>
+                              )) || []}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <FormField
                       control={form.control}
                       name="disclosureType"
@@ -310,7 +338,6 @@ export default function FundDisclosureManagementPage() {
                             <SelectContent>
                               <SelectItem value="business-report">事業報告書 (Business Report)</SelectItem>
                               <SelectItem value="semi-annual-report">半期運用報告書 (Semi-annual Report)</SelectItem>
-                              <SelectItem value="general">一般開示資料 (General Disclosure)</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -362,46 +389,25 @@ export default function FundDisclosureManagementPage() {
                     />
                   </div>
 
-                  {/* Description Fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description (English)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              value={field.value || ""}
-                              rows={3}
-                              data-testid="textarea-disclosure-description"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="descriptionJa"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description (Japanese)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              value={field.value || ""}
-                              rows={3}
-                              data-testid="textarea-disclosure-description-ja"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  {/* Description Field (Japanese Only) */}
+                  <FormField
+                    control={form.control}
+                    name="descriptionJa"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description (Japanese)</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            {...field} 
+                            value={field.value || ""}
+                            rows={3}
+                            data-testid="textarea-disclosure-description-ja"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   {/* PDF Upload */}
                   <div className="space-y-2">
@@ -543,10 +549,10 @@ export default function FundDisclosureManagementPage() {
                   </div>
                 </div>
               </CardHeader>
-              {disclosure.description && (
+              {disclosure.descriptionJa && (
                 <CardContent>
                   <p className="text-sm text-gray-600" data-testid={`text-description-${disclosure.id}`}>
-                    {disclosure.description}
+                    {disclosure.descriptionJa}
                   </p>
                 </CardContent>
               )}
@@ -683,46 +689,25 @@ export default function FundDisclosureManagementPage() {
                 />
               </div>
 
-              {/* Description Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description (English)</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          {...field} 
-                          value={field.value || ""}
-                          rows={3}
-                          data-testid="textarea-edit-disclosure-description"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="descriptionJa"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description (Japanese)</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          {...field} 
-                          value={field.value || ""}
-                          rows={3}
-                          data-testid="textarea-edit-disclosure-description-ja"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {/* Description Field (Japanese Only) */}
+              <FormField
+                control={form.control}
+                name="descriptionJa"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description (Japanese)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        value={field.value || ""}
+                        rows={3}
+                        data-testid="textarea-edit-disclosure-description-ja"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* PDF URL - Read only for edit */}
               <FormField
