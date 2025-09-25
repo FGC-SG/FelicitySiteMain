@@ -110,6 +110,114 @@ export default function FundDisclosuresPage() {
         </div>
       </section>
 
+      {/* Disclosure Categories */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center mb-8" data-testid="text-disclosure-categories-title">
+            {language === 'jp' ? '開示資料カテゴリ' : 'Disclosure Categories'}
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Business Report Card */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-green-500" data-testid="card-business-report-category">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="bg-green-100 p-3 rounded-lg">
+                    <FileText className="h-6 w-6 text-green-600" />
+                  </div>
+                  <Badge variant="secondary" className="bg-green-100 text-green-700">
+                    {disclosures?.filter(d => d.disclosureType === 'business-report' && d.isVisible).length || 0}
+                  </Badge>
+                </div>
+                <CardTitle className="text-xl">
+                  {language === 'jp' ? '事業報告書' : 'Business Reports'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'jp' 
+                    ? 'フェリシティ・ジャパンの事業活動に関する詳細な報告書'
+                    : 'Detailed business activity reports from Felicity Japan'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-green-200 hover:bg-green-50"
+                  onClick={() => window.location.href = `/business-report?lang=${language}`}
+                  data-testid="button-view-business-reports"
+                >
+                  {language === 'jp' ? '事業報告書を見る' : 'View Business Reports'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Semi-annual Report Card */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-purple-500" data-testid="card-semi-annual-category">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <FileText className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                    {disclosures?.filter(d => d.disclosureType === 'semi-annual-report' && d.isVisible).length || 0}
+                  </Badge>
+                </div>
+                <CardTitle className="text-xl">
+                  {language === 'jp' ? '半期運用報告書' : 'Semi-annual Reports'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'jp' 
+                    ? 'フェリシティ・ジャパンの半期運用実績と投資状況に関する報告書'
+                    : 'Semi-annual investment performance and management reports'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-purple-200 hover:bg-purple-50"
+                  onClick={() => window.location.href = `/semi-annual-report?lang=${language}`}
+                  data-testid="button-view-semi-annual-reports"
+                >
+                  {language === 'jp' ? '半期報告書を見る' : 'View Semi-annual Reports'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* General Disclosure Card */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-blue-500" data-testid="card-general-disclosure-category">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="bg-blue-100 p-3 rounded-lg">
+                    <FileText className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                    {disclosures?.filter(d => d.disclosureType === 'general' && d.isVisible).length || 0}
+                  </Badge>
+                </div>
+                <CardTitle className="text-xl">
+                  {language === 'jp' ? '一般開示資料' : 'General Disclosures'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'jp' 
+                    ? 'その他の重要な開示情報と文書'
+                    : 'Other important disclosure information and documents'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-blue-200 hover:bg-blue-50"
+                  data-testid="button-view-general-disclosures"
+                >
+                  {language === 'jp' ? '一般開示資料を見る' : 'View General Disclosures'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Search Section */}
       <section className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
