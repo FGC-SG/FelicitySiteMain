@@ -183,3 +183,21 @@ export const passwordResets = pgTable("password_resets", {
 
 export type PasswordReset = typeof passwordResets.$inferSelect;
 export type InsertPasswordReset = typeof passwordResets.$inferInsert;
+
+// Fund disclosures table for PDF document uploads
+export const fundDisclosures = pgTable("fund_disclosures", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  titleJa: varchar("title_ja"),
+  description: text("description"),
+  descriptionJa: text("description_ja"),
+  pdfUrl: varchar("pdf_url").notNull(), // Path to uploaded PDF file
+  publishedAt: timestamp("published_at").notNull(),
+  felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
+  isVisible: boolean("is_visible").default(true), // Controls visibility on public Fund Disclosure page
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type FundDisclosure = typeof fundDisclosures.$inferSelect;
+export type InsertFundDisclosure = typeof fundDisclosures.$inferInsert;
