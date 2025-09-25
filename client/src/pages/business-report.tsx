@@ -80,12 +80,6 @@ export default function BusinessReportPage() {
           <h1 className="text-4xl md:text-6xl font-bold mb-6" data-testid="text-business-report-title">
             {language === 'jp' ? '事業報告書' : 'Business Reports'}
           </h1>
-          <p className="text-xl md:text-2xl text-green-100 mb-8" data-testid="text-business-report-subtitle">
-            {language === 'jp' 
-              ? 'フェリシティ・ジャパンの事業活動に関する詳細な報告書をご確認いただけます'
-              : 'Detailed business activity reports from Felicity Japan'
-            }
-          </p>
           <div className="grid md:grid-cols-2 gap-6 mt-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
               <div className="text-3xl font-bold">{filteredDisclosures.length}</div>
