@@ -61,9 +61,7 @@ export default function PortfolioManagementPage() {
   // Delete all portfolios mutation
   const deleteAllPortfoliosMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('/api/portfolios', {
-        method: 'DELETE',
-      });
+      const response = await apiRequest('DELETE', '/api/portfolios');
       return response.json();
     },
     onSuccess: () => {
