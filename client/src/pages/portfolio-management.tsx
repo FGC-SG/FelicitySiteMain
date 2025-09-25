@@ -33,6 +33,7 @@ const portfolioFormSchema = z.object({
   investmentType: z.enum(["buyout", "growthequity", "secondary"]),
   country: z.string().min(1, "Country is required"),
   investmentYear: z.string().regex(/^(0[1-9]|1[0-2])\/\d{4}$/, "Investment year must be in MM/YYYY format").optional().or(z.literal("")),
+  status: z.enum(["ongoing", "exit"]).default("ongoing"),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   description: z.string().min(10, "Description must be at least 10 characters"),
   descriptionJa: z.string().optional().or(z.literal("")),
