@@ -28,9 +28,6 @@ export default function SemiAnnualReportPage() {
       disclosure.isVisible && 
       disclosureYear === selectedYear &&
       (searchTerm === "" || 
-       disclosure.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       (disclosure.titleJa && disclosure.titleJa.toLowerCase().includes(searchTerm.toLowerCase())) ||
-       (disclosure.description && disclosure.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
        (disclosure.descriptionJa && disclosure.descriptionJa.toLowerCase().includes(searchTerm.toLowerCase())))
   }) || [];
 
@@ -152,9 +149,7 @@ export default function SemiAnnualReportPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
                       <CardTitle className="text-lg leading-6" data-testid={`text-report-title-${disclosure.id}`}>
-                        {language === 'jp' && disclosure.titleJa 
-                          ? disclosure.titleJa 
-                          : disclosure.title}
+                        {language === 'jp' ? '半期運用報告書' : 'Semi-annual Report'}
                       </CardTitle>
                       <FileText className="h-6 w-6 text-purple-600 flex-shrink-0" />
                     </div>
@@ -169,19 +164,17 @@ export default function SemiAnnualReportPage() {
                   </CardHeader>
                   <CardContent>
                     {/* Description */}
-                    {(disclosure.description || disclosure.descriptionJa) && (
+                    {disclosure.descriptionJa && (
                       <div className="mb-4">
                         <p className="text-sm text-gray-600" data-testid={`text-description-${disclosure.id}`}>
-                          {language === 'jp' && disclosure.descriptionJa 
-                            ? disclosure.descriptionJa 
-                            : disclosure.description}
+                          {disclosure.descriptionJa}
                         </p>
                       </div>
                     )}
                     
                     {/* Download Button */}
                     <Button 
-                      onClick={() => handleDownload(disclosure.pdfUrl, disclosure.title)}
+                      onClick={() => handleDownload(disclosure.pdfUrl, language === 'jp' ? '半期運用報告書' : 'Semi-annual Report')}
                       className="w-full bg-purple-600 hover:bg-purple-700"
                       data-testid={`button-download-${disclosure.id}`}
                     >
