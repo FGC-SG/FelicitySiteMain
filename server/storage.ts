@@ -5,6 +5,7 @@ import {
   members,
   portfolios,
   funds,
+  fundDisclosures,
   userInvitations,
   passwordResets,
   type User,
@@ -19,6 +20,8 @@ import {
   type InsertPortfolio,
   type Fund,
   type InsertFund,
+  type FundDisclosure,
+  type InsertFundDisclosure,
   type UserInvitation,
   type InsertUserInvitation,
   type PasswordReset,
@@ -69,6 +72,12 @@ export interface IStorage {
   getAllFunds(): Promise<Fund[]>;
   updateFund(id: string, fundData: Partial<InsertFund>): Promise<Fund>;
   deleteFund(id: string): Promise<void>;
+  
+  // Fund disclosure operations
+  createFundDisclosure(disclosureData: InsertFundDisclosure): Promise<FundDisclosure>;
+  getAllFundDisclosures(): Promise<FundDisclosure[]>;
+  updateFundDisclosure(id: string, disclosureData: Partial<InsertFundDisclosure>): Promise<FundDisclosure>;
+  deleteFundDisclosure(id: string): Promise<void>;
   
   // User invitation operations
   createInvitation(invitationData: Partial<UserInvitation>): Promise<UserInvitation>;
@@ -253,6 +262,29 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFund(id: string): Promise<void> {
     await db.delete(funds).where(eq(funds.id, id));
+  }
+
+  // Fund disclosure operations
+  async createFundDisclosure(disclosureData: InsertFundDisclosure): Promise<FundDisclosure> {
+    const [disclosure] = await db.insert(fundDisclosures).values(disclosureData).returning();
+    return disclosure;
+  }
+
+  async getAllFundDisclosures(): Promise<FundDisclosure[]> {
+    return await db.select().from(fundDisclosures).orderBy(desc(fundDisclosures.publishedAt));
+  }
+
+  async updateFundDisclosure(id: string, disclosureData: Partial<InsertFundDisclosure>): Promise<FundDisclosure> {
+    const [disclosure] = await db
+      .update(fundDisclosures)
+      .set({ ...disclosureData, updatedAt: new Date() })
+      .where(eq(fundDisclosures.id, id))
+      .returning();
+    return disclosure;
+  }
+
+  async deleteFundDisclosure(id: string): Promise<void> {
+    await db.delete(fundDisclosures).where(eq(fundDisclosures.id, id));
   }
 
   // User invitation operations
