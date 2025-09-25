@@ -5,6 +5,7 @@ import { type Language } from "@/lib/i18n";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText, Search, Calendar, Download } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { type FundDisclosure } from "@shared/schema";
@@ -13,22 +14,31 @@ export default function BusinessReportPage() {
   // Japan Only page - force Japanese language
   const [language, setLanguage] = useState<Language>('jp');
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   // Fetch fund disclosures data filtered for business reports
   const { data: disclosures, isLoading } = useQuery<FundDisclosure[]>({
     queryKey: ['/api/fund-disclosures']
   });
 
-  // Filter for business report disclosures and apply search
-  const filteredDisclosures = disclosures?.filter(disclosure => 
-    disclosure.disclosureType === 'business-report' &&
-    disclosure.isVisible && 
-    (searchTerm === "" || 
-     disclosure.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     (disclosure.titleJa && disclosure.titleJa.toLowerCase().includes(searchTerm.toLowerCase())) ||
-     (disclosure.description && disclosure.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-     (disclosure.descriptionJa && disclosure.descriptionJa.toLowerCase().includes(searchTerm.toLowerCase())))
-  ) || [];
+  // Filter for business report disclosures and apply search and year filter
+  const filteredDisclosures = disclosures?.filter(disclosure => {
+    const disclosureYear = new Date(disclosure.publishedAt).getFullYear();
+    return disclosure.disclosureType === 'business-report' &&
+      disclosure.isVisible && 
+      disclosureYear === selectedYear &&
+      (searchTerm === "" || 
+       disclosure.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       (disclosure.titleJa && disclosure.titleJa.toLowerCase().includes(searchTerm.toLowerCase())) ||
+       (disclosure.description && disclosure.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+       (disclosure.descriptionJa && disclosure.descriptionJa.toLowerCase().includes(searchTerm.toLowerCase())))
+  }) || [];
+
+  // Get available years from disclosures
+  const availableYears = Array.from(new Set(
+    disclosures?.filter(d => d.disclosureType === 'business-report' && d.isVisible)
+      .map(d => new Date(d.publishedAt).getFullYear()) || []
+  )).sort((a, b) => b - a); // Sort descending (latest first)
 
   const formatDate = (date: Date | string) => {
     const dateObj = date instanceof Date ? date : new Date(date);
@@ -84,11 +94,22 @@ export default function BusinessReportPage() {
               </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <div className="text-3xl font-bold">
-                {new Date().getFullYear()}
-              </div>
-              <div className="text-green-200">
-                {language === 'jp' ? '年度' : 'Current Year'}
+              <div className="mb-4">
+                <div className="text-green-200 mb-2">
+                  年度選択
+                </div>
+                <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+                  <SelectTrigger className="w-full bg-white/20 border-green-300 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableYears.map(year => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}年
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
