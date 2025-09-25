@@ -112,7 +112,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       news: "News",
       portfolio: "Portfolio",
       fund: "Fund",
-      fundDisclosure: "Fund Disclosure",
+      fundDisclosure: "Japan Only",
       contact: "Contact",
       login: "Login",
       logout: "Logout"
@@ -217,7 +217,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       news: "ニュース",
       portfolio: "ポートフォリオ",
       fund: "ファンド",
-      fundDisclosure: "ファンド開示資料",
+      fundDisclosure: "Japan Only",
       contact: "お問い合わせ",
       login: "ログイン",
       logout: "ログアウト"
