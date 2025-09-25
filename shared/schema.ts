@@ -193,7 +193,7 @@ export const fundDisclosures = pgTable("fund_disclosures", {
   descriptionJa: text("description_ja"),
   pdfUrl: varchar("pdf_url").notNull(), // Path to uploaded PDF file
   publishedAt: timestamp("published_at").notNull(),
-  felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
+  disclosureType: varchar("disclosure_type").notNull().default("general"), // business-report, semi-annual-report, general
   isVisible: boolean("is_visible").default(true), // Controls visibility on public Fund Disclosure page
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

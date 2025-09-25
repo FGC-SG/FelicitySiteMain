@@ -68,7 +68,7 @@ export default function FundDisclosureManagementPage() {
       description: "",
       descriptionJa: "",
       pdfUrl: "",
-      felicityCompany: "felicity-singapore",
+      disclosureType: "general",
       isVisible: true,
       publishedAt: new Date()
     }
@@ -158,7 +158,7 @@ export default function FundDisclosureManagementPage() {
       description: disclosure.description ?? "",
       descriptionJa: disclosure.descriptionJa ?? "",
       pdfUrl: disclosure.pdfUrl,
-      felicityCompany: disclosure.felicityCompany,
+      disclosureType: disclosure.disclosureType,
       isVisible: disclosure.isVisible,
       publishedAt: new Date(disclosure.publishedAt)
     });
@@ -191,14 +191,16 @@ export default function FundDisclosureManagementPage() {
     return format(dateObj, 'MMM dd, yyyy');
   };
 
-  const formatFelicityCompany = (company: string) => {
-    switch (company) {
-      case "felicity-singapore":
-        return 'Felicity Singapore';
-      case "felicity-japan":
-        return 'Felicity Japan';
+  const formatDisclosureType = (type: string) => {
+    switch (type) {
+      case "business-report":
+        return language === 'jp' ? '事業報告書' : 'Business Report';
+      case "semi-annual-report":
+        return language === 'jp' ? '半期運用報告書' : 'Semi-annual Management Report';
+      case "general":
+        return language === 'jp' ? '一般開示資料' : 'General Disclosure';
       default:
-        return 'Felicity Singapore';
+        return language === 'jp' ? '一般開示資料' : 'General Disclosure';
     }
   };
 
@@ -278,19 +280,20 @@ export default function FundDisclosureManagementPage() {
                     {/* Company and Publication Date */}
                     <FormField
                       control={form.control}
-                      name="felicityCompany"
+                      name="disclosureType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Felicity Company *</FormLabel>
+                          <FormLabel>Disclosure Type *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger data-testid="select-felicity-company">
-                                <SelectValue placeholder="Select company" />
+                              <SelectTrigger data-testid="select-disclosure-type">
+                                <SelectValue placeholder="Select disclosure type" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="felicity-singapore">Felicity Singapore</SelectItem>
-                              <SelectItem value="felicity-japan">Felicity Japan</SelectItem>
+                              <SelectItem value="business-report">事業報告書 (Business Report)</SelectItem>
+                              <SelectItem value="semi-annual-report">半期運用報告書 (Semi-annual Report)</SelectItem>
+                              <SelectItem value="general">一般開示資料 (General Disclosure)</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -497,7 +500,7 @@ export default function FundDisclosureManagementPage() {
                       </div>
                       <div className="flex items-center">
                         <Building2 className="h-4 w-4 mr-1" />
-                        <span>{formatFelicityCompany(disclosure.felicityCompany)}</span>
+                        <span>{formatDisclosureType(disclosure.disclosureType)}</span>
                       </div>
                     </div>
                   </div>
@@ -605,19 +608,20 @@ export default function FundDisclosureManagementPage() {
                 {/* Company and Publication Date */}
                 <FormField
                   control={form.control}
-                  name="felicityCompany"
+                  name="disclosureType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Felicity Company *</FormLabel>
+                      <FormLabel>Disclosure Type *</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-edit-felicity-company">
-                            <SelectValue placeholder="Select company" />
+                          <SelectTrigger data-testid="select-edit-disclosure-type">
+                            <SelectValue placeholder="Select disclosure type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="felicity-singapore">Felicity Singapore</SelectItem>
-                          <SelectItem value="felicity-japan">Felicity Japan</SelectItem>
+                          <SelectItem value="business-report">事業報告書 (Business Report)</SelectItem>
+                          <SelectItem value="semi-annual-report">半期運用報告書 (Semi-annual Report)</SelectItem>
+                          <SelectItem value="general">一般開示資料 (General Disclosure)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

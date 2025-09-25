@@ -41,14 +41,16 @@ export default function FundDisclosuresPage() {
     });
   };
 
-  const formatFelicityCompany = (company: string) => {
-    switch (company) {
-      case "felicity-singapore":
-        return language === 'jp' ? 'フェリシティ・シンガポール' : 'Felicity Singapore';
-      case "felicity-japan":
-        return language === 'jp' ? 'フェリシティ・ジャパン' : 'Felicity Japan';
+  const formatDisclosureType = (type: string) => {
+    switch (type) {
+      case "business-report":
+        return language === 'jp' ? '事業報告書' : 'Business Report';
+      case "semi-annual-report":
+        return language === 'jp' ? '半期運用報告書' : 'Semi-annual Report';
+      case "general":
+        return language === 'jp' ? '一般開示資料' : 'General Disclosure';
       default:
-        return language === 'jp' ? 'フェリシティ・シンガポール' : 'Felicity Singapore';
+        return language === 'jp' ? '一般開示資料' : 'General Disclosure';
     }
   };
 
@@ -81,12 +83,12 @@ export default function FundDisclosuresPage() {
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6" data-testid="text-fund-disclosures-title">
-            {language === 'jp' ? 'ファンド開示資料' : 'Fund Disclosures'}
+            {language === 'jp' ? 'ファンド開示資料（日本）' : 'Fund Disclosures (Japan)'}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 mb-8" data-testid="text-fund-disclosures-subtitle">
             {language === 'jp' 
-              ? 'ファンドに関する重要な開示情報と文書をご確認いただけます'
-              : 'Access important fund disclosure information and documents'
+              ? 'フェリシティ・ジャパンのファンドに関する重要な開示情報と文書をご確認いただけます'
+              : 'Access important fund disclosure information and documents for Felicity Japan'
             }
           </p>
           <div className="grid md:grid-cols-2 gap-6 mt-12">
@@ -98,10 +100,10 @@ export default function FundDisclosuresPage() {
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
               <div className="text-3xl font-bold">
-                {new Set(disclosures?.map(d => d.felicityCompany)).size || 0}
+                {new Set(disclosures?.map(d => d.disclosureType)).size || 0}
               </div>
               <div className="text-blue-200">
-                {language === 'jp' ? 'フェリシティ会社' : 'Felicity Companies'}
+                {language === 'jp' ? '開示タイプ' : 'Disclosure Types'}
               </div>
             </div>
           </div>
@@ -162,8 +164,8 @@ export default function FundDisclosuresPage() {
                       </div>
                       <div className="flex items-center">
                         <Building2 className="h-4 w-4 mr-1" />
-                        <span data-testid={`text-felicity-company-${disclosure.id}`}>
-                          {formatFelicityCompany(disclosure.felicityCompany)}
+                        <span data-testid={`text-disclosure-type-${disclosure.id}`}>
+                          {formatDisclosureType(disclosure.disclosureType)}
                         </span>
                       </div>
                     </div>
