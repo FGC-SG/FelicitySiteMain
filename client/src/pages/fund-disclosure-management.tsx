@@ -34,6 +34,7 @@ import { type FundDisclosure, type InsertFundDisclosure, fundDisclosures } from 
 import { createInsertSchema } from "drizzle-zod";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
+import { ObjectUploader } from "@/components/ObjectUploader";
 import { type Language } from "@/lib/i18n";
 
 // Form validation schema
@@ -52,7 +53,6 @@ export default function FundDisclosureManagementPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingDisclosure, setEditingDisclosure] = useState<FundDisclosure | null>(null);
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   // Fetch fund disclosures
   const { data: disclosures, isLoading } = useQuery<FundDisclosure[]>({
@@ -171,17 +171,36 @@ export default function FundDisclosureManagementPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      setPdfFile(file);
-      // For now, set a placeholder URL - in real implementation, upload to object storage
-      form.setValue('pdfUrl', `/uploads/pdfs/${file.name}`);
-    } else {
+  const getUploadParameters = async () => {
+    const response = await fetch('/api/objects/upload', {
+      method: 'POST',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to get upload parameters');
+    }
+    
+    const { uploadURL } = await response.json();
+    return {
+      method: 'PUT' as const,
+      url: uploadURL
+    };
+  };
+
+  const handleUploadComplete = (result: { successful: Array<{ uploadURL: string }> }) => {
+    if (result.successful.length > 0) {
+      const uploadedUrl = result.successful[0].uploadURL;
+      // Extract the path from the presigned URL and create a local object serving path
+      const urlObj = new URL(uploadedUrl);
+      const pathParts = urlObj.pathname.split('/');
+      const filename = pathParts[pathParts.length - 1];
+      const objectPath = `/objects/uploads/${filename}`;
+      
+      form.setValue('pdfUrl', objectPath);
       toast({
-        title: "Error",
-        description: "Please select a PDF file",
-        variant: "destructive"
+        title: "Success",
+        description: "PDF uploaded successfully",
       });
     }
   };
@@ -388,29 +407,22 @@ export default function FundDisclosureManagementPage() {
 
                   {/* PDF Upload */}
                   <div className="space-y-2">
-                    <Label htmlFor="pdf-upload">PDF Document *</Label>
+                    <Label>PDF Document *</Label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       <Upload className="mx-auto h-12 w-12 text-gray-400" />
                       <div className="mt-2">
-                        <input
-                          id="pdf-upload"
-                          type="file"
-                          accept="application/pdf"
-                          onChange={handleFileChange}
-                          className="hidden"
-                          data-testid="input-pdf-upload"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => document.getElementById('pdf-upload')?.click()}
-                          data-testid="button-select-pdf"
+                        <ObjectUploader
+                          acceptedTypes="application/pdf"
+                          maxFileSize={20971520} // 20MB for PDFs
+                          onGetUploadParameters={getUploadParameters}
+                          onComplete={handleUploadComplete}
+                          buttonClassName="border border-gray-300"
                         >
                           Select PDF File
-                        </Button>
-                        {pdfFile && (
+                        </ObjectUploader>
+                        {form.watch('pdfUrl') && (
                           <p className="mt-2 text-sm text-green-600">
-                            Selected: {pdfFile.name}
+                            PDF uploaded successfully
                           </p>
                         )}
                       </div>

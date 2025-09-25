@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
+  acceptedTypes?: string;
   onGetUploadParameters: () => Promise<{
     method: "PUT";
     url: string;
@@ -23,6 +24,7 @@ interface ObjectUploaderProps {
 export function ObjectUploader({
   maxNumberOfFiles = 1,
   maxFileSize = 10485760, // 10MB default
+  acceptedTypes = "image/*",
   onGetUploadParameters,
   onComplete,
   buttonClassName,
@@ -90,7 +92,7 @@ export function ObjectUploader({
     <div>
       <Input
         type="file"
-        accept="image/*"
+        accept={acceptedTypes}
         onChange={handleFileUpload}
         disabled={isUploading}
         className="hidden"
