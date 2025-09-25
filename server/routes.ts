@@ -640,6 +640,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fund disclosure management routes
+  app.get('/api/fund-disclosures', async (req, res) => {
+    try {
+      console.log("Fetching fund disclosures...");
+      const disclosures = await storage.getAllFundDisclosures();
+      console.log(`Retrieved ${disclosures.length} fund disclosures`);
+      res.json(disclosures);
+    } catch (error) {
+      console.error("Error fetching fund disclosures:", error);
+      res.status(500).json({ message: "Failed to fetch fund disclosures" });
+    }
+  });
+
+  app.post('/api/fund-disclosures', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has admin role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const disclosure = await storage.createFundDisclosure(req.body);
+      res.json(disclosure);
+    } catch (error) {
+      console.error("Error creating fund disclosure:", error);
+      res.status(500).json({ message: "Failed to create fund disclosure" });
+    }
+  });
+
+  app.put('/api/fund-disclosures/:id', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has admin role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const disclosure = await storage.updateFundDisclosure(id, req.body);
+      res.json(disclosure);
+    } catch (error) {
+      console.error("Error updating fund disclosure:", error);
+      res.status(500).json({ message: "Failed to update fund disclosure" });
+    }
+  });
+
+  app.delete('/api/fund-disclosures/:id', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has admin role
+      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required for delete operations" });
+      }
+
+      const { id } = req.params;
+      await storage.deleteFundDisclosure(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting fund disclosure:", error);
+      res.status(500).json({ message: "Failed to delete fund disclosure" });
+    }
+  });
+
   // User invitation routes
   app.post('/api/invitations', async (req: any, res) => {
     try {
