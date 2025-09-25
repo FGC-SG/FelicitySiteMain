@@ -1125,14 +1125,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Felicity Company': portfolio.felicityCompany,
         'Fund Name': portfolio.fundName || '',
         'Investment Type': portfolio.investmentType,
+        'Status': (portfolio as any).status === 'exit' ? 'Exit' : 'Ongoing',
         'Country': portfolio.country,
         'Industry': portfolio.industry,
         'Investment Year': portfolio.investmentYear || '',
         'Description': portfolio.description || '',
         'Description (Japanese)': portfolio.descriptionJa || '',
-        'Website': portfolio.website || '',
-        'Created Date': portfolio.createdAt ? new Date(portfolio.createdAt).toLocaleDateString() : '',
-        'Updated Date': portfolio.updatedAt ? new Date(portfolio.updatedAt).toLocaleDateString() : ''
+        'Website': portfolio.website || ''
       }));
 
       // Create workbook and worksheet
