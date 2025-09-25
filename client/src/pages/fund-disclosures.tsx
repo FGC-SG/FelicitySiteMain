@@ -166,8 +166,8 @@ export default function FundDisclosuresPage() {
                 </CardTitle>
                 <CardDescription>
                   {language === 'jp' 
-                    ? 'フェリシティ・ジャパンの半期運用実績と投資状況に関する報告書'
-                    : 'Semi-annual investment performance and management reports'
+                    ? 'ファンドの半期開示情報'
+                    : 'Semi-annual disclosure of funds'
                   }
                 </CardDescription>
               </CardHeader>
