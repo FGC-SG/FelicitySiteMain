@@ -84,10 +84,7 @@ export default function FundDisclosuresPage() {
             {language === 'jp' ? 'ファンド開示資料（日本）' : 'Fund Disclosures (Japan)'}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 mb-8" data-testid="text-fund-disclosures-subtitle">
-            {language === 'jp' 
-              ? 'フェリシティ・ジャパンのファンドに関する重要な開示情報と文書をご確認いただけます'
-              : 'Access important fund disclosure information and documents for Felicity Japan'
-            }
+            金融商品取引法第63条に関わる開示
           </p>
           <div className="grid md:grid-cols-2 gap-6 mt-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
