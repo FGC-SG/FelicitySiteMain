@@ -11,10 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 import { type FundDisclosure } from "@shared/schema";
 
 export default function FundDisclosuresPage() {
-  // Check for language parameter in URL, otherwise default to 'en'
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlLanguage = urlParams.get('lang') as Language;
-  const [language, setLanguage] = useState<Language>(urlLanguage === 'jp' ? 'jp' : 'en');
+  // Japan Only page - force Japanese language
+  const [language, setLanguage] = useState<Language>('jp');
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch fund disclosures data
@@ -76,7 +74,7 @@ export default function FundDisclosuresPage() {
     <div className="min-h-screen bg-background">
       <Navigation
         language={language}
-        onLanguageChange={setLanguage}
+        onLanguageChange={() => {}} // Disable language change for Japan Only page
       />
 
       {/* Hero Section */}
@@ -142,7 +140,7 @@ export default function FundDisclosuresPage() {
                 <Button 
                   variant="outline" 
                   className="w-full border-green-200 hover:bg-green-50"
-                  onClick={() => window.location.href = `/business-report?lang=${language}`}
+                  onClick={() => window.location.href = `/business-report`}
                   data-testid="button-view-business-reports"
                 >
                   {language === 'jp' ? '事業報告書を見る' : 'View Business Reports'}
@@ -175,7 +173,7 @@ export default function FundDisclosuresPage() {
                 <Button 
                   variant="outline" 
                   className="w-full border-purple-200 hover:bg-purple-50"
-                  onClick={() => window.location.href = `/semi-annual-report?lang=${language}`}
+                  onClick={() => window.location.href = `/semi-annual-report`}
                   data-testid="button-view-semi-annual-reports"
                 >
                   {language === 'jp' ? '半期報告書を見る' : 'View Semi-annual Reports'}

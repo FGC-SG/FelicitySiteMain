@@ -10,10 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import { type FundDisclosure } from "@shared/schema";
 
 export default function BusinessReportPage() {
-  // Check for language parameter in URL, otherwise default to 'jp' for Japan-only content
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlLanguage = urlParams.get('lang') as Language;
-  const [language, setLanguage] = useState<Language>(urlLanguage === 'en' ? 'en' : 'jp');
+  // Japan Only page - force Japanese language
+  const [language, setLanguage] = useState<Language>('jp');
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch fund disclosures data filtered for business reports
@@ -63,7 +61,7 @@ export default function BusinessReportPage() {
     <div className="min-h-screen bg-background">
       <Navigation
         language={language}
-        onLanguageChange={setLanguage}
+        onLanguageChange={() => {}} // Disable language change for Japan Only page
       />
 
       {/* Hero Section */}
@@ -185,7 +183,7 @@ export default function BusinessReportPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Button 
             variant="outline" 
-            onClick={() => window.location.href = `/fund-disclosures?lang=${language}`}
+            onClick={() => window.location.href = `/fund-disclosures`}
             data-testid="button-back-to-fund-disclosures"
           >
             {language === 'jp' ? 'ファンド開示資料に戻る' : 'Back to Fund Disclosures'}
