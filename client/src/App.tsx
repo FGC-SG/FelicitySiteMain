@@ -24,6 +24,7 @@ import AddUserStandalone from "@/pages/add-user-standalone";
 import AcceptInvitation from "@/pages/accept-invitation";
 import ResetPassword from "@/pages/reset-password";
 import PrivacyPolicy from "@/pages/privacy-policy";
+import FundDisclosure from "@/pages/fund-disclosure";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -88,6 +89,7 @@ function Router() {
       <Route path="/accept-invitation" component={AcceptInvitation} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/fund-disclosure" component={FundDisclosure} />
       <Route component={NotFound} />
     </Switch>
   );
