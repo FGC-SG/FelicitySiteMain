@@ -58,6 +58,35 @@ export default function PortfolioManagementPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Delete all portfolios mutation
+  const deleteAllPortfoliosMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('/api/portfolios', {
+        method: 'DELETE',
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/portfolios'] });
+      toast({
+        title: language === "en" ? "Success" : "成功",
+        description: language === "en" ? "All portfolios have been deleted successfully" : "すべてのポートフォリオが正常に削除されました",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting all portfolios:', error);
+      toast({
+        variant: "destructive",
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" ? "Failed to delete all portfolios" : "すべてのポートフォリオの削除に失敗しました",
+      });
+    },
+  });
+
+  const handleDeleteAllPortfolios = () => {
+    deleteAllPortfoliosMutation.mutate();
+  };
+
   const handleExportPortfolio = async () => {
     try {
       const response = await fetch('/api/portfolios/export', {
@@ -1567,6 +1596,46 @@ export default function PortfolioManagementPage() {
                   <Upload className="h-4 w-4 mr-2" />
                   {language === "en" ? "Bulk Upload" : "一括アップロード"}
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="border-red-600 text-red-600 hover:bg-red-50"
+                      data-testid="button-delete-all-portfolios"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      {language === "en" ? "Delete All" : "すべて削除"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {language === "en" 
+                          ? "Are you absolutely sure?" 
+                          : "本当によろしいですか？"
+                        }
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {language === "en" 
+                          ? "This action cannot be undone. This will permanently delete all portfolio companies from the database." 
+                          : "この操作は元に戻すことができません。データベースからすべてのポートフォリオ会社が永続的に削除されます。"
+                        }
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>
+                        {language === "en" ? "Cancel" : "キャンセル"}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteAllPortfolios}
+                        className="bg-red-600 hover:bg-red-700"
+                        data-testid="button-confirm-delete-all"
+                      >
+                        {language === "en" ? "Delete All" : "すべて削除"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <input
                   id="bulk-upload-portfolio"
                   type="file"
