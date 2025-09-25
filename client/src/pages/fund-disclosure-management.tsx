@@ -154,9 +154,9 @@ export default function FundDisclosureManagementPage() {
     setEditingDisclosure(disclosure);
     form.reset({
       title: disclosure.title,
-      titleJa: disclosure.titleJa || "",
-      description: disclosure.description || "",
-      descriptionJa: disclosure.descriptionJa || "",
+      titleJa: disclosure.titleJa ?? "",
+      description: disclosure.description ?? "",
+      descriptionJa: disclosure.descriptionJa ?? "",
       pdfUrl: disclosure.pdfUrl,
       felicityCompany: disclosure.felicityCompany,
       isVisible: disclosure.isVisible,

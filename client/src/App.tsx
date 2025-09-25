@@ -20,6 +20,8 @@ import UserManagement from "@/pages/user-management";
 import MemberManagement from "@/pages/member-management";
 import PortfolioManagement from "@/pages/portfolio-management";
 import FundManagement from "@/pages/fund-management";
+import FundDisclosures from "@/pages/fund-disclosures";
+import FundDisclosureManagement from "@/pages/fund-disclosure-management";
 import AddUserStandalone from "@/pages/add-user-standalone";
 import AcceptInvitation from "@/pages/accept-invitation";
 import ResetPassword from "@/pages/reset-password";
@@ -78,12 +80,14 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/fund" component={Fund} />
+      <Route path="/fund-disclosures" component={FundDisclosures} />
       <Route path="/management" component={Management} />
       <Route path="/news-management" component={NewsManagement} />
       <Route path="/user-management" component={UserManagement} />
       <Route path="/member-management" component={MemberManagement} />
       <Route path="/portfolio-management" component={PortfolioManagement} />
       <Route path="/fund-management" component={FundManagement} />
+      <Route path="/fund-disclosure-management" component={FundDisclosureManagement} />
       <Route path="/add-user" component={AddUserStandalone} />
       <Route path="/accept-invitation" component={AcceptInvitation} />
       <Route path="/reset-password" component={ResetPassword} />
