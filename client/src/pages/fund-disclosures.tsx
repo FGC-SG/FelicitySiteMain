@@ -116,7 +116,7 @@ export default function FundDisclosuresPage() {
           <h2 className="text-3xl font-bold text-center mb-8" data-testid="text-disclosure-categories-title">
             {language === 'jp' ? '開示資料カテゴリ' : 'Disclosure Categories'}
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {/* Business Report Card */}
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-green-500" data-testid="card-business-report-category">
               <CardHeader>
@@ -179,38 +179,6 @@ export default function FundDisclosuresPage() {
                   data-testid="button-view-semi-annual-reports"
                 >
                   {language === 'jp' ? '半期報告書を見る' : 'View Semi-annual Reports'}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* General Disclosure Card */}
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-blue-500" data-testid="card-general-disclosure-category">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <FileText className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                    {disclosures?.filter(d => d.disclosureType === 'general' && d.isVisible).length || 0}
-                  </Badge>
-                </div>
-                <CardTitle className="text-xl">
-                  {language === 'jp' ? '一般開示資料' : 'General Disclosures'}
-                </CardTitle>
-                <CardDescription>
-                  {language === 'jp' 
-                    ? 'その他の重要な開示情報と文書'
-                    : 'Other important disclosure information and documents'
-                  }
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  variant="outline" 
-                  className="w-full border-blue-200 hover:bg-blue-50"
-                  data-testid="button-view-general-disclosures"
-                >
-                  {language === 'jp' ? '一般開示資料を見る' : 'View General Disclosures'}
                 </Button>
               </CardContent>
             </Card>
