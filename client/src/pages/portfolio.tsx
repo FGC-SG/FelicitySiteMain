@@ -269,9 +269,25 @@ function PortfolioPage() {
                           ? portfolio.companyNameJa 
                           : portfolio.companyName}
                       </CardTitle>
-                      <Badge variant="outline" className={getInvestmentTypeColor(portfolio.investmentType)} data-testid={`badge-investment-type-${portfolio.id}`}>
-                        {getInvestmentTypeLabel(portfolio.investmentType)}
-                      </Badge>
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="outline" className={getInvestmentTypeColor(portfolio.investmentType)} data-testid={`badge-investment-type-${portfolio.id}`}>
+                          {getInvestmentTypeLabel(portfolio.investmentType)}
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            (portfolio as any).status === "exit"
+                              ? "border-red-500 text-red-700 bg-red-50 dark:bg-red-950 dark:text-red-300 dark:border-red-400"
+                              : "border-orange-500 text-orange-700 bg-orange-50 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-400"
+                          }
+                          data-testid={`badge-status-${portfolio.id}`}
+                        >
+                          {(portfolio as any).status === "exit" 
+                            ? (language === "jp" ? "売却済み" : "Exit")
+                            : (language === "jp" ? "継続中" : "Ongoing")
+                          }
+                        </Badge>
+                      </div>
                     </div>
                     <div className="flex items-center text-sm text-gray-500 space-x-4 mb-2">
                       <div className="flex items-center">

@@ -2081,19 +2081,35 @@ export default function PortfolioManagementPage() {
                           {language === 'jp' ? 'セクター:' : 'Sector:'} {getSectorFromIndustry(portfolio.industry)}
                         </p>
                       </div>
-                      <Badge 
-                        variant="outline" 
-                        className={
-                          portfolio.investmentType === "buyout" 
-                            ? "border-blue-500 text-blue-700 bg-blue-50 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-400" 
-                            : portfolio.investmentType === "growthequity"
-                            ? "border-green-500 text-green-700 bg-green-50 dark:bg-green-950 dark:text-green-300 dark:border-green-400"
-                            : "border-purple-500 text-purple-700 bg-purple-50 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-400"
-                        }
-                        data-testid={`badge-investment-type-${portfolio.id}`}
-                      >
-                        {formatInvestmentType(portfolio.investmentType)}
-                      </Badge>
+                      <div className="flex flex-col gap-1">
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            portfolio.investmentType === "buyout" 
+                              ? "border-blue-500 text-blue-700 bg-blue-50 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-400" 
+                              : portfolio.investmentType === "growthequity"
+                              ? "border-green-500 text-green-700 bg-green-50 dark:bg-green-950 dark:text-green-300 dark:border-green-400"
+                              : "border-purple-500 text-purple-700 bg-purple-50 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-400"
+                          }
+                          data-testid={`badge-investment-type-${portfolio.id}`}
+                        >
+                          {formatInvestmentType(portfolio.investmentType)}
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            (portfolio as any).status === "exit"
+                              ? "border-red-500 text-red-700 bg-red-50 dark:bg-red-950 dark:text-red-300 dark:border-red-400"
+                              : "border-orange-500 text-orange-700 bg-orange-50 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-400"
+                          }
+                          data-testid={`badge-status-${portfolio.id}`}
+                        >
+                          {(portfolio as any).status === "exit" 
+                            ? (language === "en" ? "Exit" : "売却済み")
+                            : (language === "en" ? "Ongoing" : "継続中")
+                          }
+                        </Badge>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
