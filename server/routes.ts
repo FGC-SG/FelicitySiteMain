@@ -1053,14 +1053,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Felicity Company': 'felicity-singapore',
           'Fund Name': '',
           'Investment Type': 'growthequity',
+          'Status': 'ongoing',
           'Country': '',
           'Industry': '',
           'Investment Year': '',
           'Description': '',
           'Description (Japanese)': '',
-          'Website': '',
-          'Created Date': '',
-          'Updated Date': ''
+          'Website': ''
         }
       ];
 
