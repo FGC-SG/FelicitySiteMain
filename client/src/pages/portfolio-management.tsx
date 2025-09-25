@@ -234,8 +234,8 @@ export default function PortfolioManagementPage() {
       investmentType: "growthequity",
       country: "",
       investmentYear: "",
+      status: "ongoing",
       website: "",
-
       description: "",
       descriptionJa: "",
     },
@@ -390,6 +390,7 @@ export default function PortfolioManagementPage() {
       investmentType: portfolio.investmentType as "buyout" | "growthequity" | "secondary",
       country: portfolio.country,
       investmentYear: portfolio.investmentYear ?? "",
+      status: (portfolio as any).status ?? "ongoing",
       website: portfolio.website ?? "",
       description: portfolio.description ?? "",
       descriptionJa: portfolio.descriptionJa ?? "",
@@ -1885,6 +1886,27 @@ export default function PortfolioManagementPage() {
                                     <SelectItem value="buyout">Buyout</SelectItem>
                                     <SelectItem value="growthequity">Growth Equity</SelectItem>
                                     <SelectItem value="secondary">Secondary</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="status"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{language === "en" ? "Company Status" : "会社ステータス"}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger data-testid="select-status">
+                                      <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="ongoing">{language === "en" ? "Ongoing" : "継続中"}</SelectItem>
+                                    <SelectItem value="exit">{language === "en" ? "Exit" : "売却済み"}</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
