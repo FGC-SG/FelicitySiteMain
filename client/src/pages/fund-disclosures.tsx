@@ -164,7 +164,7 @@ export default function FundDisclosuresPage() {
                 </CardTitle>
                 <CardDescription>
                   {language === 'jp' 
-                    ? 'ファンドの半期開示情報'
+                    ? '一般投資家向け開示'
                     : 'Semi-annual disclosure of funds'
                   }
                 </CardDescription>
