@@ -1759,7 +1759,7 @@ export default function PortfolioManagementPage() {
                                   <SelectContent>
                                     {funds.map((fund) => (
                                       <SelectItem key={fund.id} value={fund.name}>
-                                        {fund.displayName}
+                                        {fund.name}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
