@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Search, Calendar, Download } from "lucide-react";
+import { FileText, Search, Calendar, Download, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import { type FundDisclosure } from "@shared/schema";
 
 export default function SemiAnnualReportPage() {
@@ -15,6 +16,7 @@ export default function SemiAnnualReportPage() {
   const [language, setLanguage] = useState<Language>('jp');
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const { toast } = useToast();
 
   // Fetch fund disclosures data filtered for semi-annual reports
   const { data: disclosures, isLoading } = useQuery<FundDisclosure[]>({
@@ -54,6 +56,18 @@ export default function SemiAnnualReportPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleView = (pdfUrl: string) => {
+    if (!pdfUrl || pdfUrl.trim() === '') {
+      toast({
+        title: language === 'jp' ? 'PDFが利用できません' : 'No PDF Available',
+        description: language === 'jp' ? 'この半期運用報告書にはPDFファイルが添付されていません。' : 'This semi-annual report does not have a PDF file attached.',
+        variant: "destructive",
+      });
+      return;
+    }
+    window.open(pdfUrl, '_blank');
   };
 
   if (isLoading) {
@@ -172,15 +186,39 @@ export default function SemiAnnualReportPage() {
                       </div>
                     )}
                     
-                    {/* Download Button */}
-                    <Button 
-                      onClick={() => handleDownload(disclosure.pdfUrl, language === 'jp' ? '半期運用報告書' : 'Semi-annual Report')}
-                      className="w-full bg-purple-600 hover:bg-purple-700"
-                      data-testid={`button-download-${disclosure.id}`}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      {language === 'jp' ? 'PDFをダウンロード' : 'Download PDF'}
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => handleView(disclosure.pdfUrl)}
+                        variant="outline"
+                        className="flex-1"
+                        data-testid={`button-view-${disclosure.id}`}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        {disclosure.pdfUrl && disclosure.pdfUrl.trim() !== '' 
+                          ? (language === 'jp' ? '表示' : 'View')
+                          : (language === 'jp' ? 'PDF無し' : 'No PDF')
+                        }
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          if (!disclosure.pdfUrl || disclosure.pdfUrl.trim() === '') {
+                            toast({
+                              title: language === 'jp' ? 'PDFが利用できません' : 'No PDF Available',
+                              description: language === 'jp' ? 'この半期運用報告書にはPDFファイルが添付されていません。' : 'This semi-annual report does not have a PDF file attached.',
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          handleDownload(disclosure.pdfUrl, language === 'jp' ? '半期運用報告書' : 'Semi-annual Report');
+                        }}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700"
+                        data-testid={`button-download-${disclosure.id}`}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {language === 'jp' ? 'ダウンロード' : 'Download'}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
