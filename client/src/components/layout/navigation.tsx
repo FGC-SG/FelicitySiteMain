@@ -89,7 +89,14 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   }`}
                   data-testid={`nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
-                  {item.label}
+                  {item.href === '/fund-disclosures' ? (
+                    <div className="flex flex-col items-center">
+                      <span>{item.label}</span>
+                      <span className="text-xs opacity-75">金商法６３条開示</span>
+                    </div>
+                  ) : (
+                    item.label
+                  )}
                 </Link>
               ))}
             </div>
@@ -168,10 +175,21 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className="block px-3 py-2 text-base font-medium text-muted-foreground hover:felicity-primary w-full text-left"
+                  className={`block px-3 py-2 text-base font-medium w-full text-left transition-colors ${
+                    location === item.href
+                      ? "felicity-primary"
+                      : "text-muted-foreground hover:felicity-primary"
+                  }`}
                   data-testid={`mobile-nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
-                  {item.label}
+                  {item.href === '/fund-disclosures' ? (
+                    <div className="flex flex-col">
+                      <span>{item.label}</span>
+                      <span className="text-sm opacity-75">金商法６３条開示</span>
+                    </div>
+                  ) : (
+                    item.label
+                  )}
                 </Link>
               ))}
               <div className="flex items-center justify-between px-3 py-2">
