@@ -221,6 +221,12 @@ export default function FundDisclosureManagementPage() {
     }
   };
 
+  const getFundName = (fundId: string | null) => {
+    if (!fundId || !funds || !Array.isArray(funds)) return 'Unknown Fund';
+    const fund = funds.find((f: any) => f.id === fundId);
+    return fund ? (language === 'jp' && fund.displayNameJa ? fund.displayNameJa : fund.displayName) : 'Unknown Fund';
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -471,7 +477,7 @@ export default function FundDisclosureManagementPage() {
                     <div className="flex items-center gap-2 mb-2">
                       <CardTitle className="flex items-center gap-2" data-testid={`text-disclosure-title-${disclosure.id}`}>
                         <FileText className="h-5 w-5 text-blue-600" />
-                        {formatDisclosureType(disclosure.disclosureType)}
+                        {getFundName(disclosure.fundId)} - {formatDisclosureType(disclosure.disclosureType)}
                       </CardTitle>
                       <Badge variant={disclosure.isVisible ? "default" : "secondary"}>
                         {disclosure.isVisible ? "Visible" : "Hidden"}
@@ -484,7 +490,7 @@ export default function FundDisclosureManagementPage() {
                       </div>
                       <div className="flex items-center">
                         <Building2 className="h-4 w-4 mr-1" />
-                        <span>{formatDisclosureType(disclosure.disclosureType)}</span>
+                        <span>{getFundName(disclosure.fundId)}</span>
                       </div>
                     </div>
                   </div>
