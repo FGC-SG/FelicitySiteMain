@@ -14,6 +14,7 @@ import News from "@/pages/news";
 import Contact from "@/pages/contact";
 import Portfolio from "@/pages/portfolio";
 import Fund from "@/pages/fund";
+import FundDetail from "@/pages/fund-detail";
 import Management from "@/pages/management";
 import NewsManagement from "@/pages/news-management";
 import UserManagement from "@/pages/user-management";
@@ -82,6 +83,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/fund" component={Fund} />
+      <Route path="/fund/:id" component={FundDetail} />
       <Route path="/fund-disclosures" component={FundDisclosures} />
       <Route path="/business-report" component={BusinessReport} />
       <Route path="/semi-annual-report" component={SemiAnnualReport} />

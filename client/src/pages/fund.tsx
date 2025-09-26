@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { type Language } from "@/lib/i18n";
@@ -75,11 +76,11 @@ export default function FundPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {(funds as FundType[]).map((fund) => (
-                <Card 
-                  key={fund.id} 
-                  className="h-full bg-white/80 backdrop-blur-sm border-blue-100 hover:bg-white/90 transition-all duration-300 hover:shadow-lg"
-                  data-testid={`card-fund-${fund.id}`}
-                >
+                <Link key={fund.id} href={`/fund/${fund.id}`}>
+                  <Card 
+                    className="h-full bg-white/80 backdrop-blur-sm border-blue-100 hover:bg-white/90 transition-all duration-300 hover:shadow-lg cursor-pointer"
+                    data-testid={`card-fund-${fund.id}`}
+                  >
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
@@ -107,7 +108,8 @@ export default function FundPage() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </div>
           )}

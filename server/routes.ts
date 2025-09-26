@@ -575,6 +575,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get individual fund by ID - public endpoint for fund detail pages
+  app.get('/api/funds/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log(`Fetching fund with ID: ${id}`);
+      const fund = await storage.getFund(id);
+      
+      if (!fund) {
+        return res.status(404).json({ message: "Fund not found" });
+      }
+
+      // Only return visible funds to public
+      if (fund.isVisible === false) {
+        return res.status(404).json({ message: "Fund not found" });
+      }
+
+      console.log(`Retrieved fund: ${fund.name}`);
+      res.json(fund);
+    } catch (error) {
+      console.error("Error fetching fund:", error);
+      res.status(500).json({ message: "Failed to fetch fund" });
+    }
+  });
+
   app.post('/api/funds', async (req: any, res) => {
     try {
       // Check if user is authenticated

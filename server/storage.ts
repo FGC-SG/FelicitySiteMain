@@ -70,6 +70,7 @@ export interface IStorage {
   // Fund operations
   createFund(fundData: InsertFund): Promise<Fund>;
   getAllFunds(): Promise<Fund[]>;
+  getFund(id: string): Promise<Fund | undefined>;
   updateFund(id: string, fundData: Partial<InsertFund>): Promise<Fund>;
   deleteFund(id: string): Promise<void>;
   
@@ -249,6 +250,11 @@ export class DatabaseStorage implements IStorage {
 
   async getAllFunds(): Promise<Fund[]> {
     return await db.select().from(funds).orderBy(desc(funds.createdAt));
+  }
+
+  async getFund(id: string): Promise<Fund | undefined> {
+    const [fund] = await db.select().from(funds).where(eq(funds.id, id));
+    return fund;
   }
 
   async updateFund(id: string, fundData: Partial<InsertFund>): Promise<Fund> {
