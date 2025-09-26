@@ -12,9 +12,8 @@ export function AdminRoute({ children, allowPublicAccess = false }: AdminRoutePr
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
 
-  // Check if user is admin
+  // Check if user is superadmin
   const isAdmin = isAuthenticated && user && (
-    (user as any)?.role === "admin" || 
     (user as any)?.role === "superadmin" ||
     (user as any)?.email === "onuma@fgcsg.com" ||
     (user as any)?.email === "test@fgcsg.com"
