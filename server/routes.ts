@@ -666,7 +666,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const disclosure = await storage.createFundDisclosure(req.body);
+      // Convert publishedAt string to Date object
+      const disclosureData = {
+        ...req.body,
+        publishedAt: new Date(req.body.publishedAt)
+      };
+
+      const disclosure = await storage.createFundDisclosure(disclosureData);
       res.json(disclosure);
     } catch (error) {
       console.error("Error creating fund disclosure:", error);
@@ -688,7 +694,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const disclosure = await storage.updateFundDisclosure(id, req.body);
+      
+      // Convert publishedAt string to Date object if provided
+      const updateData = { ...req.body };
+      if (updateData.publishedAt) {
+        updateData.publishedAt = new Date(updateData.publishedAt);
+      }
+
+      const disclosure = await storage.updateFundDisclosure(id, updateData);
       res.json(disclosure);
     } catch (error) {
       console.error("Error updating fund disclosure:", error);
