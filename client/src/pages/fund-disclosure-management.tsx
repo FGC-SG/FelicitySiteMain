@@ -224,7 +224,7 @@ export default function FundDisclosureManagementPage() {
   const getFundName = (fundId: string | null) => {
     if (!fundId || !funds || !Array.isArray(funds)) return 'Unknown Fund';
     const fund = funds.find((f: any) => f.id === fundId);
-    return fund ? (language === 'jp' && fund.displayNameJa ? fund.displayNameJa : fund.displayName) : 'Unknown Fund';
+    return fund ? fund.name : 'Unknown Fund';
   };
 
   if (isLoading) {
@@ -287,7 +287,7 @@ export default function FundDisclosureManagementPage() {
                             <SelectContent>
                               {(funds as any[])?.map((fund: any) => (
                                 <SelectItem key={fund.id} value={fund.id}>
-                                  {fund.displayName}
+                                  {fund.name}
                                 </SelectItem>
                               )) || []}
                             </SelectContent>
