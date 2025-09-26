@@ -27,7 +27,6 @@ export default function FundPage() {
     subtitle: language === 'jp' ? "Felicity Global Capitalのプライベートエクイティ投資ファンド" : "Felicity Global Capital's Private Equity Investment Funds",
     description: language === 'jp' ? "アジア太平洋地域をフォーカスした当社の専門的な投資ファンドをご覧ください。各ファンドは、高成長企業への投資機会を通じて、持続的な価値創造を追求しています。" : "Explore our specialized investment funds focused on the Asia-Pacific region. Each fund pursues sustainable value creation through investment opportunities in high-growth companies.",
     noFunds: language === 'jp' ? "現在、表示できるファンドはありません。" : "No funds are currently available for display.",
-    fundCode: language === 'jp' ? "ファンドコード" : "Fund Code",
     vintage: language === 'jp' ? "ビンテージ" : "Vintage",
   };
 
@@ -89,12 +88,8 @@ export default function FundPage() {
                     </div>
                     
                     <CardTitle className="text-xl font-bold text-gray-900 mb-2" data-testid={`text-fund-name-${fund.id}`}>
-                      {fund.displayName}
+                      {fund.name}
                     </CardTitle>
-                    
-                    <CardDescription className="text-sm text-blue-600 font-medium" data-testid={`text-fund-code-${fund.id}`}>
-                      {t.fundCode}: {fund.name}
-                    </CardDescription>
                   </CardHeader>
 
                   <CardContent className="pt-0">
