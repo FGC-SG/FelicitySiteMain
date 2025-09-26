@@ -631,10 +631,10 @@ export default function FundManagementPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg mb-1" data-testid={`text-fund-name-${fund.id}`}>
-                            {fund.displayName}
+                            {fund.name}
                           </CardTitle>
                           <CardDescription className="text-sm text-gray-600" data-testid={`text-fund-code-${fund.id}`}>
-                            {fund.name}
+                            {fund.displayName}
                           </CardDescription>
                         </div>
                       </div>
