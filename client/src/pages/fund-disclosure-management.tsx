@@ -498,11 +498,22 @@ export default function FundDisclosureManagementPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(disclosure.pdfUrl, '_blank')}
+                      onClick={() => {
+                        if (!disclosure.pdfUrl || disclosure.pdfUrl.trim() === '') {
+                          toast({
+                            title: "No PDF Available",
+                            description: "This disclosure does not have a PDF file attached.",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        window.open(disclosure.pdfUrl, '_blank');
+                      }}
+                      disabled={!disclosure.pdfUrl || disclosure.pdfUrl.trim() === ''}
                       data-testid={`button-view-pdf-${disclosure.id}`}
                     >
                       <Download className="h-4 w-4 mr-1" />
-                      View
+                      {disclosure.pdfUrl && disclosure.pdfUrl.trim() !== '' ? 'View' : 'No PDF'}
                     </Button>
                     <Button
                       variant="outline"
