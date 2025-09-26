@@ -6,14 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { FileText, Search, Calendar, Download, Building2 } from "lucide-react";
+import { FileText, Search, Calendar, Download, Building2, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import { type FundDisclosure } from "@shared/schema";
 
 export default function FundDisclosuresPage() {
   // Japan Only page - force Japanese language
   const [language, setLanguage] = useState<Language>('jp');
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
 
   // Fetch fund disclosures data
   const { data: disclosures, isLoading } = useQuery<FundDisclosure[]>({
@@ -58,6 +60,18 @@ export default function FundDisclosuresPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleView = (pdfUrl: string) => {
+    if (!pdfUrl || pdfUrl.trim() === '') {
+      toast({
+        title: language === 'jp' ? 'PDFが利用できません' : 'No PDF Available',
+        description: language === 'jp' ? 'この開示資料にはPDFファイルが添付されていません。' : 'This disclosure does not have a PDF file attached.',
+        variant: "destructive",
+      });
+      return;
+    }
+    window.open(pdfUrl, '_blank');
   };
 
   if (isLoading) {
@@ -247,15 +261,39 @@ export default function FundDisclosuresPage() {
                       </div>
                     )}
                     
-                    {/* Download Button */}
-                    <Button 
-                      onClick={() => handleDownload(disclosure.pdfUrl, formatDisclosureType(disclosure.disclosureType))}
-                      className="w-full"
-                      data-testid={`button-download-${disclosure.id}`}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      {language === 'jp' ? 'PDFをダウンロード' : 'Download PDF'}
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => handleView(disclosure.pdfUrl)}
+                        variant="outline"
+                        className="flex-1"
+                        data-testid={`button-view-${disclosure.id}`}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        {disclosure.pdfUrl && disclosure.pdfUrl.trim() !== '' 
+                          ? (language === 'jp' ? '表示' : 'View')
+                          : (language === 'jp' ? 'PDF無し' : 'No PDF')
+                        }
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          if (!disclosure.pdfUrl || disclosure.pdfUrl.trim() === '') {
+                            toast({
+                              title: language === 'jp' ? 'PDFが利用できません' : 'No PDF Available',
+                              description: language === 'jp' ? 'この開示資料にはPDFファイルが添付されていません。' : 'This disclosure does not have a PDF file attached.',
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          handleDownload(disclosure.pdfUrl, formatDisclosureType(disclosure.disclosureType));
+                        }}
+                        className="flex-1"
+                        data-testid={`button-download-${disclosure.id}`}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {language === 'jp' ? 'ダウンロード' : 'Download'}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
