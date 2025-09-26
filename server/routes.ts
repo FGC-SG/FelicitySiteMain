@@ -162,9 +162,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const tempUser = tempCodes[code as keyof typeof tempCodes];
       
+      // Create unique temporary ID
+      const tempId = `temp-${Date.now()}`;
+      
       // Create temporary session user
       const sessionUser = {
-        id: `temp-${Date.now()}`,
+        id: tempId,
         email: tempUser.email,
         firstName: 'Temporary',
         lastName: 'Admin',
@@ -173,6 +176,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profileImageUrl: null,
         isTemporary: true // Flag to identify temporary sessions
       };
+      
+      // Store temporary user in database to satisfy foreign key constraints
+      try {
+        await storage.upsertUser({
+          id: tempId,
+          email: tempUser.email,
+          firstName: 'Temporary',
+          lastName: 'Admin',
+          role: tempUser.role,
+          isActive: true,
+          profileImageUrl: null
+        });
+      } catch (error) {
+        console.error("Error storing temporary user:", error);
+        // Continue anyway - the session will still work for most operations
+      }
       
       // Set session
       (req as any).session.user = sessionUser;
