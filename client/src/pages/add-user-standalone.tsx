@@ -44,9 +44,8 @@ export default function AddUserStandalonePage() {
     return null; // Will redirect to login
   }
 
-  // Check if current user is superadmin or admin
+  // Check if current user is superadmin
   const isSuperadmin = (currentUser as any)?.role === "superadmin" || 
-                       (currentUser as any)?.role === "admin" ||
                        (currentUser as any)?.email === "onuma@fgcsg.com";
 
   if (!isSuperadmin) {

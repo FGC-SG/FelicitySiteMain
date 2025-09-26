@@ -151,9 +151,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Temporary production access codes
       const tempCodes = {
-        'fgc2025': { email: 'admin@fgcsg.com', role: 'admin' },
-        'felicity': { email: 'temp@fgcsg.com', role: 'admin' },
-        'prod2025': { email: 'production@fgcsg.com', role: 'admin' }
+        'fgc2025': { email: 'admin@fgcsg.com', role: 'superadmin' },
+        'felicity': { email: 'temp@fgcsg.com', role: 'superadmin' },
+        'prod2025': { email: 'production@fgcsg.com', role: 'superadmin' }
       };
       
       if (!tempCodes[code as keyof typeof tempCodes]) {
@@ -302,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for delete operations" });
       }
 
@@ -335,7 +335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for user creation" });
       }
 
@@ -396,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for delete operations" });
       }
 
@@ -450,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for delete operations" });
       }
 
@@ -485,7 +485,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required" });
       }
 
@@ -506,7 +506,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required" });
       }
 
@@ -528,7 +528,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for delete operations" });
       }
 
@@ -550,7 +550,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for delete all operations" });
       }
 
@@ -608,7 +608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required" });
       }
 
@@ -629,7 +629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required" });
       }
 
@@ -651,7 +651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for delete operations" });
       }
 
@@ -685,8 +685,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      // Check if user has admin role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      // Check if user has superadmin role
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -712,8 +712,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      // Check if user has admin role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      // Check if user has superadmin role
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -741,8 +741,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      // Check if user has admin role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      // Check if user has superadmin role
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required for delete operations" });
       }
 
@@ -765,7 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for sending invitations" });
       }
 
@@ -799,7 +799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required" });
       }
 
@@ -892,7 +892,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has superuser role
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Superuser access required for password reset" });
       }
 
@@ -1048,7 +1048,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1112,7 +1112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1177,7 +1177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1247,7 +1247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1345,7 +1345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1467,7 +1467,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1593,7 +1593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1657,7 +1657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -1724,7 +1724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (sessionUser.role !== "admin" && sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 

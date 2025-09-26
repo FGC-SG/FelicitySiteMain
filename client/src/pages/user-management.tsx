@@ -201,7 +201,6 @@ export default function UserManagementPage() {
 
   // Check if current user is superadmin
   const isSuperadmin = (currentUser as any)?.role === "superadmin" || 
-                       (currentUser as any)?.role === "admin" ||
                        (currentUser as any)?.email === "onuma@fgcsg.com";
 
   const getRoleColor = (role: string) => {
@@ -749,7 +748,6 @@ export default function UserManagementPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">{language === "en" ? "User" : "ユーザー"}</SelectItem>
-                      <SelectItem value="admin">{language === "en" ? "Admin" : "管理者"}</SelectItem>
                       <SelectItem value="superadmin">{language === "en" ? "Superadmin" : "スーパー管理者"}</SelectItem>
                     </SelectContent>
                   </Select>
