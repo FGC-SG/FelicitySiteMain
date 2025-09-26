@@ -105,14 +105,6 @@ export default function FundDisclosuresPage() {
                 {language === 'jp' ? '開示資料' : 'Disclosure Documents'}
               </div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <div className="text-3xl font-bold">
-                {new Set(disclosures?.map(d => d.disclosureType)).size || 0}
-              </div>
-              <div className="text-blue-200">
-                {language === 'jp' ? '開示タイプ' : 'Disclosure Types'}
-              </div>
-            </div>
           </div>
         </div>
       </section>
