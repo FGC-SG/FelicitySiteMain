@@ -24,6 +24,7 @@ import FundDisclosures from "@/pages/fund-disclosures";
 import FundDisclosureManagement from "@/pages/fund-disclosure-management";
 import BusinessReport from "@/pages/business-report";
 import SemiAnnualReport from "@/pages/semi-annual-report";
+import Article63Disclosure from "@/pages/article-63-disclosure";
 import AddUserStandalone from "@/pages/add-user-standalone";
 import AcceptInvitation from "@/pages/accept-invitation";
 import ResetPassword from "@/pages/reset-password";
@@ -85,6 +86,7 @@ function Router() {
       <Route path="/fund-disclosures" component={FundDisclosures} />
       <Route path="/business-report" component={BusinessReport} />
       <Route path="/semi-annual-report" component={SemiAnnualReport} />
+      <Route path="/article-63-disclosure" component={Article63Disclosure} />
       <Route path="/management" component={Management} />
       <Route path="/news-management" component={NewsManagement} />
       <Route path="/user-management" component={UserManagement} />

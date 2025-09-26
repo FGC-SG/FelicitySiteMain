@@ -6,6 +6,7 @@ export interface TranslationStrings {
     portfolio: string;
     fund: string;
     fundDisclosure: string;
+    article63Disclosure: string;
     contact: string;
     login: string;
     logout: string;
@@ -113,6 +114,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       portfolio: "Portfolio",
       fund: "Fund",
       fundDisclosure: "Japan Only",
+      article63Disclosure: "Article 63 Disclosure",
       contact: "Contact",
       login: "Login",
       logout: "Logout"
@@ -218,6 +220,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       portfolio: "ポートフォリオ",
       fund: "ファンド",
       fundDisclosure: "Japan Only",
+      article63Disclosure: "金商法63条開示",
       contact: "お問い合わせ",
       login: "ログイン",
       logout: "ログアウト"
