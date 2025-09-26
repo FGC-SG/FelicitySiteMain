@@ -1578,7 +1578,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Prepare data for Excel
       const excelData = funds.map((fund: any) => ({
         'Fund Name': fund.name,
-        'Display Name': fund.displayName,
         'Description': fund.description,
         'Description (Japanese)': fund.descriptionJa || '',
         'Vintage': fund.vintage || '',
@@ -1758,7 +1757,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Map Excel columns to database fields
           const fundData = {
             name: rowData['Fund Name'] || rowData['name'] || '',
-            displayName: rowData['Display Name'] || rowData['displayName'] || '',
             description: rowData['Description'] || rowData['description'] || '',
             descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
           };
@@ -1766,10 +1764,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Validate required fields
           if (!fundData.name) {
             errors.push(`Row ${index + 2}: Fund Name is required`);
-            continue;
-          }
-          if (!fundData.displayName) {
-            errors.push(`Row ${index + 2}: Display Name is required`);
             continue;
           }
           if (!fundData.description) {
