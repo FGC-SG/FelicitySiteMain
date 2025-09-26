@@ -25,7 +25,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 const fundFormSchema = z.object({
   name: z.string().min(1, "Fund name is required"),
-  displayName: z.string().min(1, "Display name is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   descriptionJa: z.string().optional().or(z.literal("")),
   vintage: z.string().regex(/^\d{4}$/, "Vintage must be a 4-digit year (YYYY)").optional().or(z.literal("")),
@@ -48,7 +47,6 @@ export default function FundManagementPage() {
     resolver: zodResolver(fundFormSchema),
     defaultValues: {
       name: "",
-      displayName: "",
       description: "",
       descriptionJa: "",
       vintage: "",
@@ -156,7 +154,6 @@ export default function FundManagementPage() {
   const handleEdit = (fund: FundType) => {
     setEditingFund(fund);
     form.setValue("name", fund.name);
-    form.setValue("displayName", fund.displayName);
     form.setValue("description", fund.description);
     form.setValue("descriptionJa", fund.descriptionJa || "");
     form.setValue("vintage", fund.vintage || "");
@@ -332,7 +329,6 @@ export default function FundManagementPage() {
   // Filter funds based on search term
   const filteredFunds = (funds as FundType[]).filter((fund: FundType) =>
     fund.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    fund.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     fund.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -381,7 +377,6 @@ export default function FundManagementPage() {
     addFundDesc: language === 'jp' ? "新しいファンド情報を入力してください" : "Fill in the information for the new fund",
     editFundDesc: language === 'jp' ? "ファンド情報を更新してください" : "Update the fund information",
     name: language === 'jp' ? "ファンド名" : "Fund Name",
-    displayName: language === 'jp' ? "表示名" : "Display Name", 
     description: language === 'jp' ? "説明" : "Description",
     descriptionJa: language === 'jp' ? "説明（日本語）" : "Description (Japanese)",
     vintage: language === 'jp' ? "ビンテージ（年）" : "Vintage (Year)",
@@ -465,19 +460,6 @@ export default function FundManagementPage() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="displayName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.displayName}</FormLabel>
-                            <FormControl>
-                              <Input {...field} data-testid="input-fund-display-name" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
                       <FormField
                         control={form.control}
@@ -633,9 +615,6 @@ export default function FundManagementPage() {
                           <CardTitle className="text-lg mb-1" data-testid={`text-fund-name-${fund.id}`}>
                             {fund.name}
                           </CardTitle>
-                          <CardDescription className="text-sm text-gray-600" data-testid={`text-fund-code-${fund.id}`}>
-                            {fund.displayName}
-                          </CardDescription>
                         </div>
                       </div>
                     </CardHeader>
