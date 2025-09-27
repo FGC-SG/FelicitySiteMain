@@ -91,7 +91,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   {item.href === '/fund-disclosures' ? (
                     <div className="flex flex-col items-center">
                       <span>{item.label}</span>
-                      <span className="text-xs opacity-75">金商法６３条開示</span>
+                      <span className="text-xs opacity-75">金商法63条開示</span>
                     </div>
                   ) : (
                     item.label
@@ -184,7 +184,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   {item.href === '/fund-disclosures' ? (
                     <div className="flex flex-col">
                       <span>{item.label}</span>
-                      <span className="text-sm opacity-75">金商法６３条開示</span>
+                      <span className="text-sm opacity-75">金商法63条開示</span>
                     </div>
                   ) : (
                     item.label
