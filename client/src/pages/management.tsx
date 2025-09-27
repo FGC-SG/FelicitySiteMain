@@ -287,7 +287,12 @@ export default function ManagementPage() {
       action: () => window.location.href = `/fund-management?lang=${language}`
     },
     {
-      title: "Fund Disclosure Management",
+      title: (
+        <div>
+          <div>Fund Disclosure Management</div>
+          <div className="text-sm text-muted-foreground font-normal mt-1">金商法63条開示書類</div>
+        </div>
+      ),
       description: "Upload and manage fund disclosure documents and publications",
       icon: Upload,
       color: "bg-blue-600",
