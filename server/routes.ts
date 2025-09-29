@@ -698,30 +698,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Text to translate is required" });
       }
 
-      // Initialize OpenAI client
-      const { OpenAI } = await import('openai');
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      // Initialize Google Gemini client
+      const { GoogleGenAI } = await import('@google/genai');
+      const apiKey = process.env.GEMINI_API_KEY;
+      console.log("GEMINI_API_KEY exists:", !!apiKey, "Length:", apiKey?.length);
+      
+      if (!apiKey) {
+        throw new Error("GEMINI_API_KEY not found in environment variables");
+      }
+      
+      const ai = new GoogleGenAI({ apiKey });
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-        messages: [
-          {
-            role: "system",
-            content: `You are a professional translator. Translate the following text to ${targetLanguage}. Provide only the translation without any additional text or explanations. Maintain the original meaning and tone.`
-          },
-          {
-            role: "user",
-            content: text
-          }
-        ],
+      const prompt = `You are a professional translator. Translate the following text to ${targetLanguage}. Provide only the translation without any additional text or explanations. Maintain the original meaning and tone.\n\nText to translate: "${text}"`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
       });
 
-      const translation = response.choices[0].message.content;
+      const translation = response.text;
       res.json({ translation });
     } catch (error) {
       console.error("Error translating text:", error);
       
-      // Handle specific OpenAI errors for better user feedback
+      // Handle specific Gemini API errors for better user feedback
       if (error instanceof Error) {
         if (error.message.includes('429') || error.message.includes('quota')) {
           return res.status(429).json({ 
