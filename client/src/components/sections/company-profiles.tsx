@@ -43,10 +43,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                 {t.profiles.singapore.title}
               </h4>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="font-medium">{t.profiles.singapore.chairman}</span>
-                  <span className="text-muted-foreground" data-testid="text-singapore-chairman">Tomohiro Fujita</span>
-                </div>
+                
                 <div className="flex justify-between">
                   <span className="font-medium">{t.profiles.singapore.capital}</span>
                   <span className="text-muted-foreground" data-testid="text-singapore-capital">SGD 13,716,823</span>
