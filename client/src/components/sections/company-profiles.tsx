@@ -92,10 +92,6 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
               </h4>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="font-medium">{t.profiles.japan.ceo}</span>
-                  <span className="text-muted-foreground" data-testid="text-japan-ceo">Tomohiro Fujita</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="font-medium">{t.profiles.japan.capital}</span>
                   <span className="text-muted-foreground" data-testid="text-japan-capital">JPY 10 million</span>
                 </div>
