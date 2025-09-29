@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/footer";
 import { type Language } from "@/lib/i18n";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, TrendingUp } from "lucide-react";
+import { PieChart, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { type Fund as FundType } from "@shared/schema";
 
@@ -41,7 +41,7 @@ export default function FundPage() {
           <div className="text-center mb-16">
             <div className="flex justify-center mb-6">
               <div className="flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full">
-                <DollarSign className="w-8 h-8 text-white" />
+                <PieChart className="w-8 h-8 text-white" />
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -65,7 +65,7 @@ export default function FundPage() {
             </div>
           ) : (funds as FundType[]).length === 0 ? (
             <div className="text-center py-16">
-              <DollarSign className="w-16 h-16 text-gray-400 mx-auto mb-6" />
+              <PieChart className="w-16 h-16 text-gray-400 mx-auto mb-6" />
               <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noFunds}</h3>
               <p className="text-gray-600">
                 {language === 'jp' 
