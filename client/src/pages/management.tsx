@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { NewsManagement } from "@/components/news-management";
-import { Users, FileText, UserPlus, Building2, DollarSign, Upload } from "lucide-react";
+import { Users, FileText, UserPlus, Building2, PieChart, Upload } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
 
@@ -281,7 +281,7 @@ export default function ManagementPage() {
     {
       title: "Fund Management",
       description: "Manage Felicity Global Capital investment funds",
-      icon: DollarSign,
+      icon: PieChart,
       color: "bg-purple-500",
       stats: `${(funds as any[])?.length || 0} Funds`,
       action: () => window.location.href = `/fund-management?lang=${language}`
