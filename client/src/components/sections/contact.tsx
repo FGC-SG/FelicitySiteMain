@@ -51,7 +51,7 @@ export function Contact({ language }: ContactProps) {
                 </p>
                 <div className="flex items-center">
                   <Phone className="felicity-primary mr-3 h-4 w-4" />
-                  <span data-testid="text-tokyo-office-phone">+81-3-5375-1025</span>
+                  <span data-testid="text-tokyo-office-phone">+81-3-5357-1025</span>
                 </div>
                 
               </div>
