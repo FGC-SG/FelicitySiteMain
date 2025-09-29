@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DollarSign, Plus, Pencil, Trash2, Search, ArrowLeft, Download, Upload, FileSpreadsheet, Eye, EyeOff } from "lucide-react";
+import { DollarSign, Plus, Pencil, Trash2, Search, ArrowLeft, Download, Upload, FileSpreadsheet, Eye, EyeOff, Languages } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Fund as FundType } from "@shared/schema";
@@ -123,6 +123,41 @@ export default function FundManagementPage() {
     },
   });
 
+  // Translation mutation
+  const translateMutation = useMutation({
+    mutationFn: async (text: string) => {
+      const response = await apiRequest('POST', '/api/translate', { text });
+      return await response.json();
+    },
+    onSuccess: (data: { translation: string }) => {
+      form.setValue('descriptionJa', data.translation);
+      toast({
+        title: language === 'jp' ? "翻訳完了" : "Translation Complete",
+        description: language === 'jp' ? "英語の説明文が日本語に翻訳されました。" : "English description has been translated to Japanese.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = error.message || (language === 'jp' ? "翻訳に失敗しました。" : "Failed to translate text.");
+      
+      // Provide more specific error messages based on error type
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの利用制限に達しました。しばらく時間をおいて再度お試しください。"
+          : "Translation service temporarily unavailable due to quota limits. Please try again later.";
+      } else if (error.message?.includes('configuration') || error.message?.includes('401')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの設定に問題があります。管理者にお問い合わせください。"
+          : "Translation service configuration issue. Please contact administrator.";
+      }
+
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error", 
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Toggle fund visibility mutation
   const toggleVisibilityMutation = useMutation({
     mutationFn: ({ id, isVisible }: { id: string; isVisible: boolean }) =>
@@ -166,6 +201,19 @@ export default function FundManagementPage() {
 
   const handleToggleVisibility = (fundId: string, currentVisibility: boolean) => {
     toggleVisibilityMutation.mutate({ id: fundId, isVisible: !currentVisibility });
+  };
+
+  const handleTranslate = () => {
+    const englishDescription = form.getValues('description');
+    if (!englishDescription) {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "翻訳するには英語の説明文を入力してください。" : "Please enter an English description to translate.",
+        variant: "destructive",
+      });
+      return;
+    }
+    translateMutation.mutate(englishDescription);
   };
 
   const handleCloseDialog = () => {
@@ -482,7 +530,24 @@ export default function FundManagementPage() {
                         name="descriptionJa"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t.descriptionJa}</FormLabel>
+                            <div className="flex items-center justify-between">
+                              <FormLabel>{t.descriptionJa}</FormLabel>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleTranslate}
+                                disabled={translateMutation.isPending || !form.getValues('description')}
+                                className="flex items-center gap-1"
+                                data-testid="button-translate-description"
+                              >
+                                <Languages className="w-3 h-3" />
+                                {translateMutation.isPending 
+                                  ? (language === 'jp' ? "翻訳中..." : "Translating...") 
+                                  : (language === 'jp' ? "翻訳" : "Translate")
+                                }
+                              </Button>
+                            </div>
                             <FormControl>
                               <Textarea
                                 {...field}

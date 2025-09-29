@@ -683,6 +683,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Translation endpoint
+  app.post('/api/translate', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const { text, targetLanguage = 'Japanese' } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ message: "Text to translate is required" });
+      }
+
+      // Initialize OpenAI client
+      const { OpenAI } = await import('openai');
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: `You are a professional translator. Translate the following text to ${targetLanguage}. Provide only the translation without any additional text or explanations. Maintain the original meaning and tone.`
+          },
+          {
+            role: "user",
+            content: text
+          }
+        ],
+      });
+
+      const translation = response.choices[0].message.content;
+      res.json({ translation });
+    } catch (error) {
+      console.error("Error translating text:", error);
+      
+      // Handle specific OpenAI errors for better user feedback
+      if (error instanceof Error) {
+        if (error.message.includes('429') || error.message.includes('quota')) {
+          return res.status(429).json({ 
+            message: "Translation service temporarily unavailable due to quota limits. Please try again later.",
+            errorType: "quota_exceeded"
+          });
+        }
+        if (error.message.includes('401')) {
+          return res.status(401).json({ 
+            message: "Translation service configuration issue. Please contact administrator.",
+            errorType: "api_key_invalid"
+          });
+        }
+      }
+      
+      res.status(500).json({ message: "Failed to translate text. Please try again." });
+    }
+  });
+
   // Fund disclosure management routes
   app.get('/api/fund-disclosures', async (req, res) => {
     try {
