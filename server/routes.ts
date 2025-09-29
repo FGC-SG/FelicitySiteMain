@@ -594,6 +594,137 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fund export routes - Must be before the generic :id route
+  app.get('/api/funds/export', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const funds = await storage.getAllFunds();
+      
+      // Prepare data for Excel
+      const excelData = funds.map((fund: any) => ({
+        'Fund Name': fund.name,
+        'Description': fund.description,
+        'Description (Japanese)': fund.descriptionJa || '',
+        'Vintage': fund.vintage || '',
+        'Status': fund.status || '',
+        'Felicity Company': fund.felicityCompany || '',
+        'Visible': fund.isVisible !== false ? 'TRUE' : 'FALSE'
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        colWidths.push({ wch: Math.min(maxWidth, 50) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Funds');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-funds-export-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting funds to Excel:', error);
+      res.status(500).json({ message: 'Failed to export funds data' });
+    }
+  });
+
+  app.get('/api/funds/export-template', async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Create template data with headers only
+      const templateData = [
+        {
+          'Fund Name': '',
+          'Display Name': '',
+          'Description': '',
+          'Description (Japanese)': '',
+          'Vintage': '',
+          'Status': '',
+          'Felicity Company': '',
+          'Visible': ''
+        }
+      ];
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      
+      // Auto-size columns
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        // Set minimum width for better usability
+        colWidths.push({ wch: Math.max(maxWidth, 15) });
+      }
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Fund Template');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `felicity-funds-template-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error exporting fund template:', error);
+      res.status(500).json({ message: "Failed to export fund template" });
+    }
+  });
+
   // Get individual fund by ID - public endpoint for fund detail pages
   app.get('/api/funds/:id', async (req, res) => {
     try {
@@ -1662,136 +1793,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Fund export routes
-  app.get('/api/funds/export', async (req, res) => {
-    try {
-      const sessionUser = (req as any).session?.user;
-      if (!sessionUser) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
-
-      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      const funds = await storage.getAllFunds();
-      
-      // Prepare data for Excel
-      const excelData = funds.map((fund: any) => ({
-        'Fund Name': fund.name,
-        'Description': fund.description,
-        'Description (Japanese)': fund.descriptionJa || '',
-        'Vintage': fund.vintage || '',
-        'Status': fund.status || '',
-        'Felicity Company': fund.felicityCompany || '',
-        'Visible': fund.isVisible !== false ? 'TRUE' : 'FALSE'
-      }));
-
-      // Create workbook and worksheet
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(excelData);
-      
-      // Auto-size columns
-      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-      const colWidths = [];
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        let maxWidth = 10;
-        for (let R = range.s.r; R <= range.e.r; ++R) {
-          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-          const cell = ws[cellAddress];
-          if (cell && cell.v) {
-            const cellLength = cell.v.toString().length;
-            maxWidth = Math.max(maxWidth, cellLength);
-          }
-        }
-        colWidths.push({ wch: Math.min(maxWidth, 50) });
-      }
-      ws['!cols'] = colWidths;
-      
-      XLSX.utils.book_append_sheet(wb, ws, 'Funds');
-
-      // Generate filename with timestamp
-      const timestamp = new Date().toISOString().split('T')[0];
-      const filename = `felicity-funds-export-${timestamp}.xlsx`;
-
-      // Set headers for file download
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
-      // Write the file and send
-      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-      res.send(buffer);
-    } catch (error) {
-      console.error('Error exporting funds to Excel:', error);
-      res.status(500).json({ message: 'Failed to export funds data' });
-    }
-  });
-
-  app.get('/api/funds/export-template', async (req, res) => {
-    try {
-      const sessionUser = (req as any).session?.user;
-      if (!sessionUser) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
-
-      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      // Create template data with headers only
-      const templateData = [
-        {
-          'Fund Name': '',
-          'Display Name': '',
-          'Description': '',
-          'Description (Japanese)': '',
-          'Vintage': '',
-          'Status': '',
-          'Felicity Company': '',
-          'Visible': ''
-        }
-      ];
-
-      // Create workbook and worksheet
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(templateData);
-      
-      // Auto-size columns
-      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-      const colWidths = [];
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        let maxWidth = 10;
-        for (let R = range.s.r; R <= range.e.r; ++R) {
-          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-          const cell = ws[cellAddress];
-          if (cell && cell.v) {
-            const cellLength = cell.v.toString().length;
-            maxWidth = Math.max(maxWidth, cellLength);
-          }
-        }
-        // Set minimum width for better usability
-        colWidths.push({ wch: Math.max(maxWidth, 15) });
-      }
-      ws['!cols'] = colWidths;
-      
-      XLSX.utils.book_append_sheet(wb, ws, 'Fund Template');
-
-      // Generate filename with timestamp
-      const timestamp = new Date().toISOString().split('T')[0];
-      const filename = `felicity-funds-template-${timestamp}.xlsx`;
-
-      // Set headers for file download
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
-      // Write the file and send
-      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-      res.send(buffer);
-    } catch (error) {
-      console.error('Error exporting fund template:', error);
-      res.status(500).json({ message: "Failed to export fund template" });
-    }
-  });
+  // Moved fund export routes to before :id route
 
   // Fund bulk import route
   app.post('/api/funds/import', upload.single('file'), async (req, res) => {
