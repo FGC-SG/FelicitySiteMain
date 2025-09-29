@@ -244,7 +244,12 @@ export class DatabaseStorage implements IStorage {
 
   // Fund operations
   async createFund(fundData: InsertFund): Promise<Fund> {
-    const [fund] = await db.insert(funds).values(fundData).returning();
+    // Automatically populate displayName from name if not provided
+    const dataWithDisplayName = {
+      ...fundData,
+      displayName: fundData.displayName || fundData.name,
+    };
+    const [fund] = await db.insert(funds).values(dataWithDisplayName).returning();
     return fund;
   }
 
@@ -258,9 +263,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFund(id: string, fundData: Partial<InsertFund>): Promise<Fund> {
+    // Automatically populate displayName from name if name is being updated and displayName is not provided
+    const dataWithDisplayName = {
+      ...fundData,
+      ...(fundData.name && !fundData.displayName && { displayName: fundData.name }),
+      updatedAt: new Date()
+    };
     const [fund] = await db
       .update(funds)
-      .set({ ...fundData, updatedAt: new Date() })
+      .set(dataWithDisplayName)
       .where(eq(funds.id, id))
       .returning();
     return fund;
