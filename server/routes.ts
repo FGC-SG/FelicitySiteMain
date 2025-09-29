@@ -1861,15 +1861,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             name: rowData['Fund Name'] || rowData['name'] || '',
             description: rowData['Description'] || rowData['description'] || '',
             descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
+            vintage: rowData['Vintage'] || rowData['vintage'] || '',
+            status: rowData['Status'] || rowData['status'] || '',
+            felicityCompany: rowData['Felicity Company'] || rowData['felicityCompany'] || '',
+            isVisible: rowData['Visible'] === 'TRUE' || rowData['Visible'] === true || rowData['isVisible'] === true
           };
 
           // Validate required fields
-          if (!fundData.name) {
+          if (!fundData.name || fundData.name.trim() === '') {
             errors.push(`Row ${index + 2}: Fund Name is required`);
             continue;
           }
-          if (!fundData.description) {
-            errors.push(`Row ${index + 2}: Description is required`);
+
+          // Make description optional but add minimum length if provided
+          if (fundData.description && fundData.description.trim().length < 10) {
+            errors.push(`Row ${index + 2}: Description must be at least 10 characters if provided`);
+            continue;
+          }
+
+          // Set default description if empty
+          if (!fundData.description || fundData.description.trim() === '') {
+            fundData.description = `Investment fund: ${fundData.name}`;
+          }
+
+          // Check for existing fund with same name
+          const existingFund = await storage.getFundByName(fundData.name);
+          if (existingFund) {
+            errors.push(`Row ${index + 2}: Fund "${fundData.name}" already exists`);
             continue;
           }
 

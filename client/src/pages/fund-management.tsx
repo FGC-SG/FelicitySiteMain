@@ -344,10 +344,18 @@ export default function FundManagementPage() {
 
       if (result.errors && result.errors.length > 0) {
         console.warn('Import errors:', result.errors);
+        
+        // Show detailed errors in a more user-friendly way
+        const errorList = result.errors.slice(0, 5).join('\\n'); // Show first 5 errors
+        const moreErrors = result.errors.length > 5 ? (language === 'jp' ? `\\n...他${result.errors.length - 5}件のエラー` : `\\n...and ${result.errors.length - 5} more errors`) : '';
+        
         toast({
           title: language === 'jp' ? "インポート警告" : "Import Warnings",
-          description: language === 'jp' ? `${result.errors.length}件のエラーがありました。詳細はコンソールをご確認ください。` : `${result.errors.length} errors occurred. Check console for details.`,
+          description: language === 'jp' 
+            ? `${result.errors.length}件のエラー:\\n${errorList}${moreErrors}`
+            : `${result.errors.length} errors occurred:\\n${errorList}${moreErrors}`,
           variant: "destructive",
+          duration: 10000, // Show longer for users to read errors
         });
       }
     } catch (error: any) {
