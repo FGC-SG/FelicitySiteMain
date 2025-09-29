@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Language } from "@/lib/i18n";
-import { Languages } from "lucide-react";
+import { Languages, ArrowUp, ArrowDown } from "lucide-react";
 
 const addNewsSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
@@ -350,26 +350,9 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel data-testid="label-news-content">
-                      {language === "en" ? "Article Content (English)" : "記事内容（英語）"}
-                    </FormLabel>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleTranslateContent}
-                      disabled={translateContentMutation.isPending}
-                      className="flex items-center gap-1 ml-2"
-                      data-testid="button-translate-content"
-                    >
-                      <Languages className="w-3 h-3" />
-                      {translateContentMutation.isPending 
-                        ? (language === 'jp' ? "翻訳中..." : "Translating...") 
-                        : (language === 'jp' ? "翻訳" : "Translate")
-                      }
-                    </Button>
-                  </div>
+                  <FormLabel data-testid="label-news-content">
+                    {language === "en" ? "Article Content (English)" : "記事内容（英語）"}
+                  </FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder={language === "en" ? "Full article content in English" : "英語での記事の全内容"}
@@ -382,6 +365,33 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                 </FormItem>
               )}
             />
+
+            {/* Translation Section */}
+            <div className="flex justify-center py-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  // Handle both title and content translation
+                  handleTranslateTitle();
+                  handleTranslateContent();
+                }}
+                disabled={translateTitleMutation.isPending || translateContentMutation.isPending}
+                className="flex items-center gap-2 px-6"
+                data-testid="button-translate-all"
+              >
+                <div className="flex flex-col items-center">
+                  <ArrowUp className="w-3 h-3" />
+                  <Languages className="w-4 h-4" />
+                  <ArrowDown className="w-3 h-3" />
+                </div>
+                {translateTitleMutation.isPending || translateContentMutation.isPending
+                  ? (language === 'jp' ? "翻訳中..." : "Translating...") 
+                  : (language === 'jp' ? "翻訳" : "Translate")
+                }
+              </Button>
+            </div>
 
             {/* Japanese Content Section */}
             <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
