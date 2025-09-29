@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Language } from "@/lib/i18n";
+import { Languages } from "lucide-react";
 
 const addNewsSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
@@ -36,6 +37,81 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Translation mutations for title and content
+  const translateTitleMutation = useMutation({
+    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+      return response.json();
+    },
+    onSuccess: (data: { translation: string }, { targetLanguage }) => {
+      if (targetLanguage === 'Japanese') {
+        form.setValue('titleJa', data.translation);
+      } else {
+        form.setValue('title', data.translation);
+      }
+      toast({
+        title: language === 'jp' ? "翻訳完了" : "Translation Complete",
+        description: language === 'jp' ? "タイトルが翻訳されました。" : "Title has been translated.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = error.message || (language === 'jp' ? "翻訳に失敗しました。" : "Failed to translate text.");
+      
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの利用制限に達しました。しばらく時間をおいて再度お試しください。"
+          : "Translation service temporarily unavailable due to quota limits. Please try again later.";
+      } else if (error.message?.includes('configuration') || error.message?.includes('401')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの設定に問題があります。管理者にお問い合わせください。"
+          : "Translation service configuration issue. Please contact administrator.";
+      }
+
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error", 
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const translateContentMutation = useMutation({
+    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+      return response.json();
+    },
+    onSuccess: (data: { translation: string }, { targetLanguage }) => {
+      if (targetLanguage === 'Japanese') {
+        form.setValue('contentJa', data.translation);
+      } else {
+        form.setValue('content', data.translation);
+      }
+      toast({
+        title: language === 'jp' ? "翻訳完了" : "Translation Complete",
+        description: language === 'jp' ? "内容が翻訳されました。" : "Content has been translated.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = error.message || (language === 'jp' ? "翻訳に失敗しました。" : "Failed to translate text.");
+      
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの利用制限に達しました。しばらく時間をおいて再度お試しください。"
+          : "Translation service temporarily unavailable due to quota limits. Please try again later.";
+      } else if (error.message?.includes('configuration') || error.message?.includes('401')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの設定に問題があります。管理者にお問い合わせください。"
+          : "Translation service configuration issue. Please contact administrator.";
+      }
+
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error", 
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
 
   const form = useForm<AddNewsForm>({
     resolver: zodResolver(addNewsSchema),
@@ -101,6 +177,58 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
     { value: "announcement", label: language === "en" ? "Announcements" : "お知らせ" },
   ];
 
+  const handleTranslateTitle = () => {
+    const englishTitle = form.getValues('title');
+    const japaneseTitle = form.getValues('titleJa');
+    
+    // Determine which direction to translate based on which field is empty
+    if (englishTitle && !japaneseTitle) {
+      // Translate English to Japanese
+      translateTitleMutation.mutate({ text: englishTitle, targetLanguage: 'Japanese' });
+    } else if (japaneseTitle && !englishTitle) {
+      // Translate Japanese to English
+      translateTitleMutation.mutate({ text: japaneseTitle, targetLanguage: 'English' });
+    } else if (!englishTitle && !japaneseTitle) {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "翻訳するにはどちらかのタイトルフィールドに入力してください。" : "Please enter text in one of the title fields to translate.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "両方のフィールドに内容がある場合は翻訳できません。" : "Cannot translate when both fields have content.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTranslateContent = () => {
+    const englishContent = form.getValues('content');
+    const japaneseContent = form.getValues('contentJa');
+    
+    // Determine which direction to translate based on which field is empty
+    if (englishContent && !japaneseContent) {
+      // Translate English to Japanese
+      translateContentMutation.mutate({ text: englishContent, targetLanguage: 'Japanese' });
+    } else if (japaneseContent && !englishContent) {
+      // Translate Japanese to English
+      translateContentMutation.mutate({ text: japaneseContent, targetLanguage: 'English' });
+    } else if (!englishContent && !japaneseContent) {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "翻訳するにはどちらかの内容フィールドに入力してください。" : "Please enter text in one of the content fields to translate.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "両方のフィールドに内容がある場合は翻訳できません。" : "Cannot translate when both fields have content.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
@@ -125,9 +253,26 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel data-testid="label-news-title">
-                      {language === "en" ? "Article Title" : "記事タイトル"}
-                    </FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel data-testid="label-news-title">
+                        {language === "en" ? "Article Title" : "記事タイトル"}
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleTranslateTitle}
+                        disabled={translateTitleMutation.isPending}
+                        className="flex items-center gap-1 ml-2"
+                        data-testid="button-translate-title"
+                      >
+                        <Languages className="w-3 h-3" />
+                        {translateTitleMutation.isPending 
+                          ? (language === 'jp' ? "翻訳中..." : "Translating...") 
+                          : (language === 'jp' ? "翻訳" : "Translate")
+                        }
+                      </Button>
+                    </div>
                     <FormControl>
                       <Input 
                         placeholder={language === "en" ? "Enter article title" : "記事タイトルを入力"}
@@ -222,9 +367,26 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel data-testid="label-news-content">
-                    {language === "en" ? "Article Content (English)" : "記事内容（英語）"}
-                  </FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel data-testid="label-news-content">
+                      {language === "en" ? "Article Content (English)" : "記事内容（英語）"}
+                    </FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleTranslateContent}
+                      disabled={translateContentMutation.isPending}
+                      className="flex items-center gap-1 ml-2"
+                      data-testid="button-translate-content"
+                    >
+                      <Languages className="w-3 h-3" />
+                      {translateContentMutation.isPending 
+                        ? (language === 'jp' ? "翻訳中..." : "Translating...") 
+                        : (language === 'jp' ? "翻訳" : "Translate")
+                      }
+                    </Button>
+                  </div>
                   <FormControl>
                     <Textarea 
                       placeholder={language === "en" ? "Full article content in English" : "英語での記事の全内容"}
@@ -240,9 +402,14 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
 
             {/* Japanese Content Section */}
             <div className="space-y-4 p-4 border rounded-lg bg-slate-50">
-              <h3 className="text-lg font-semibold text-foreground">
-                Japanese
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Japanese
+                </h3>
+                <div className="text-sm text-muted-foreground">
+                  {language === "en" ? "Use translate buttons to convert between languages" : "翻訳ボタンを使用して言語を変換"}
+                </div>
+              </div>
               
               <FormField
                 control={form.control}
@@ -263,7 +430,6 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                   </FormItem>
                 )}
               />
-
 
               <FormField
                 control={form.control}
