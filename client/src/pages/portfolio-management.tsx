@@ -373,7 +373,7 @@ export default function PortfolioManagementPage() {
     toggleVisibilityMutation.mutate({ id, isVisible: !currentVisibility });
   };
 
-  // Filter portfolios
+  // Filter and sort portfolios
   const filteredPortfolios = portfolios?.filter(portfolio => {
     const matchesSearch = portfolio.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          portfolio.industry.toLowerCase().includes(searchTerm.toLowerCase());
@@ -382,6 +382,11 @@ export default function PortfolioManagementPage() {
     const matchesCompany = filterCompany === "all" || portfolio.felicityCompany === filterCompany;
     
     return matchesSearch && matchesType && matchesCountry && matchesCompany;
+  })?.sort((a, b) => {
+    // Sort by fund name (handle cases where fundName might be null/undefined)
+    const fundA = (a.fundName || '').toLowerCase();
+    const fundB = (b.fundName || '').toLowerCase();
+    return fundA.localeCompare(fundB);
   });
 
   // Get unique values for filters - only valid investment types
