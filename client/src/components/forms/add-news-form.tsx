@@ -253,26 +253,9 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel data-testid="label-news-title">
-                        {language === "en" ? "Article Title" : "記事タイトル"}
-                      </FormLabel>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleTranslateTitle}
-                        disabled={translateTitleMutation.isPending}
-                        className="flex items-center gap-1 ml-2"
-                        data-testid="button-translate-title"
-                      >
-                        <Languages className="w-3 h-3" />
-                        {translateTitleMutation.isPending 
-                          ? (language === 'jp' ? "翻訳中..." : "Translating...") 
-                          : (language === 'jp' ? "翻訳" : "Translate")
-                        }
-                      </Button>
-                    </div>
+                    <FormLabel data-testid="label-news-title">
+                      {language === "en" ? "Article Title" : "記事タイトル"}
+                    </FormLabel>
                     <FormControl>
                       <Input 
                         placeholder={language === "en" ? "Enter article title" : "記事タイトルを入力"}
