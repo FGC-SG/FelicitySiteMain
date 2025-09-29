@@ -674,7 +674,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const templateData = [
         {
           'Fund Name': '',
-          'Display Name': '',
           'Description': '',
           'Description (Japanese)': '',
           'Vintage': '',
