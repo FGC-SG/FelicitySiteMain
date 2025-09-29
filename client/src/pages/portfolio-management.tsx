@@ -383,10 +383,10 @@ export default function PortfolioManagementPage() {
     
     return matchesSearch && matchesType && matchesCountry && matchesCompany;
   })?.sort((a, b) => {
-    // Sort by fund name (handle cases where fundName might be null/undefined)
-    const fundA = (a.fundName || '').toLowerCase();
-    const fundB = (b.fundName || '').toLowerCase();
-    return fundA.localeCompare(fundB);
+    // Sort by company name
+    const companyA = a.companyName.toLowerCase();
+    const companyB = b.companyName.toLowerCase();
+    return companyA.localeCompare(companyB);
   });
 
   // Get unique values for filters - only valid investment types
