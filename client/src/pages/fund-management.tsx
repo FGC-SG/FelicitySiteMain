@@ -127,7 +127,7 @@ export default function FundManagementPage() {
   const translateMutation = useMutation({
     mutationFn: async (text: string) => {
       const response = await apiRequest('POST', '/api/translate', { text });
-      return await response.json();
+      return response.json();
     },
     onSuccess: (data: { translation: string }) => {
       form.setValue('descriptionJa', data.translation);
