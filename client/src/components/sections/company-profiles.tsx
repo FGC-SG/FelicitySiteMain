@@ -1,6 +1,6 @@
 import { Phone } from "lucide-react";
 import jewelChangiImage from "@assets/generated_images/Jewel_Changi_waterfall_architecture_a9142a7a.png";
-import marunouchiTokyoImage from "@assets/stock_images/marunouchi_tokyo_bus_50d3a4ba.jpg";
+import marunouchiTokyoStationImage from "@assets/stock_images/marunouchi_skyline_w_57374e30.jpg";
 import { useTranslation, type Language } from "@/lib/i18n";
 
 interface CompanyProfilesProps {
@@ -76,8 +76,8 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
             <div className="relative h-48">
               {/* Modern Tokyo business district skyline */}
               <img
-                src={marunouchiTokyoImage}
-                alt="Marunouchi Tokyo business district"
+                src={marunouchiTokyoStationImage}
+                alt="Marunouchi skyline with Tokyo Station"
                 className="w-full h-full object-cover"
                 data-testid="img-tokyo-skyline"
               />
