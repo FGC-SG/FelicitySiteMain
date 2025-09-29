@@ -105,6 +105,8 @@ export type Member = typeof members.$inferSelect;
 export const funds = pgTable("funds", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull().unique(),
+  displayName: varchar("display_name").notNull(),
+  displayNameJa: varchar("display_name_ja"),
   description: text("description").notNull(),
   descriptionJa: text("description_ja"),
   status: varchar("status").notNull().default("active"), // active, inactive

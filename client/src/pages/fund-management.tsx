@@ -25,6 +25,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 const fundFormSchema = z.object({
   name: z.string().min(1, "Fund name is required"),
+  displayName: z.string().min(1, "Display name is required"),
+  displayNameJa: z.string().optional().or(z.literal("")),
   description: z.string().min(10, "Description must be at least 10 characters"),
   descriptionJa: z.string().optional().or(z.literal("")),
   vintage: z.string().regex(/^\d{4}$/, "Vintage must be a 4-digit year (YYYY)").optional().or(z.literal("")),
@@ -47,6 +49,8 @@ export default function FundManagementPage() {
     resolver: zodResolver(fundFormSchema),
     defaultValues: {
       name: "",
+      displayName: "",
+      displayNameJa: "",
       description: "",
       descriptionJa: "",
       vintage: "",
@@ -460,6 +464,33 @@ export default function FundManagementPage() {
                         )}
                       />
 
+                      <FormField
+                        control={form.control}
+                        name="displayName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Display Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} data-testid="input-fund-display-name" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="displayNameJa"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Display Name (Japanese)</FormLabel>
+                            <FormControl>
+                              <Input {...field} data-testid="input-fund-display-name-ja" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
                       <FormField
                         control={form.control}
