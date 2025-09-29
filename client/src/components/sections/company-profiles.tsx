@@ -78,7 +78,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
               <img
                 src={tokyoSkylineTowerImage}
                 alt="Tokyo skyline with Tokyo Tower"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover brightness-125"
                 data-testid="img-tokyo-skyline"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
