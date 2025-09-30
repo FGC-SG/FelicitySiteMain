@@ -404,8 +404,7 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1" data-testid={`text-news-date-${article.id}`}>
                       <Calendar className="h-4 w-4" />
-                      <span>{language === "en" ? "Date of Announcement: " : "発表日: "}</span>
-                      {formatDate(article.publishedAt || article.createdAt!)}
+                      {article.publishedAt ? formatDate(article.publishedAt) : 'N/A'}
                     </div>
                     {article.authorId && (
                       <div className="flex items-center gap-1" data-testid={`text-news-author-${article.id}`}>
