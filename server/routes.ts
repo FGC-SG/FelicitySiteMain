@@ -1720,6 +1720,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "File contains no data rows" });
       }
 
+      // Debug: Log the column names from the first row
+      if (jsonData.length > 0) {
+        const firstRow = jsonData[0] as any;
+        console.log('Available columns in uploaded file:', Object.keys(firstRow));
+        console.log('First row sample data:', firstRow);
+      }
+
       let imported = 0;
       const errors: string[] = [];
 
