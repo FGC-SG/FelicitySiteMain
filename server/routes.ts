@@ -1740,22 +1740,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validAuthorId = adminUser?.id || sessionUser.id;
       }
 
+      // Helper function to get value from row with flexible column name matching
+      const getColumnValue = (rowData: any, ...columnNames: string[]): string => {
+        for (const name of columnNames) {
+          if (rowData[name] !== undefined && rowData[name] !== null) {
+            const value = String(rowData[name]).trim();
+            if (value) return value;
+          }
+        }
+        return '';
+      };
+
       for (let index = 0; index < jsonData.length; index++) {
         const row = jsonData[index];
         try {
           const rowData = row as any;
           
-          // Map Excel columns to database fields
+          // Map Excel columns to database fields with flexible matching
           const newsData = {
-            title: rowData['Title'] || rowData['title'] || '',
-            titleJa: rowData['Title (Japanese)'] || rowData['titleJa'] || '',
-            description: rowData['Description'] || rowData['description'] || '',
-            descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
-            content: rowData['Content'] || rowData['content'] || '',
-            contentJa: rowData['Content (Japanese)'] || rowData['contentJa'] || '',
-            felicityCompany: rowData['Felicity Company'] || rowData['felicityCompany'] || 'felicity-singapore',
+            title: getColumnValue(rowData, 'Title', 'title'),
+            titleJa: getColumnValue(rowData, 'Title (Japanese)', 'Title(Japanese)', 'titleJa', 'Title（Japanese）'),
+            description: getColumnValue(rowData, 'Description', 'description'),
+            descriptionJa: getColumnValue(rowData, 'Description (Japanese)', 'Description(Japanese)', 'descriptionJa', 'Description（Japanese）'),
+            content: getColumnValue(rowData, 'Content', 'content'),
+            contentJa: getColumnValue(rowData, 'Content (Japanese)', 'Content(Japanese)', 'contentJa', 'Content（Japanese）'),
+            felicityCompany: getColumnValue(rowData, 'Felicity Company', 'felicityCompany') || 'felicity-singapore',
             language: 'en',
-            category: 'news',
+            category: getColumnValue(rowData, 'Category', 'category') || 'news',
             authorId: validAuthorId,
             publishedAt: new Date(),
           };
