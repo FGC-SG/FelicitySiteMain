@@ -263,7 +263,7 @@ export default function ManagementPage() {
       action: () => window.location.href = "/member-management"
     },
     {
-      title: "Content Management",
+      title: "News Management",
       description: "Update website content and news articles",
       icon: FileText,
       color: "bg-green-500",
