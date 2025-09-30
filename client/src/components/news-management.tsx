@@ -173,6 +173,27 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
     });
   };
 
+  const formatCategoryDisplay = (category: string) => {
+    const categoryMap: Record<string, { en: string; jp: string }> = {
+      "NEWS AT PORTFOLIO": { en: "News at Portfolio", jp: "ポートフォリオニュース" },
+      "NEWS-AT-PORTFOLIO": { en: "News at Portfolio", jp: "ポートフォリオニュース" },
+      "CORPORATE": { en: "Corporate", jp: "企業ニュース" },
+      "INVESTMENTS": { en: "Investments", jp: "投資" },
+      "FUND-FORMATION": { en: "Fund Formation", jp: "ファンド組成" },
+      "GENERAL": { en: "General", jp: "一般" },
+      "ANNOUNCEMENT": { en: "Announcement", jp: "お知らせ" },
+      "company": { en: "Company News", jp: "会社ニュース" },
+      "investment": { en: "Investment Updates", jp: "投資アップデート" },
+      "market": { en: "Market Analysis", jp: "市場分析" },
+      "announcement": { en: "Announcements", jp: "お知らせ" },
+    };
+
+    const categoryKey = category?.toUpperCase().replace(/ /g, "-") || "GENERAL";
+    const mapped = categoryMap[category] || categoryMap[categoryKey];
+    
+    return mapped ? (language === "en" ? mapped.en : mapped.jp) : category;
+  };
+
   if (showAddForm) {
     return (
       <div className="space-y-6">
@@ -319,7 +340,7 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="secondary" data-testid={`badge-category-${article.id}`}>
-                        {article.category}
+                        {formatCategoryDisplay(article.category || '')}
                       </Badge>
                       <Badge 
                         variant="outline" 
