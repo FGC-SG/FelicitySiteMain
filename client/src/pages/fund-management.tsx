@@ -617,7 +617,7 @@ export default function FundManagementPage() {
             <Button
               variant="outline"
               onClick={handleExportFunds}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-green-600 text-green-600 hover:bg-green-50"
               data-testid="button-export-funds"
             >
               <Download className="w-4 h-4" />
@@ -626,7 +626,7 @@ export default function FundManagementPage() {
             <Button
               variant="outline"
               onClick={handleExportTemplate}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-orange-600 text-orange-600 hover:bg-orange-50"
               data-testid="button-export-template"
             >
               <FileSpreadsheet className="w-4 h-4" />
@@ -642,7 +642,7 @@ export default function FundManagementPage() {
               />
               <Button
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
                 data-testid="button-bulk-upload"
               >
                 <Upload className="w-4 h-4" />
