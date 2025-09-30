@@ -1269,7 +1269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Content (Japanese)': article.contentJa || '',
         'Category': article.category,
         'Felicity Company': article.felicityCompany,
-        'Announcement Date': article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : ''
+        'Date of Announcement': article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : ''
       }));
 
       // Create workbook and worksheet
@@ -1332,7 +1332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Content (Japanese)': '',
           'Category': '',
           'Felicity Company': '',
-          'Announcement Date': ''
+          'Date of Announcement': ''
         }
       ];
 
@@ -1750,7 +1750,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const rowData = row as any;
           
           // Map Excel columns to database fields with flexible matching
-          const announcementDate = getColumnValue(rowData, 'Announcement Date', 'AnnouncementDate', 'Published Date', 'PublishedDate');
+          const announcementDate = getColumnValue(rowData, 'Date of Announcement', 'DateofAnnouncement', 'Announcement Date', 'AnnouncementDate', 'Published Date', 'PublishedDate');
           const newsData = {
             title: getColumnValue(rowData, 'Title', 'title'),
             titleJa: getColumnValue(rowData, 'Title (Japanese)', 'Title(Japanese)', 'titleJa', 'Title（Japanese）'),
