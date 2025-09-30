@@ -9,6 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { type Language } from "@/lib/i18n";
 import { type NewsArticle } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Languages, ArrowUp, ArrowDown } from "lucide-react";
 
 const editNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -33,6 +37,8 @@ interface EditNewsFormProps {
 }
 
 export function EditNewsForm({ article, language, onSave, onCancel, isLoading }: EditNewsFormProps) {
+  const { toast } = useToast();
+  
   const form = useForm<EditNewsFormData>({
     resolver: zodResolver(editNewsSchema),
     defaultValues: {
@@ -47,6 +53,187 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
       publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     },
   });
+
+  // Translation mutations
+  const translateTitleMutation = useMutation({
+    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+      return response.json();
+    },
+    onSuccess: (data: { translation: string }, { targetLanguage }) => {
+      if (targetLanguage === 'Japanese') {
+        form.setValue('titleJa', data.translation);
+      } else {
+        form.setValue('title', data.translation);
+      }
+      toast({
+        title: language === 'jp' ? "翻訳完了" : "Translation Complete",
+        description: language === 'jp' ? "タイトルが翻訳されました。" : "Title has been translated.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = error.message || (language === 'jp' ? "翻訳に失敗しました。" : "Failed to translate text.");
+      
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの利用制限に達しました。しばらく時間をおいて再度お試しください。"
+          : "Translation service temporarily unavailable due to quota limits. Please try again later.";
+      } else if (error.message?.includes('configuration') || error.message?.includes('401')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの設定に問題があります。管理者にお問い合わせください。"
+          : "Translation service configuration issue. Please contact administrator.";
+      }
+
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error", 
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const translateDescriptionMutation = useMutation({
+    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+      return response.json();
+    },
+    onSuccess: (data: { translation: string }, { targetLanguage }) => {
+      if (targetLanguage === 'Japanese') {
+        form.setValue('descriptionJa', data.translation);
+      } else {
+        form.setValue('description', data.translation);
+      }
+      toast({
+        title: language === 'jp' ? "翻訳完了" : "Translation Complete",
+        description: language === 'jp' ? "説明が翻訳されました。" : "Description has been translated.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = error.message || (language === 'jp' ? "翻訳に失敗しました。" : "Failed to translate text.");
+      
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの利用制限に達しました。しばらく時間をおいて再度お試しください。"
+          : "Translation service temporarily unavailable due to quota limits. Please try again later.";
+      } else if (error.message?.includes('configuration') || error.message?.includes('401')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの設定に問題があります。管理者にお問い合わせください。"
+          : "Translation service configuration issue. Please contact administrator.";
+      }
+
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error", 
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const translateContentMutation = useMutation({
+    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+      return response.json();
+    },
+    onSuccess: (data: { translation: string }, { targetLanguage }) => {
+      if (targetLanguage === 'Japanese') {
+        form.setValue('contentJa', data.translation);
+      } else {
+        form.setValue('content', data.translation);
+      }
+      toast({
+        title: language === 'jp' ? "翻訳完了" : "Translation Complete",
+        description: language === 'jp' ? "内容が翻訳されました。" : "Content has been translated.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = error.message || (language === 'jp' ? "翻訳に失敗しました。" : "Failed to translate text.");
+      
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの利用制限に達しました。しばらく時間をおいて再度お試しください。"
+          : "Translation service temporarily unavailable due to quota limits. Please try again later.";
+      } else if (error.message?.includes('configuration') || error.message?.includes('401')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの設定に問題があります。管理者にお問い合わせください。"
+          : "Translation service configuration issue. Please contact administrator.";
+      }
+
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error", 
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleTranslateTitle = () => {
+    const englishTitle = form.getValues('title');
+    const japaneseTitle = form.getValues('titleJa');
+    
+    if (englishTitle && !japaneseTitle) {
+      translateTitleMutation.mutate({ text: englishTitle, targetLanguage: 'Japanese' });
+    } else if (japaneseTitle && !englishTitle) {
+      translateTitleMutation.mutate({ text: japaneseTitle, targetLanguage: 'English' });
+    } else if (!englishTitle && !japaneseTitle) {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "翻訳するにはどちらかのタイトルフィールドに入力してください。" : "Please enter text in one of the title fields to translate.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "両方のフィールドに内容がある場合は翻訳できません。" : "Cannot translate when both fields have content.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTranslateDescription = () => {
+    const englishDescription = form.getValues('description');
+    const japaneseDescription = form.getValues('descriptionJa');
+    
+    if (englishDescription && !japaneseDescription) {
+      translateDescriptionMutation.mutate({ text: englishDescription, targetLanguage: 'Japanese' });
+    } else if (japaneseDescription && !englishDescription) {
+      translateDescriptionMutation.mutate({ text: japaneseDescription, targetLanguage: 'English' });
+    } else if (!englishDescription && !japaneseDescription) {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "翻訳するにはどちらかの説明フィールドに入力してください。" : "Please enter text in one of the description fields to translate.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "両方のフィールドに内容がある場合は翻訳できません。" : "Cannot translate when both fields have content.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTranslateContent = () => {
+    const englishContent = form.getValues('content');
+    const japaneseContent = form.getValues('contentJa');
+    
+    if (englishContent && !japaneseContent) {
+      translateContentMutation.mutate({ text: englishContent, targetLanguage: 'Japanese' });
+    } else if (japaneseContent && !englishContent) {
+      translateContentMutation.mutate({ text: japaneseContent, targetLanguage: 'English' });
+    } else if (!englishContent && !japaneseContent) {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "翻訳するにはどちらかの内容フィールドに入力してください。" : "Please enter text in one of the content fields to translate.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "両方のフィールドに内容がある場合は翻訳できません。" : "Cannot translate when both fields have content.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = (data: EditNewsFormData) => {
     onSave(data);
@@ -193,6 +380,34 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
               </FormItem>
             )}
           />
+
+          {/* Translation Section */}
+          <div className="flex justify-center py-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                // Handle all field translations
+                handleTranslateTitle();
+                handleTranslateDescription();
+                handleTranslateContent();
+              }}
+              disabled={translateTitleMutation.isPending || translateDescriptionMutation.isPending || translateContentMutation.isPending}
+              className="flex items-center gap-2 px-6"
+              data-testid="button-translate-all"
+            >
+              <div className="flex flex-col items-center">
+                <ArrowUp className="w-3 h-3" />
+                <Languages className="w-4 h-4" />
+                <ArrowDown className="w-3 h-3" />
+              </div>
+              {translateTitleMutation.isPending || translateDescriptionMutation.isPending || translateContentMutation.isPending
+                ? (language === 'jp' ? "翻訳中..." : "Translating...") 
+                : (language === 'jp' ? "翻訳" : "Translate")
+              }
+            </Button>
+          </div>
 
           {/* Japanese Translation Section */}
           <div className="border-t pt-6 mt-6">
