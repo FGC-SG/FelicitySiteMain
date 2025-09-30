@@ -54,12 +54,14 @@ export interface TranslationStrings {
       chairman: string;
       capital: string;
       business: string;
+      url: string;
     };
     japan: {
       title: string;
       ceo: string;
       capital: string;
       business: string;
+      url: string;
     };
   };
   contact: {
@@ -160,13 +162,15 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
         title: "Felicity Global Capital Pte. Ltd.",
         chairman: "Chairman:",
         capital: "Capital:",
-        business: "Business:"
+        business: "Business:",
+        url: "Website:"
       },
       japan: {
         title: "Felicity Capital Inc.",
         ceo: "President & CEO:",
         capital: "Capital:",
-        business: "Business:"
+        business: "Business:",
+        url: "Website:"
       }
     },
     contact: {
@@ -265,13 +269,15 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
         title: "Felicity Global Capital Pte. Ltd.",
         chairman: "代表:",
         capital: "資本金:",
-        business: "事業内容:"
+        business: "事業内容:",
+        url: "ウェブサイト:"
       },
       japan: {
         title: "株式会社Felicity Capital",
         ceo: "代表取締役:",
         capital: "資本金:",
-        business: "事業内容:"
+        business: "事業内容:",
+        url: "ウェブサイト:"
       }
     },
     contact: {

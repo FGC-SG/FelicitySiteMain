@@ -1,4 +1,4 @@
-import { Phone } from "lucide-react";
+import { Phone, Globe } from "lucide-react";
 import jewelChangiImage from "@assets/generated_images/Jewel_Changi_waterfall_architecture_a9142a7a.png";
 import tokyoSkylineTowerImage from "@assets/stock_images/tokyo_skyline_citysc_eddaf84c.jpg";
 import { useTranslation, type Language } from "@/lib/i18n";
@@ -52,6 +52,19 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                   <span className="font-medium">{t.profiles.singapore.business}</span>
                   <span className="text-muted-foreground" data-testid="text-singapore-business">Fund Management</span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">{t.profiles.singapore.url}</span>
+                  <a 
+                    href="https://www.fgcsg.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline flex items-center gap-1"
+                    data-testid="link-singapore-url"
+                  >
+                    <Globe className="h-3 w-3" />
+                    <span>fgcsg.com</span>
+                  </a>
+                </div>
               </div>
               <div className="mt-6 pt-6 border-t border-border">
                 <p className="text-sm text-muted-foreground mb-4" data-testid="text-singapore-address">
@@ -98,6 +111,19 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                 <div className="flex justify-between">
                   <span className="font-medium">{t.profiles.japan.business}</span>
                   <span className="text-muted-foreground" data-testid="text-japan-business">Fund Management</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">{t.profiles.japan.url}</span>
+                  <a 
+                    href="https://www.fgcsg.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline flex items-center gap-1"
+                    data-testid="link-japan-url"
+                  >
+                    <Globe className="h-3 w-3" />
+                    <span>fgcsg.com</span>
+                  </a>
                 </div>
               </div>
               <div className="mt-6 pt-6 border-t border-border">
