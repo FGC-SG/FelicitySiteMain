@@ -383,28 +383,113 @@ export default function FundDisclosureManagementPage() {
                     )}
                   />
 
-                  {/* PDF Upload */}
-                  <div className="space-y-2">
+                  {/* PDF Upload or URL */}
+                  <div className="space-y-4">
                     <Label>PDF Document *</Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <div className="mt-2">
-                        <ObjectUploader
-                          acceptedTypes="application/pdf"
-                          maxFileSize={20971520} // 20MB for PDFs
-                          onGetUploadParameters={getUploadParameters}
-                          onComplete={handleUploadComplete}
-                          buttonClassName="border border-gray-300"
-                        >
-                          Select PDF File
-                        </ObjectUploader>
-                        {form.watch('pdfUrl') && (
-                          <p className="mt-2 text-sm text-green-600">
-                            PDF uploaded successfully
-                          </p>
-                        )}
-                      </div>
+                    
+                    {/* Toggle between Upload and URL */}
+                    <div className="flex gap-2 mb-4">
+                      <Button
+                        type="button"
+                        variant={form.watch('pdfUrl')?.startsWith('http') ? 'outline' : 'default'}
+                        size="sm"
+                        onClick={() => {
+                          // Switch to upload mode - clear any URL
+                          if (form.watch('pdfUrl')?.startsWith('http')) {
+                            form.setValue('pdfUrl', '');
+                          }
+                        }}
+                        data-testid="button-upload-mode"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload File
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={form.watch('pdfUrl')?.startsWith('http') ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          // Switch to URL mode - focus will be on input
+                        }}
+                        data-testid="button-url-mode"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        OneDrive URL
+                      </Button>
                     </div>
+
+                    {/* Upload Section */}
+                    {!form.watch('pdfUrl')?.startsWith('http') && (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="mt-2">
+                          <ObjectUploader
+                            acceptedTypes="application/pdf"
+                            maxFileSize={20971520} // 20MB for PDFs
+                            onGetUploadParameters={getUploadParameters}
+                            onComplete={handleUploadComplete}
+                            buttonClassName="border border-gray-300"
+                          >
+                            Select PDF File
+                          </ObjectUploader>
+                          {form.watch('pdfUrl') && !form.watch('pdfUrl')?.startsWith('http') && (
+                            <p className="mt-2 text-sm text-green-600">
+                              PDF uploaded successfully
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* URL Input Section */}
+                    {form.watch('pdfUrl')?.startsWith('http') && (
+                      <FormField
+                        control={form.control}
+                        name="pdfUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>OneDrive or External PDF URL</FormLabel>
+                            <FormControl>
+                              <Input 
+                                {...field} 
+                                placeholder="https://onedrive.live.com/..." 
+                                data-testid="input-onedrive-url"
+                              />
+                            </FormControl>
+                            <div className="text-sm text-gray-500">
+                              Enter a publicly accessible OneDrive, Google Drive, or direct PDF URL
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                    
+                    {/* Show URL input when no file uploaded */}
+                    {!form.watch('pdfUrl') && (
+                      <div className="text-center text-sm text-gray-500">
+                        <p>or enter a OneDrive/external URL below</p>
+                        <FormField
+                          control={form.control}
+                          name="pdfUrl"
+                          render={({ field }) => (
+                            <FormItem className="mt-2">
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="https://onedrive.live.com/..." 
+                                  data-testid="input-pdf-url"
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Visibility Toggle */}
