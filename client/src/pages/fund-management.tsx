@@ -716,7 +716,7 @@ export default function FundManagementPage() {
                       
                       <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-500">
-                          {fund.createdAt ? new Date(fund.createdAt).toLocaleDateString() : ''}
+                          {fund.vintage ? `${t.vintage}: ${fund.vintage}` : ''}
                         </div>
                         <div className="flex gap-2">
                           <Button
