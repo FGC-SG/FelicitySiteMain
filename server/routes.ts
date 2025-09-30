@@ -1720,13 +1720,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "File contains no data rows" });
       }
 
-      // Debug: Log the column names from the first row
-      if (jsonData.length > 0) {
-        const firstRow = jsonData[0] as any;
-        console.log('Available columns in uploaded file:', Object.keys(firstRow));
-        console.log('First row sample data:', firstRow);
-      }
-
       let imported = 0;
       const errors: string[] = [];
 
@@ -1776,8 +1769,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             errors.push(`Row ${index + 2}: Title is required`);
             continue;
           }
-          if (!newsData.content) {
-            errors.push(`Row ${index + 2}: Content is required`);
+          // Content is optional - can have only Japanese content
+          if (!newsData.content && !newsData.contentJa) {
+            errors.push(`Row ${index + 2}: Either Content or Content (Japanese) is required`);
             continue;
           }
           
