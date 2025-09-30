@@ -128,7 +128,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       title: "Our Philosophy",
       philosophy: "Our Philosophy",
       content1: "We have been involved in a wide range of investments—from growth investments and buyouts in Japan to various opportunities across the Asian region. Walking alongside companies in their journeys of growth and transformation, and pursuing long-term value creation together with our investors, has been a source of great pride for us.",
-      content2: "Now, with Felicity Global Capital Pte. Ltd. based in Singapore and Felicity Capital Co., Ltd. in Japan as our two core entities, we have established a new corporate structure to drive our fund operations more strategically and dynamically.",
+      content2: "Now, with Felicity Global Capital Pte. Ltd. based in Singapore and Felicity Capital Inc. in Japan as our two core entities, we have established a new corporate structure to drive our fund operations more strategically and dynamically.",
       content3: "The name Felicity means \"bliss\" or \"supreme happiness.\" It reflects our wish to deliver \"happy outcomes\" not only to our investors and portfolio companies, but also to all stakeholders—including society at large—through our investments."
     },
     investment: {

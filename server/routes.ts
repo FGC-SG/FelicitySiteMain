@@ -1769,15 +1769,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             errors.push(`Row ${index + 2}: Title is required`);
             continue;
           }
-          // Content is optional - can have only Japanese content
+          
+          // Auto-generate content from title if both content fields are missing
           if (!newsData.content && !newsData.contentJa) {
-            errors.push(`Row ${index + 2}: Either Content or Content (Japanese) is required`);
-            continue;
+            newsData.content = newsData.title;
+            newsData.contentJa = newsData.titleJa || newsData.title;
           }
           
           // Auto-generate description from content if not provided
           if (!newsData.description && newsData.content) {
             newsData.description = newsData.content.substring(0, 150) + (newsData.content.length > 150 ? '...' : '');
+          }
+          if (!newsData.descriptionJa && newsData.contentJa) {
+            newsData.descriptionJa = newsData.contentJa.substring(0, 150) + (newsData.contentJa.length > 150 ? '...' : '');
           }
 
           // Validate felicity company
