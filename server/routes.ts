@@ -1758,13 +1758,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             errors.push(`Row ${index + 2}: Title is required`);
             continue;
           }
-          if (!newsData.description) {
-            errors.push(`Row ${index + 2}: Description is required`);
-            continue;
-          }
           if (!newsData.content) {
             errors.push(`Row ${index + 2}: Content is required`);
             continue;
+          }
+          
+          // Auto-generate description from content if not provided
+          if (!newsData.description && newsData.content) {
+            newsData.description = newsData.content.substring(0, 150) + (newsData.content.length > 150 ? '...' : '');
           }
 
           // Validate felicity company
