@@ -224,7 +224,7 @@ export default function FundDisclosuresPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
                       <CardTitle className="text-lg leading-6" data-testid={`text-disclosure-title-${disclosure.id}`}>
-                        {formatDisclosureType(disclosure.disclosureType)}
+                        {(disclosure as any).fundName || formatDisclosureType(disclosure.disclosureType)}
                       </CardTitle>
                       <FileText className="h-6 w-6 text-blue-600 flex-shrink-0" />
                     </div>

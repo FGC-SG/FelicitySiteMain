@@ -77,7 +77,7 @@ export interface IStorage {
   
   // Fund disclosure operations
   createFundDisclosure(disclosureData: InsertFundDisclosure): Promise<FundDisclosure>;
-  getAllFundDisclosures(): Promise<FundDisclosure[]>;
+  getAllFundDisclosures(): Promise<any[]>;
   updateFundDisclosure(id: string, disclosureData: Partial<InsertFundDisclosure>): Promise<FundDisclosure>;
   deleteFundDisclosure(id: string): Promise<void>;
   
@@ -293,8 +293,25 @@ export class DatabaseStorage implements IStorage {
     return disclosure;
   }
 
-  async getAllFundDisclosures(): Promise<FundDisclosure[]> {
-    return await db.select().from(fundDisclosures).orderBy(desc(fundDisclosures.publishedAt));
+  async getAllFundDisclosures(): Promise<any[]> {
+    const disclosuresWithFunds = await db
+      .select({
+        id: fundDisclosures.id,
+        fundId: fundDisclosures.fundId,
+        descriptionJa: fundDisclosures.descriptionJa,
+        pdfUrl: fundDisclosures.pdfUrl,
+        publishedAt: fundDisclosures.publishedAt,
+        disclosureType: fundDisclosures.disclosureType,
+        isVisible: fundDisclosures.isVisible,
+        createdAt: fundDisclosures.createdAt,
+        updatedAt: fundDisclosures.updatedAt,
+        fundName: funds.name,
+      })
+      .from(fundDisclosures)
+      .leftJoin(funds, eq(fundDisclosures.fundId, funds.id))
+      .orderBy(desc(fundDisclosures.publishedAt));
+    
+    return disclosuresWithFunds;
   }
 
   async updateFundDisclosure(id: string, disclosureData: Partial<InsertFundDisclosure>): Promise<FundDisclosure> {
