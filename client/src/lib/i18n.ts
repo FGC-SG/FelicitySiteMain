@@ -140,7 +140,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       },
       succession: {
         title: "Japanese Business Succession",
-        description: "Through our subsidiary Felicity Capital Co., Ltd., we specialize in Japanese domestic business succession investments and buyout fund operations, supporting sustainable business transitions."
+        description: "Through our subsidiary Felicity Capital Inc., we specialize in Japanese domestic business succession investments and buyout fund operations, supporting sustainable business transitions."
       }
     },
     news: {
@@ -163,7 +163,7 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
         business: "Business:"
       },
       japan: {
-        title: "Felicity Capital Co., Ltd.",
+        title: "Felicity Capital Inc.",
         ceo: "President & CEO:",
         capital: "Capital:",
         business: "Business:"
