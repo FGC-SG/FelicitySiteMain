@@ -1608,7 +1608,7 @@ export default function PortfolioManagementPage() {
                     <SelectItem value="all">All Countries</SelectItem>
                     {countries.map((country) => (
                       <SelectItem key={country} value={country}>
-                        {country.charAt(0).toUpperCase() + country.slice(1)}
+                        {formatCountryName(country)}
                       </SelectItem>
                     ))}
                   </SelectContent>
