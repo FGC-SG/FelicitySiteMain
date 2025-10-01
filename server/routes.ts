@@ -2363,19 +2363,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log available sheets for debugging
       console.log('Available sheets in workbook:', workbook.SheetNames);
       
-      // Validate required sheets exist
-      const requiredSheets = ['Users', 'Portfolios', 'Funds', 'Fund Disclosures', 'News Articles', 'Members', 'Contact Submissions', 'User Invitations'];
-      const missingSheets = requiredSheets.filter(sheet => !workbook.SheetNames.includes(sheet));
+      // Required sheets (must have at least one data table)
+      const coreSheets = ['Users', 'Portfolios', 'Funds', 'News Articles'];
+      const missingCoreSheets = coreSheets.filter(sheet => !workbook.SheetNames.includes(sheet));
       
-      console.log('Required sheets:', requiredSheets);
-      console.log('Missing sheets:', missingSheets);
-      
-      if (missingSheets.length > 0) {
+      if (missingCoreSheets.length > 0) {
         return res.status(400).json({ 
           message: 'Invalid backup file format', 
-          errors: [`Missing required sheets: ${missingSheets.join(', ')}`]
+          errors: [`Missing required core sheets: ${missingCoreSheets.join(', ')}`]
         });
       }
+      
+      // Optional sheets (may not exist if no data was present during backup)
+      const optionalSheets = ['Fund Disclosures', 'Members', 'Contact Submissions', 'User Invitations'];
+      console.log('Available sheets:', workbook.SheetNames);
 
       // Initialize preview/result object
       const result: any = {
@@ -2414,13 +2415,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return missing;
       };
 
-      // Validate each table's columns
+      // Validate each table's columns (only validate if data exists for optional tables)
       validateColumns(usersData, ['ID', 'Email', 'Role'], 'Users');
       validateColumns(portfoliosData, ['ID', 'Company Name'], 'Portfolios');
       validateColumns(fundsData, ['ID', 'Name'], 'Funds');
       validateColumns(newsData, ['ID', 'Title', 'Content'], 'News Articles');
-      validateColumns(membersData, ['ID', 'Name', 'Title'], 'Members');
-      validateColumns(contactsData, ['ID', 'Email', 'Message'], 'Contact Submissions');
+      
+      // Optional tables - only validate if they have data
+      if (membersData.length > 0) {
+        validateColumns(membersData, ['ID', 'Name', 'Title'], 'Members');
+      }
+      if (contactsData.length > 0) {
+        validateColumns(contactsData, ['ID', 'Email', 'Message'], 'Contact Submissions');
+      }
+      if (disclosuresData.length > 0) {
+        validateColumns(disclosuresData, ['ID', 'Fund ID', 'Type'], 'Fund Disclosures');
+      }
+      if (invitationsData.length > 0) {
+        validateColumns(invitationsData, ['ID', 'Email'], 'User Invitations');
+      }
 
       // If validation errors, return early
       if (result.errors.length > 0) {
