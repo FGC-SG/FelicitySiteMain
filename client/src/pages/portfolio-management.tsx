@@ -388,6 +388,32 @@ export default function PortfolioManagementPage() {
     toggleVisibilityMutation.mutate({ id, isVisible: !currentVisibility });
   };
 
+  // Logo display mode mutation
+  const updateLogoDisplayModeMutation = useMutation({
+    mutationFn: async ({ id, logoDisplayMode }: { id: string; logoDisplayMode: string }) => {
+      const response = await apiRequest('PATCH', `/api/portfolios/${id}/logo-display-mode`, { logoDisplayMode });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/portfolios'] });
+      toast({
+        title: language === 'en' ? "Success" : "成功",
+        description: language === 'en' ? "Logo display mode updated successfully" : "ロゴ表示モードが正常に更新されました",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: language === 'en' ? "Error" : "エラー",
+        description: error.message || (language === 'en' ? "Failed to update logo display mode" : "ロゴ表示モードの更新に失敗しました"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleLogoDisplayModeChange = (id: string, mode: string) => {
+    updateLogoDisplayModeMutation.mutate({ id, logoDisplayMode: mode });
+  };
+
   // Extract logo mutation
   const extractLogoMutation = useMutation({
     mutationFn: async (url: string) => {
@@ -2392,6 +2418,44 @@ export default function PortfolioManagementPage() {
                           : (language === 'en' ? 'Hidden' : '非表示')}
                       </Badge>
                     </div>
+
+                    {/* Logo Display Mode Control */}
+                    {portfolio.logoUrl && portfolio.logoUrl.trim() !== "" && (
+                      <div className="mt-3 mb-3 pb-2 border-b border-gray-100">
+                        <div className="flex items-center space-x-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {language === 'en' ? 'Logo Display Mode:' : 'ロゴ表示モード:'}
+                          </label>
+                          <Select 
+                            value={(portfolio as any).logoDisplayMode || 'auto'}
+                            onValueChange={(value) => handleLogoDisplayModeChange(portfolio.id, value)}
+                            data-testid={`select-logo-mode-${portfolio.id}`}
+                          >
+                            <SelectTrigger className="w-[140px] h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="auto">
+                                {language === 'en' ? 'Auto' : '自動'}
+                              </SelectItem>
+                              <SelectItem value="light">
+                                {language === 'en' ? 'Light' : 'ライト'}
+                              </SelectItem>
+                              <SelectItem value="dark">
+                                {language === 'en' ? 'Dark' : 'ダーク'}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <span className="text-xs text-gray-500">
+                            {(portfolio as any).logoDisplayMode === 'dark' 
+                              ? (language === 'en' ? '(Dark background)' : '(暗い背景)') 
+                              : (portfolio as any).logoDisplayMode === 'light'
+                              ? (language === 'en' ? '(Light background)' : '(明るい背景)')
+                              : (language === 'en' ? '(Theme-adaptive)' : '(テーマ適応)')}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex justify-end space-x-2 mt-4">
                       <Button
                         variant="outline"
