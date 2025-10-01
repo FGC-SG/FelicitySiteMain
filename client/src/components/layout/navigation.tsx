@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { LoginModal } from "@/components/auth/login-modal";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LayoutToggle } from "@/components/layout-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { Menu, X, User } from "lucide-react";
@@ -103,6 +104,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Language & Auth */}
           <div className="flex items-center space-x-2">
+            <LayoutToggle />
             <ThemeToggle />
             <LanguageSwitcher
               currentLanguage={language}
@@ -191,6 +193,10 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   )}
                 </Link>
               ))}
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-base font-medium text-muted-foreground">Layout</span>
+                <LayoutToggle />
+              </div>
               <div className="flex items-center justify-between px-3 py-2">
                 <span className="text-base font-medium text-muted-foreground">Theme</span>
                 <ThemeToggle />

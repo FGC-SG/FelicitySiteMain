@@ -157,4 +157,37 @@
     background-color: hsl(0 0% 0%);
     border-radius: 0.5rem;
   }
+  
+  /* Layout forcing utilities */
+  .force-mobile .md\:hidden {
+    display: block !important;
+  }
+  
+  .force-mobile .md\:block,
+  .force-mobile .md\:flex,
+  .force-mobile .md\:grid {
+    display: none !important;
+  }
+  
+  .force-mobile .md\:grid-cols-2,
+  .force-mobile .md\:grid-cols-3,
+  .force-mobile .lg\:grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  
+  .force-desktop .md\:hidden {
+    display: none !important;
+  }
+  
+  .force-desktop .md\:block {
+    display: block !important;
+  }
+  
+  .force-desktop .md\:flex {
+    display: flex !important;
+  }
+  
+  .force-desktop .md\:grid {
+    display: grid !important;
+  }
 }

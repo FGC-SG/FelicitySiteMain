@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LayoutProvider } from "@/components/layout-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { AccessGate } from "@/components/auth/access-gate";
 import Landing from "@/pages/landing";
@@ -107,10 +108,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="felicity-ui-theme">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <LayoutProvider defaultLayout="desktop" storageKey="felicity-ui-layout">
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </LayoutProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
