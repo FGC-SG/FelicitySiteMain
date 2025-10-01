@@ -50,96 +50,84 @@ export async function getUncachableSharePointClient() {
 }
 
 /**
- * Upload a file to SharePoint
+ * Upload a file to SharePoint using the shared folder URL
  * @param fileName - Name of the file to upload
  * @param fileBuffer - File content as Buffer
- * @param folderPath - Path to folder in SharePoint (e.g., 'Shared Documents/DatabaseBackups')
  */
 export async function uploadToSharePoint(
   fileName: string,
-  fileBuffer: Buffer,
-  folderPath: string = 'DatabaseBackups'
+  fileBuffer: Buffer
 ): Promise<{ success: boolean; webUrl?: string; error?: string }> {
   try {
     const client = await getUncachableSharePointClient();
     
-    // Target specific SharePoint site: fgcsg.sharepoint.com/sites/FGCSG-Article63
-    const hostname = 'fgcsg.sharepoint.com';
-    const sitePath = '/sites/FGCSG-Article63';
+    // Use the specific SharePoint folder URL provided by the user
+    const folderShareUrl = 'https://fgcsg.sharepoint.com/:f:/s/FGCSG-Article63/EgpfPw-lkGBLvN--GuLGbGYBITTkyaaU8jCebcc2taQuoA?e=XQtAA3';
     
-    console.log(`Accessing SharePoint site: ${hostname}${sitePath}`);
+    console.log('Resolving SharePoint folder from shared URL...');
     
-    // Get the site
-    let site;
+    // Convert the share URL to a base64url-encoded share ID
+    const shareId = 'u!' + Buffer.from(folderShareUrl)
+      .toString('base64')
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+    
+    console.log('Share ID:', shareId);
+    
+    // Get the folder item from the share link
+    let folderItem;
     try {
-      site = await client.api(`/sites/${hostname}:${sitePath}`).get();
-      console.log('SharePoint site found:', site.id);
+      folderItem = await client.api(`/shares/${shareId}/driveItem`).get();
+      console.log('Folder resolved:', {
+        id: folderItem.id,
+        name: folderItem.name,
+        driveId: folderItem.parentReference?.driveId
+      });
     } catch (error) {
-      console.error('Error accessing SharePoint site:', error);
-      throw new Error('Unable to access SharePoint site. Please check permissions.');
+      console.error('Error resolving shared folder:', error);
+      
+      // Fallback: Try using the default drive approach
+      console.log('Attempting fallback to default drive...');
+      const hostname = 'fgcsg.sharepoint.com';
+      const sitePath = '/sites/FGCSG-Article63';
+      
+      const site = await client.api(`/sites/${hostname}:${sitePath}`).get();
+      console.log('Site found:', site.id);
+      
+      // Use the default document library
+      const drive = await client.api(`/sites/${site.id}/drive`).get();
+      console.log('Default drive found:', drive.id);
+      
+      // Upload to root:/DatabaseBackups/ folder
+      const uploadPath = `/sites/${site.id}/drive/root:/DatabaseBackups/${fileName}:/content`;
+      console.log('Uploading to:', uploadPath);
+      
+      const response = await client
+        .api(uploadPath)
+        .put(fileBuffer);
+      
+      console.log('File uploaded to SharePoint (fallback):', response.webUrl);
+      
+      return {
+        success: true,
+        webUrl: response.webUrl
+      };
     }
     
-    // Get the default document library (drive)
-    const drives = await client.api(`/sites/${site.id}/drives`).get();
+    // Upload directly to the resolved folder
+    const driveId = folderItem.parentReference?.driveId;
+    const folderId = folderItem.id;
     
-    if (!drives.value || drives.value.length === 0) {
-      throw new Error('No document library found in SharePoint site');
+    if (!driveId || !folderId) {
+      throw new Error('Could not determine drive or folder ID from shared link');
     }
     
-    const driveId = drives.value[0].id;
-    console.log('Using drive:', driveId);
+    console.log(`Uploading ${fileName} to drive ${driveId}, folder ${folderId}`);
     
-    // Create folder path if it doesn't exist
-    const folderParts = folderPath.split('/').filter(p => p);
-    let currentFolderId = 'root';
-    
-    for (const folderName of folderParts) {
-      try {
-        // Try to get the folder
-        const folder = await client
-          .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
-          .filter(`name eq '${folderName}'`)
-          .get();
-        
-        if (folder.value && folder.value.length > 0) {
-          currentFolderId = folder.value[0].id;
-          console.log(`Found existing folder: ${folderName}`);
-        } else {
-          // Create the folder
-          const newFolder = await client
-            .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
-            .post({
-              name: folderName,
-              folder: {},
-              '@microsoft.graph.conflictBehavior': 'rename'
-            });
-          currentFolderId = newFolder.id;
-          console.log(`Created new folder: ${folderName}`);
-        }
-      } catch (error) {
-        console.error(`Error with folder ${folderName}:`, error);
-        // Try to create it anyway
-        try {
-          const newFolder = await client
-            .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
-            .post({
-              name: folderName,
-              folder: {},
-              '@microsoft.graph.conflictBehavior': 'rename'
-            });
-          currentFolderId = newFolder.id;
-          console.log(`Created new folder: ${folderName}`);
-        } catch (createError) {
-          console.error('Failed to create folder:', createError);
-          throw createError;
-        }
-      }
-    }
-    
-    // Upload the file
-    console.log(`Uploading file ${fileName} to folder ${currentFolderId}`);
+    const uploadPath = `/drives/${driveId}/items/${folderId}:/${fileName}:/content`;
     const response = await client
-      .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}:/${fileName}:/content`)
+      .api(uploadPath)
       .put(fileBuffer);
     
     console.log('File uploaded to SharePoint successfully:', response.webUrl);
