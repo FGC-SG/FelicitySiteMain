@@ -33,6 +33,7 @@ The website is structured as a multi-page application.
 - **Data Export & Import**: 
     - Admin-only Excel (.xlsx) export functionality for News and Portfolio data.
     - Superadmin-only comprehensive database backup export covering all tables (users, portfolios, funds, fund_disclosures, news, members, contact_submissions, user_invitations) in MS Access-compatible Excel format.
+    - **SharePoint Integration**: Database backups automatically upload to SharePoint (Shared Documents/DatabaseBackups folder) with automatic fallback to local download if upload fails. Uses Microsoft Graph API with OAuth authentication.
     - Superadmin-only database restore functionality with dry-run preview, merge/replace modes, file validation (10MB limit, .xlsx only), and comprehensive error handling.
 - **Privacy**: Includes a comprehensive Privacy Policy page compliant with PDPA (Singapore), GDPR (EU), and US privacy laws.
 

@@ -189,28 +189,50 @@ export default function ManagementPage() {
         throw new Error('Failed to export database backup');
       }
       
-      const blob = await response.blob();
-      console.log('Backup blob received, size:', blob.size);
+      const contentType = response.headers.get('content-type');
       
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Use setTimeout to ensure toast appears after the download prompt
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+      // Check if response is JSON (SharePoint upload) or blob (file download)
+      if (contentType && contentType.includes('application/json')) {
+        // SharePoint upload successful
+        const result = await response.json();
+        console.log('Backup uploaded to SharePoint:', result);
         
-        console.log('Showing success toast...');
         toast({
-          title: language === "jp" ? "バックアップ成功" : "Backup Successful",
-          description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup has been downloaded successfully.",
+          title: language === "jp" ? "SharePointにアップロード成功" : "Uploaded to SharePoint",
+          description: language === "jp" 
+            ? `データベースバックアップがSharePointにアップロードされました: ${result.filename}` 
+            : `Database backup has been uploaded to SharePoint: ${result.filename}`,
         });
-      }, 100);
+        
+        // Optionally open SharePoint URL
+        if (result.sharePointUrl) {
+          console.log('SharePoint URL:', result.sharePointUrl);
+        }
+      } else {
+        // Fallback: file download
+        const blob = await response.blob();
+        console.log('Backup blob received, size:', blob.size);
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Use setTimeout to ensure toast appears after the download prompt
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          console.log('Showing success toast...');
+          toast({
+            title: language === "jp" ? "バックアップ成功" : "Backup Successful",
+            description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup has been downloaded successfully.",
+          });
+        }, 100);
+      }
     } catch (error) {
       console.error('Error exporting database backup:', error);
       toast({
