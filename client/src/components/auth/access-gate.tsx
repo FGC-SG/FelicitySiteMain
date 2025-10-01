@@ -52,7 +52,7 @@ export function AccessGate({ onAccessGranted }: AccessGateProps) {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo and Company Name */}
         <div className="text-center mb-8">
-          <div className="mx-auto mb-6 p-4 bg-white rounded-2xl shadow-xl w-fit">
+          <div className="mx-auto mb-6 p-4 logo-dark-mode shadow-xl w-fit">
             <img 
               src={logoPath}
               alt="Felicity Global Capital"
