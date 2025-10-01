@@ -2437,6 +2437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If validation errors, return early
       if (result.errors.length > 0) {
+        console.error('Validation errors found:', result.errors);
         return res.status(400).json(result);
       }
 
