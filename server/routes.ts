@@ -2136,7 +2136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/export/database-backup', async (req: any, res) => {
     try {
       // Check if user is authenticated and is superadmin
-      if (!req.isAuthenticated() || req.user?.role !== 'superadmin') {
+      if (!req.session?.user || req.session.user.role !== 'superadmin') {
         return res.status(403).json({ message: 'Access denied. Superadmin only.' });
       }
 

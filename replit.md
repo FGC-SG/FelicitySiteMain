@@ -30,7 +30,9 @@ The website is structured as a multi-page application.
     - **Fund Management**: Manages fund options with bilingual support and visibility toggling.
 - **File Management**: Object storage for photo uploads with automatic scaling and URL normalization.
 - **Access Control**: Role-based access control (Superadmin/User) for management portals. News and Portfolio sections are publicly accessible by default.
-- **Data Export**: Admin-only Excel (.xlsx) export functionality for News and Portfolio data.
+- **Data Export**: 
+    - Admin-only Excel (.xlsx) export functionality for News and Portfolio data.
+    - Superadmin-only comprehensive database backup export covering all tables (users, portfolios, funds, fund_disclosures, news, members, contact_submissions, user_invitations) in MS Access-compatible Excel format.
 - **Privacy**: Includes a comprehensive Privacy Policy page compliant with PDPA (Singapore), GDPR (EU), and US privacy laws.
 
 ### Feature Specifications

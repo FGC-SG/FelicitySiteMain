@@ -94,17 +94,22 @@ export default function ManagementPage() {
   };
 
   const handleDatabaseBackup = async () => {
+    console.log('Database backup initiated...');
     try {
       const response = await fetch('/api/export/database-backup', {
         method: 'GET',
         credentials: 'include',
       });
       
+      console.log('Backup response status:', response.status);
+      
       if (!response.ok) {
         throw new Error('Failed to export database backup');
       }
       
       const blob = await response.blob();
+      console.log('Backup blob received, size:', blob.size);
+      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
@@ -112,13 +117,18 @@ export default function ManagementPage() {
       a.download = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
       
-      toast({
-        title: language === "jp" ? "バックアップ成功" : "Backup Successful",
-        description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup has been downloaded successfully.",
-      });
+      // Use setTimeout to ensure toast appears after the download prompt
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        console.log('Showing success toast...');
+        toast({
+          title: language === "jp" ? "バックアップ成功" : "Backup Successful",
+          description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup has been downloaded successfully.",
+        });
+      }, 100);
     } catch (error) {
       console.error('Error exporting database backup:', error);
       toast({
