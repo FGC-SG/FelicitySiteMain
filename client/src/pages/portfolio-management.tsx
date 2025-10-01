@@ -59,6 +59,12 @@ export default function PortfolioManagementPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Helper function to determine if a logo needs dark mode
+  const needsDarkModeLogo = (companyName: string): boolean => {
+    const darkModeLogos = ['iprice', 'h3 dynamics'];
+    return darkModeLogos.some(name => companyName.toLowerCase().includes(name));
+  };
+
   // Delete all portfolios mutation
   const deleteAllPortfoliosMutation = useMutation({
     mutationFn: async () => {
@@ -2215,7 +2221,11 @@ export default function PortfolioManagementPage() {
                   <CardHeader className="pb-3">
                     {/* Company Logo */}
                     {portfolio.logoUrl && portfolio.logoUrl.trim() !== "" && (
-                      <div className="mb-3 flex justify-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <div className={`mb-3 flex justify-center p-3 rounded-lg ${
+                        needsDarkModeLogo(portfolio.companyName) 
+                          ? 'logo-dark-mode border border-gray-700' 
+                          : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                      }`}>
                         <img 
                           src={portfolio.logoUrl} 
                           alt={`${portfolio.companyName} logo`}
