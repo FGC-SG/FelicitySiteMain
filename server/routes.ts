@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertContactSubmissionSchema } from "@shared/schema";
+import { insertContactSubmissionSchema, logoDisplayModeSchema } from "@shared/schema";
 import { z } from "zod";
 import {
   ObjectStorageService,
@@ -589,6 +589,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating portfolio:", error);
       res.status(500).json({ message: "Failed to update portfolio" });
+    }
+  });
+
+  app.patch('/api/portfolios/:id/logo-display-mode', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has superuser role
+      if (sessionUser.role !== "superadmin" && sessionUser.role !== "Superadmin") {
+        return res.status(403).json({ message: "Superuser access required" });
+      }
+
+      const { id } = req.params;
+      const { logoDisplayMode } = req.body;
+      
+      // Validate logoDisplayMode
+      const validatedMode = logoDisplayModeSchema.parse(logoDisplayMode);
+      
+      const portfolio = await storage.updatePortfolio(id, { logoDisplayMode: validatedMode });
+      res.json(portfolio);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid logo display mode", errors: error.errors });
+      }
+      console.error("Error updating logo display mode:", error);
+      res.status(500).json({ message: "Failed to update logo display mode" });
     }
   });
 
