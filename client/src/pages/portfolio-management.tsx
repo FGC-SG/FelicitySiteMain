@@ -463,7 +463,7 @@ export default function PortfolioManagementPage() {
       investmentYear: portfolio.investmentYear ?? "",
       status: (portfolio as any).status ?? "ongoing",
       website: portfolio.website ?? "",
-      logoUrl: (portfolio as any).logoUrl ?? "",
+      logoUrl: portfolio.logoUrl ?? "",
       description: portfolio.description ?? "",
       descriptionJa: portfolio.descriptionJa ?? "",
     });
@@ -2212,6 +2212,17 @@ export default function PortfolioManagementPage() {
               {filteredPortfolios?.map((portfolio) => (
                 <Card key={portfolio.id} className="hover:shadow-lg transition-shadow" data-testid={`card-portfolio-${portfolio.id}`}>
                   <CardHeader className="pb-3">
+                    {/* Company Logo */}
+                    {portfolio.logoUrl && (
+                      <div className="mb-3 flex justify-center">
+                        <img 
+                          src={portfolio.logoUrl} 
+                          alt={`${portfolio.companyName} logo`}
+                          className="h-12 w-auto object-contain"
+                          data-testid={`img-logo-${portfolio.id}`}
+                        />
+                      </div>
+                    )}
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <CardTitle className="text-lg mb-1" data-testid={`text-company-name-${portfolio.id}`}>
