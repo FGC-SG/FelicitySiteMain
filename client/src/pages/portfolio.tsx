@@ -283,7 +283,7 @@ function PortfolioPage() {
                         <img 
                           src={portfolio.logoUrl} 
                           alt={`${portfolio.companyName} logo`}
-                          className="h-16 w-auto object-contain"
+                          className="h-20 w-auto object-contain max-w-full"
                           data-testid={`img-logo-${portfolio.id}`}
                         />
                       </div>

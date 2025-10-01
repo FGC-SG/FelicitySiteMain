@@ -2287,11 +2287,11 @@ export default function PortfolioManagementPage() {
                   <CardHeader className="pb-3">
                     {/* Company Logo */}
                     {portfolio.logoUrl && portfolio.logoUrl.trim() !== "" && (
-                      <div className={`mb-3 flex justify-center p-3 rounded-lg ${getLogoContainerClass((portfolio as any).logoDisplayMode)}`}>
+                      <div className={`mb-3 flex justify-center p-4 rounded-lg ${getLogoContainerClass((portfolio as any).logoDisplayMode)}`}>
                         <img 
                           src={portfolio.logoUrl} 
                           alt={`${portfolio.companyName} logo`}
-                          className="h-12 w-auto object-contain"
+                          className="h-20 w-auto object-contain max-w-full"
                           data-testid={`img-logo-${portfolio.id}`}
                         />
                       </div>
