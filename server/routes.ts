@@ -2132,6 +2132,188 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database Backup Export - All Tables
+  app.get('/api/export/database-backup', async (req: any, res) => {
+    try {
+      // Check if user is authenticated and is superadmin
+      if (!req.isAuthenticated() || req.user?.role !== 'superadmin') {
+        return res.status(403).json({ message: 'Access denied. Superadmin only.' });
+      }
+
+      console.log('Creating comprehensive database backup...');
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // 1. Export Portfolios
+      const portfolios = await storage.getAllPortfolios();
+      const portfolioData = portfolios.map(p => ({
+        'ID': p.id,
+        'Company Name': p.companyName,
+        'Company Name (Japanese)': p.companyNameJa || '',
+        'Felicity Company': p.felicityCompany,
+        'Fund Name': p.fundName || '',
+        'Industry': p.industry,
+        'Investment Type': p.investmentType,
+        'Country': p.country,
+        'Investment Year': p.investmentYear || '',
+        'Status': (p as any).status || 'ongoing',
+        'Website': p.website || '',
+        'Logo URL': p.logoUrl || '',
+        'Logo Display Mode': (p as any).logoDisplayMode || 'auto',
+        'Description': p.description || '',
+        'Description (Japanese)': p.descriptionJa || '',
+        'Visible': p.isVisible !== false ? 'TRUE' : 'FALSE',
+        'Created At': p.createdAt ? new Date(p.createdAt).toISOString() : '',
+        'Updated At': p.updatedAt ? new Date(p.updatedAt).toISOString() : ''
+      }));
+      if (portfolioData.length > 0) {
+        const ws1 = XLSX.utils.json_to_sheet(portfolioData);
+        XLSX.utils.book_append_sheet(wb, ws1, 'Portfolios');
+      }
+
+      // 2. Export News Articles
+      const news = await storage.getNewsArticles();
+      const newsData = news.map(n => ({
+        'ID': n.id,
+        'Title': n.title,
+        'Title (Japanese)': n.titleJa || '',
+        'Content': n.content,
+        'Content (Japanese)': n.contentJa || '',
+        'Author': n.author,
+        'Published At': n.publishedAt ? new Date(n.publishedAt).toISOString() : '',
+        'Visible': n.isVisible !== false ? 'TRUE' : 'FALSE',
+        'Created At': n.createdAt ? new Date(n.createdAt).toISOString() : '',
+        'Updated At': n.updatedAt ? new Date(n.updatedAt).toISOString() : ''
+      }));
+      if (newsData.length > 0) {
+        const ws2 = XLSX.utils.json_to_sheet(newsData);
+        XLSX.utils.book_append_sheet(wb, ws2, 'News Articles');
+      }
+
+      // 3. Export Members
+      const members = await storage.getAllMembers();
+      const memberData = members.map(m => ({
+        'ID': m.id,
+        'Name': m.name,
+        'Name (Japanese)': m.nameJa || '',
+        'Position': m.position,
+        'Position (Japanese)': m.positionJa || '',
+        'Bio': m.bio || '',
+        'Bio (Japanese)': m.bioJa || '',
+        'Photo URL': m.photoUrl || '',
+        'Display Order': m.displayOrder || 0,
+        'Created At': m.createdAt ? new Date(m.createdAt).toISOString() : '',
+        'Updated At': m.updatedAt ? new Date(m.updatedAt).toISOString() : ''
+      }));
+      if (memberData.length > 0) {
+        const ws3 = XLSX.utils.json_to_sheet(memberData);
+        XLSX.utils.book_append_sheet(wb, ws3, 'Members');
+      }
+
+      // 4. Export Funds
+      const funds = await storage.getAllFunds();
+      const fundData = funds.map(f => ({
+        'ID': f.id,
+        'Name': f.name,
+        'Description': f.description || '',
+        'Description (Japanese)': f.descriptionJa || '',
+        'Vintage': f.vintage || '',
+        'Status': f.status || '',
+        'Felicity Company': f.felicityCompany || '',
+        'Visible': f.isVisible !== false ? 'TRUE' : 'FALSE',
+        'Created At': f.createdAt ? new Date(f.createdAt).toISOString() : '',
+        'Updated At': f.updatedAt ? new Date(f.updatedAt).toISOString() : ''
+      }));
+      if (fundData.length > 0) {
+        const ws4 = XLSX.utils.json_to_sheet(fundData);
+        XLSX.utils.book_append_sheet(wb, ws4, 'Funds');
+      }
+
+      // 5. Export Fund Disclosures
+      const disclosures = await storage.getAllFundDisclosures();
+      const disclosureData = disclosures.map(d => ({
+        'ID': d.id,
+        'Fund ID': d.fundId,
+        'Fund Name': d.fundName || '',
+        'Title': d.title,
+        'Title (Japanese)': d.titleJa || '',
+        'PDF URL': d.pdfUrl || '',
+        'Disclosure Date': d.disclosureDate ? new Date(d.disclosureDate).toISOString() : '',
+        'Created At': d.createdAt ? new Date(d.createdAt).toISOString() : '',
+        'Updated At': d.updatedAt ? new Date(d.updatedAt).toISOString() : ''
+      }));
+      if (disclosureData.length > 0) {
+        const ws5 = XLSX.utils.json_to_sheet(disclosureData);
+        XLSX.utils.book_append_sheet(wb, ws5, 'Fund Disclosures');
+      }
+
+      // 6. Export Users (exclude password hashes for security)
+      const users = await storage.getAllUsers();
+      const userData = users.map(u => ({
+        'ID': u.id,
+        'Email': u.email,
+        'Username': u.username || '',
+        'Role': u.role || 'user',
+        'Created At': u.createdAt ? new Date(u.createdAt).toISOString() : '',
+        'Updated At': u.updatedAt ? new Date(u.updatedAt).toISOString() : ''
+      }));
+      if (userData.length > 0) {
+        const ws6 = XLSX.utils.json_to_sheet(userData);
+        XLSX.utils.book_append_sheet(wb, ws6, 'Users');
+      }
+
+      // 7. Export Contact Submissions
+      const contacts = await storage.getContactSubmissions();
+      const contactData = contacts.map(c => ({
+        'ID': c.id,
+        'Name': c.name,
+        'Email': c.email,
+        'Subject': c.subject,
+        'Message': c.message,
+        'Created At': c.createdAt ? new Date(c.createdAt).toISOString() : ''
+      }));
+      if (contactData.length > 0) {
+        const ws7 = XLSX.utils.json_to_sheet(contactData);
+        XLSX.utils.book_append_sheet(wb, ws7, 'Contact Submissions');
+      }
+
+      // 8. Export User Invitations
+      const invitations = await storage.getInvitations();
+      const invitationData = invitations.map(i => ({
+        'ID': i.id,
+        'Email': i.email,
+        'Role': i.role || 'user',
+        'Invited By': i.invitedBy,
+        'Invitation Token': i.invitationToken,
+        'Is Active': i.isActive ? 'TRUE' : 'FALSE',
+        'Created At': i.createdAt ? new Date(i.createdAt).toISOString() : '',
+        'Expires At': i.expiresAt ? new Date(i.expiresAt).toISOString() : ''
+      }));
+      if (invitationData.length > 0) {
+        const ws8 = XLSX.utils.json_to_sheet(invitationData);
+        XLSX.utils.book_append_sheet(wb, ws8, 'User Invitations');
+      }
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      const filename = `felicity-database-backup-${timestamp}.xlsx`;
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Write the file and send
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      res.send(buffer);
+
+      console.log(`Database backup exported successfully: ${filename}`);
+    } catch (error) {
+      console.error('Error exporting database backup:', error);
+      res.status(500).json({ message: 'Failed to export database backup' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
