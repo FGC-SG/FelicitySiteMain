@@ -124,7 +124,16 @@ export default function ManagementPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Restore failed');
+        // Show detailed error information
+        let errorMsg = result.message || 'Restore failed';
+        if (result.errors && result.errors.length > 0) {
+          errorMsg += '\n\nErrors:\n' + result.errors.join('\n');
+        }
+        if (result.warnings && result.warnings.length > 0) {
+          errorMsg += '\n\nWarnings:\n' + result.warnings.join('\n');
+        }
+        console.error('Restore validation failed:', result);
+        throw new Error(errorMsg);
       }
 
       if (dryRun) {
