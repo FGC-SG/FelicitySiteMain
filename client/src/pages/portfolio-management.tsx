@@ -375,6 +375,43 @@ export default function PortfolioManagementPage() {
     toggleVisibilityMutation.mutate({ id, isVisible: !currentVisibility });
   };
 
+  // Extract logo mutation
+  const extractLogoMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const response = await apiRequest("POST", "/api/extract-logo", { url });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.logoUrl) {
+        form.setValue("logoUrl", data.logoUrl);
+        toast({
+          title: language === "en" ? "Success" : "成功",
+          description: language === "en" ? "Logo extracted successfully!" : "ロゴが正常に抽出されました！",
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: error.message || (language === "en" ? "Failed to extract logo" : "ロゴの抽出に失敗しました"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleExtractLogo = () => {
+    const websiteUrl = form.getValues("website");
+    if (!websiteUrl) {
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" ? "Please enter a website URL first" : "まずウェブサイトURLを入力してください",
+        variant: "destructive",
+      });
+      return;
+    }
+    extractLogoMutation.mutate(websiteUrl);
+  };
+
   // Filter and sort portfolios
   const filteredPortfolios = portfolios?.filter(portfolio => {
     const matchesSearch = portfolio.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -2056,14 +2093,29 @@ export default function PortfolioManagementPage() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>{language === "en" ? "Company Logo URL" : "会社ロゴURL"}</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    {...field} 
-                                    type="url"
-                                    placeholder="https://example.com/logo.png"
-                                    data-testid="input-logo-url" 
-                                  />
-                                </FormControl>
+                                <div className="flex gap-2">
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      type="url"
+                                      placeholder="https://example.com/logo.png"
+                                      data-testid="input-logo-url" 
+                                    />
+                                  </FormControl>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleExtractLogo}
+                                    disabled={extractLogoMutation.isPending}
+                                    data-testid="button-extract-logo"
+                                    className="whitespace-nowrap"
+                                  >
+                                    {extractLogoMutation.isPending 
+                                      ? (language === "en" ? "Extracting..." : "抽出中...") 
+                                      : (language === "en" ? "Extract Logo" : "ロゴ抽出")
+                                    }
+                                  </Button>
+                                </div>
                                 <FormMessage />
                               </FormItem>
                             )}

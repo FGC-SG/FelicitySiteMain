@@ -15,6 +15,60 @@ import * as XLSX from "xlsx";
 import multer from "multer";
 import { Readable } from "stream";
 
+// Helper function to extract logo from HTML
+function extractLogoFromHtml(html: string, baseUrl: string): string | null {
+  // Strategy 1: Look for Open Graph image (og:image)
+  const ogImageMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
+  if (ogImageMatch) {
+    return resolveUrl(ogImageMatch[1], baseUrl);
+  }
+
+  // Strategy 2: Look for Twitter image
+  const twitterImageMatch = html.match(/<meta\s+name=["']twitter:image["']\s+content=["']([^"']+)["']/i);
+  if (twitterImageMatch) {
+    return resolveUrl(twitterImageMatch[1], baseUrl);
+  }
+
+  // Strategy 3: Look for apple-touch-icon
+  const appleTouchMatch = html.match(/<link\s+rel=["']apple-touch-icon["'][^>]*href=["']([^"']+)["']/i);
+  if (appleTouchMatch) {
+    return resolveUrl(appleTouchMatch[1], baseUrl);
+  }
+
+  // Strategy 4: Look for icon or shortcut icon with larger sizes
+  const iconMatches = Array.from(html.matchAll(/<link\s+rel=["'](?:icon|shortcut icon)["'][^>]*href=["']([^"']+)["'][^>]*>/gi));
+  for (const match of iconMatches) {
+    const href = match[1];
+    // Skip .ico files and SVGs, prefer larger image formats
+    if (!href.endsWith('.ico') && !href.endsWith('.svg')) {
+      return resolveUrl(href, baseUrl);
+    }
+  }
+
+  // Strategy 5: Look for images with "logo" in the filename or src
+  const logoImgMatch = html.match(/<img[^>]*src=["']([^"']*logo[^"']*)["']/i);
+  if (logoImgMatch) {
+    return resolveUrl(logoImgMatch[1], baseUrl);
+  }
+
+  // Strategy 6: Fallback to favicon.ico
+  return resolveUrl('/favicon.ico', baseUrl);
+}
+
+// Helper function to resolve relative URLs
+function resolveUrl(url: string, baseUrl: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  if (url.startsWith('//')) {
+    return 'https:' + url;
+  }
+  if (url.startsWith('/')) {
+    return baseUrl + url;
+  }
+  return baseUrl + '/' + url;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize default admin user for production environments
   try {
@@ -868,6 +922,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(500).json({ message: "Failed to translate text. Please try again." });
+    }
+  });
+
+  // Logo extraction endpoint
+  app.post('/api/extract-logo', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: "URL is required" });
+      }
+
+      // Validate URL format
+      let websiteUrl: URL;
+      try {
+        websiteUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
+      } catch {
+        return res.status(400).json({ message: "Invalid URL format" });
+      }
+
+      // SSRF Protection: Only allow http/https schemes
+      if (websiteUrl.protocol !== 'http:' && websiteUrl.protocol !== 'https:') {
+        return res.status(400).json({ message: "Only HTTP and HTTPS protocols are allowed" });
+      }
+
+      // SSRF Protection: Block private/internal IP ranges and localhost
+      // NOTE: This provides hostname-based validation but does not perform DNS resolution
+      // to check the actual IP address. Services like nip.io/sslip.io that resolve to private
+      // IPs may bypass these checks. For production use with untrusted users, implement
+      // DNS resolution and IP validation, or use an allowlist of approved domains.
+      // This implementation is suitable for authenticated admin users.
+      const hostname = websiteUrl.hostname.toLowerCase();
+      
+      // Comprehensive blocklist including edge cases
+      const blockedPatterns = [
+        // Localhost variants
+        /^localhost\.?$/i,
+        /^127\./,
+        /^0\.0\.0\.0/,
+        /^::1$/,
+        /^::ffff:127\./,  // IPv6-mapped IPv4 localhost
+        
+        // Private IPv4 ranges
+        /^10\./,
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+        /^192\.168\./,
+        
+        // Link-local
+        /^169\.254\./,
+        /^fe80:/,
+        
+        // IPv6 private ranges (Unique Local Addresses)
+        /^fc00:/,
+        /^fd[0-9a-f]{2}:/,
+        
+        // IPv6-mapped private addresses
+        /^::ffff:(10|172\.(1[6-9]|2[0-9]|3[0-1])|192\.168)\./,
+        
+        // Loopback and special addresses
+        /^0+\.0+\.0+\.0+/,
+        /^255\.255\.255\.255/,
+      ];
+
+      if (blockedPatterns.some(pattern => pattern.test(hostname))) {
+        return res.status(400).json({ message: "Cannot extract logos from internal/private networks" });
+      }
+
+      // Block metadata endpoints and suspicious domains
+      if (hostname.includes('metadata') || 
+          hostname === '169.254.169.254' ||
+          hostname.endsWith('.local') ||
+          hostname.includes('internal')) {
+        return res.status(400).json({ message: "Cannot extract logos from internal endpoints" });
+      }
+      
+      // Additional validation: hostname must contain at least one dot (reject bare names)
+      if (!hostname.includes('.') && hostname !== 'localhost') {
+        return res.status(400).json({ message: "Invalid hostname format" });
+      }
+
+      console.log(`Attempting to extract logo from: ${websiteUrl.href}`);
+
+      // Fetch the website HTML
+      // Note: We follow redirects (default behavior) because many legitimate sites redirect
+      // (e.g., http→https, www→non-www). The hostname validation above provides
+      // protection against direct SSRF attacks. For additional security in production,
+      // consider implementing DNS resolution checking for each redirect hop.
+      const response = await fetch(websiteUrl.href, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; FelicityBot/1.0)',
+        },
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch website: ${response.status}`);
+      }
+
+      const html = await response.text();
+
+      // Extract logo using multiple strategies
+      const logoUrl = extractLogoFromHtml(html, websiteUrl.origin);
+
+      if (logoUrl) {
+        console.log(`Successfully extracted logo: ${logoUrl}`);
+        res.json({ logoUrl });
+      } else {
+        res.status(404).json({ message: "Could not find logo on the website" });
+      }
+    } catch (error) {
+      console.error("Error extracting logo:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to extract logo from website"
+      });
     }
   });
 
