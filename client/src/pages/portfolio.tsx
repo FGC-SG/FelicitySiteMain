@@ -107,6 +107,7 @@ function PortfolioPage() {
     { value: "southkorea", label: "South Korea" },
     { value: "china", label: "China" },
     { value: "india", label: "India" },
+    { value: "israel", label: "Israel" },
     { value: "australia", label: "Australia" },
     { value: "newzealand", label: "New Zealand" },
     { value: "unitedstates", label: "United States" },
