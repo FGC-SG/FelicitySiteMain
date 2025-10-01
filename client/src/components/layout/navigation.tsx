@@ -62,7 +62,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/">
-              <div className="flex items-center cursor-pointer logo-dark-mode p-2">
+              <div className="flex items-center cursor-pointer">
                 <img 
                   src={logoPath}
                   alt="Felicity Global Capital"
