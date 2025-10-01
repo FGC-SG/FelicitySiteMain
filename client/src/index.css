@@ -159,35 +159,46 @@
   }
   
   /* Layout forcing utilities */
-  .force-mobile .md\:hidden {
+  /* Mobile layout forces */
+  .force-mobile .md\:hidden,
+  .force-mobile .lg\:hidden {
     display: block !important;
   }
   
   .force-mobile .md\:block,
   .force-mobile .md\:flex,
-  .force-mobile .md\:grid {
+  .force-mobile .md\:grid,
+  .force-mobile .lg\:block,
+  .force-mobile .lg\:flex,
+  .force-mobile .lg\:grid {
     display: none !important;
   }
   
   .force-mobile .md\:grid-cols-2,
   .force-mobile .md\:grid-cols-3,
+  .force-mobile .lg\:grid-cols-2,
   .force-mobile .lg\:grid-cols-3 {
     grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
   }
   
-  .force-desktop .md\:hidden {
+  /* Desktop layout forces */
+  .force-desktop .md\:hidden,
+  .force-desktop .lg\:hidden {
     display: none !important;
   }
   
-  .force-desktop .md\:block {
+  .force-desktop .md\:block,
+  .force-desktop .lg\:block {
     display: block !important;
   }
   
-  .force-desktop .md\:flex {
+  .force-desktop .md\:flex,
+  .force-desktop .lg\:flex {
     display: flex !important;
   }
   
-  .force-desktop .md\:grid {
+  .force-desktop .md\:grid,
+  .force-desktop .lg\:grid {
     display: grid !important;
   }
 }
