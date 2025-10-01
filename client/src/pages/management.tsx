@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { NewsManagement } from "@/components/news-management";
-import { Users, FileText, UserPlus, Building2, PieChart, Upload, Database } from "lucide-react";
+import { Users, FileText, UserPlus, Building2, PieChart, Upload, Database, DatabaseBackup } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
 
@@ -17,6 +17,11 @@ export default function ManagementPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showAddNews, setShowAddNews] = useState(false);
   const [showNewsList, setShowNewsList] = useState(false);
+  const [showRestoreDialog, setShowRestoreDialog] = useState(false);
+  const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge');
+  const [restoreFile, setRestoreFile] = useState<File | null>(null);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [isRestoring, setIsRestoring] = useState(false);
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -90,6 +95,74 @@ export default function ManagementPage() {
         description: language === "jp" ? "ニューステンプレートのエクスポートに失敗しました。再度お試しください。" : "Failed to export news template. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleDatabaseRestore = async (dryRun: boolean = true) => {
+    if (!restoreFile) {
+      toast({
+        title: language === "jp" ? "ファイルエラー" : "File Error",
+        description: language === "jp" ? "復元するファイルを選択してください。" : "Please select a file to restore.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRestoring(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', restoreFile);
+      formData.append('mode', restoreMode);
+      formData.append('dryRun', dryRun.toString());
+
+      const response = await fetch('/api/import/database-restore', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Restore failed');
+      }
+
+      if (dryRun) {
+        // Show preview dialog
+        setPreviewData(result);
+        toast({
+          title: language === "jp" ? "プレビュー完了" : "Preview Complete",
+          description: language === "jp" ? "復元内容を確認してください。" : "Review the restore preview below.",
+        });
+      } else {
+        // Actual restore completed
+        setShowRestoreDialog(false);
+        setPreviewData(null);
+        setRestoreFile(null);
+        
+        // Invalidate all queries to refresh data
+        queryClient.invalidateQueries();
+        
+        toast({
+          title: language === "jp" ? "復元成功" : "Restore Successful",
+          description: language === "jp" 
+            ? `データベースが正常に復元されました。` 
+            : `Database has been restored successfully.`,
+        });
+        
+        if (result.warnings && result.warnings.length > 0) {
+          console.warn('Restore warnings:', result.warnings);
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring database:', error);
+      toast({
+        title: language === "jp" ? "復元失敗" : "Restore Failed",
+        description: error instanceof Error ? error.message : (language === "jp" ? "データベースの復元に失敗しました。" : "Failed to restore database."),
+        variant: "destructive",
+      });
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -347,7 +420,7 @@ export default function ManagementPage() {
     }
   ];
 
-  // Add database backup section for superadmin users only
+  // Add database backup and restore sections for superadmin users only
   const managementSections = (user as any)?.role === 'superadmin' 
     ? [
         ...baseSections,
@@ -360,6 +433,16 @@ export default function ManagementPage() {
           color: "bg-red-500",
           stats: language === "jp" ? "完全バックアップ" : "Full Backup",
           action: handleDatabaseBackup
+        },
+        {
+          title: language === "jp" ? "データベース復元" : "Database Restore",
+          description: language === "jp" 
+            ? "バックアップファイルからデータベースを復元（プレビュー機能付き）" 
+            : "Restore database from backup file (with preview)",
+          icon: DatabaseBackup,
+          color: "bg-orange-600",
+          stats: language === "jp" ? "安全な復元" : "Safe Restore",
+          action: () => setShowRestoreDialog(true)
         }
       ]
     : baseSections;
@@ -521,6 +604,182 @@ export default function ManagementPage() {
           </div>
         )}
 
+
+        {/* Database Restore Dialog */}
+        {showRestoreDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" data-testid="modal-database-restore">
+            <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold" data-testid="text-restore-title">
+                  {language === "jp" ? "データベース復元" : "Database Restore"}
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowRestoreDialog(false);
+                    setPreviewData(null);
+                    setRestoreFile(null);
+                  }}
+                  data-testid="button-close-restore"
+                >
+                  {language === "jp" ? "閉じる" : "Close"}
+                </Button>
+              </div>
+
+              {!previewData ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2" data-testid="label-backup-file">
+                      {language === "jp" ? "バックアップファイル" : "Backup File"}
+                    </label>
+                    <input
+                      type="file"
+                      accept=".xlsx"
+                      onChange={(e) => setRestoreFile(e.target.files?.[0] || null)}
+                      className="w-full border border-input rounded-md p-2"
+                      data-testid="input-restore-file"
+                    />
+                    {restoreFile && (
+                      <p className="text-sm text-muted-foreground mt-1" data-testid="text-selected-file">
+                        {language === "jp" ? "選択済み:" : "Selected:"} {restoreFile.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2" data-testid="label-restore-mode">
+                      {language === "jp" ? "復元モード" : "Restore Mode"}
+                    </label>
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          value="merge"
+                          checked={restoreMode === 'merge'}
+                          onChange={(e) => setRestoreMode(e.target.value as 'merge')}
+                          data-testid="radio-mode-merge"
+                        />
+                        <span>
+                          <strong>{language === "jp" ? "マージ" : "Merge"}</strong> - 
+                          {language === "jp" ? " 既存データを保持し、新しいデータを追加または更新" : " Keep existing data and add/update with new data"}
+                        </span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          value="replace"
+                          checked={restoreMode === 'replace'}
+                          onChange={(e) => setRestoreMode(e.target.value as 'replace')}
+                          data-testid="radio-mode-replace"
+                        />
+                        <span className="text-destructive">
+                          <strong>{language === "jp" ? "置換" : "Replace"}</strong> - 
+                          {language === "jp" ? " 既存データを削除してバックアップデータに置き換え" : " Delete existing data and replace with backup"}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/30 rounded-lg p-4">
+                    <h4 className="font-semibold mb-2" data-testid="text-important-note">
+                      {language === "jp" ? "重要な注意事項" : "Important Notes"}
+                    </h4>
+                    <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
+                      <li>{language === "jp" ? "プレビュー機能で復元内容を確認できます" : "Preview feature lets you review changes before applying"}</li>
+                      <li>{language === "jp" ? "マージモードは既存データを保持します" : "Merge mode preserves existing data"}</li>
+                      <li className="text-destructive">{language === "jp" ? "置換モードは既存データを削除します（注意！）" : "Replace mode deletes existing data (caution!)"}</li>
+                    </ul>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleDatabaseRestore(true)}
+                      disabled={!restoreFile || isRestoring}
+                      className="flex-1"
+                      data-testid="button-preview-restore"
+                    >
+                      {isRestoring ? (language === "jp" ? "処理中..." : "Processing...") : (language === "jp" ? "プレビュー" : "Preview")}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-muted/30 rounded-lg p-4">
+                    <h4 className="font-semibold mb-2" data-testid="text-preview-summary">
+                      {language === "jp" ? "復元プレビュー" : "Restore Preview"}
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {language === "jp" ? `モード: ${restoreMode === 'merge' ? 'マージ' : '置換'}` : `Mode: ${restoreMode === 'merge' ? 'Merge' : 'Replace'}`}
+                    </p>
+
+                    <div className="space-y-2">
+                      {Object.entries(previewData.tables).map(([table, data]: [string, any]) => (
+                        <div key={table} className="flex justify-between text-sm" data-testid={`preview-table-${table}`}>
+                          <span className="font-medium">{table}:</span>
+                          <span className="text-muted-foreground">{data.total} {language === "jp" ? "件" : "records"} ({data.action})</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {previewData.errors && previewData.errors.length > 0 && (
+                      <div className="mt-4 p-3 bg-destructive/10 rounded border border-destructive">
+                        <h5 className="font-semibold text-destructive mb-2" data-testid="text-errors-title">
+                          {language === "jp" ? "エラー" : "Errors"}
+                        </h5>
+                        <ul className="text-sm space-y-1">
+                          {previewData.errors.map((error: string, i: number) => (
+                            <li key={i} data-testid={`error-${i}`}>{error}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {previewData.warnings && previewData.warnings.length > 0 && (
+                      <div className="mt-4 p-3 bg-yellow-500/10 rounded border border-yellow-500">
+                        <h5 className="font-semibold text-yellow-600 dark:text-yellow-500 mb-2" data-testid="text-warnings-title">
+                          {language === "jp" ? "警告" : "Warnings"}
+                        </h5>
+                        <ul className="text-sm space-y-1">
+                          {previewData.warnings.slice(0, 5).map((warning: string, i: number) => (
+                            <li key={i} data-testid={`warning-${i}`}>{warning}</li>
+                          ))}
+                          {previewData.warnings.length > 5 && (
+                            <li className="text-muted-foreground">
+                              {language === "jp" ? `他 ${previewData.warnings.length - 5} 件の警告...` : `And ${previewData.warnings.length - 5} more warnings...`}
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setPreviewData(null)}
+                      disabled={isRestoring}
+                      data-testid="button-back-to-upload"
+                    >
+                      {language === "jp" ? "戻る" : "Back"}
+                    </Button>
+                    <Button
+                      onClick={() => handleDatabaseRestore(false)}
+                      disabled={isRestoring || (previewData.errors && previewData.errors.length > 0)}
+                      className="flex-1"
+                      variant={restoreMode === 'replace' ? 'destructive' : 'default'}
+                      data-testid="button-confirm-restore"
+                    >
+                      {isRestoring 
+                        ? (language === "jp" ? "復元中..." : "Restoring...") 
+                        : (language === "jp" ? "復元を実行" : "Confirm Restore")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
       </main>
       <Footer language={language} />

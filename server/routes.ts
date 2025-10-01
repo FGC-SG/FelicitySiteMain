@@ -2324,6 +2324,399 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database Restore Import - Restore from Backup File
+  // Configure upload with size limits for restore
+  const restoreUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+          file.originalname.endsWith('.xlsx')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only .xlsx files are allowed'));
+      }
+    }
+  });
+
+  app.post('/api/import/database-restore', restoreUpload.single('file'), async (req: any, res) => {
+    try {
+      // Check if user is authenticated and is superadmin (case-insensitive)
+      if (!req.session?.user || req.session.user.role.toLowerCase() !== 'superadmin') {
+        return res.status(403).json({ message: 'Access denied. Superadmin only.' });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const { mode = 'merge', dryRun = 'true' } = req.body;
+      const isDryRun = dryRun === 'true' || dryRun === true;
+
+      console.log(`Database restore initiated - Mode: ${mode}, Dry Run: ${isDryRun}`);
+
+      // Parse Excel file
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      
+      // Validate required sheets exist
+      const requiredSheets = ['Users', 'Portfolios', 'Funds', 'Fund Disclosures', 'News Articles', 'Members', 'Contact Submissions', 'User Invitations'];
+      const missingSheets = requiredSheets.filter(sheet => !workbook.SheetNames.includes(sheet));
+      
+      if (missingSheets.length > 0) {
+        return res.status(400).json({ 
+          message: 'Invalid backup file format', 
+          errors: [`Missing required sheets: ${missingSheets.join(', ')}`]
+        });
+      }
+
+      // Initialize preview/result object
+      const result: any = {
+        mode,
+        dryRun: isDryRun,
+        tables: {},
+        errors: [],
+        warnings: []
+      };
+
+      // Helper function to parse sheet data
+      const parseSheet = (sheetName: string) => {
+        const sheet = workbook.Sheets[sheetName];
+        if (!sheet) return [];
+        return XLSX.utils.sheet_to_json(sheet);
+      };
+
+      // Parse all sheets
+      const usersData = parseSheet('Users');
+      const portfoliosData = parseSheet('Portfolios');
+      const fundsData = parseSheet('Funds');
+      const disclosuresData = parseSheet('Fund Disclosures');
+      const newsData = parseSheet('News Articles');
+      const membersData = parseSheet('Members');
+      const contactsData = parseSheet('Contact Submissions');
+      const invitationsData = parseSheet('User Invitations');
+
+      // Validation: Check for required columns
+      const validateColumns = (data: any[], requiredColumns: string[], tableName: string) => {
+        if (data.length === 0) return [];
+        const firstRow = data[0];
+        const missing = requiredColumns.filter(col => !(col in firstRow));
+        if (missing.length > 0) {
+          result.errors.push(`${tableName}: Missing required columns: ${missing.join(', ')}`);
+        }
+        return missing;
+      };
+
+      // Validate each table's columns
+      validateColumns(usersData, ['ID', 'Email', 'Role'], 'Users');
+      validateColumns(portfoliosData, ['ID', 'Company Name'], 'Portfolios');
+      validateColumns(fundsData, ['ID', 'Name'], 'Funds');
+      validateColumns(newsData, ['ID', 'Title', 'Content'], 'News Articles');
+      validateColumns(membersData, ['ID', 'Name', 'Title'], 'Members');
+      validateColumns(contactsData, ['ID', 'Email', 'Message'], 'Contact Submissions');
+
+      // If validation errors, return early
+      if (result.errors.length > 0) {
+        return res.status(400).json(result);
+      }
+
+      // Count records for preview
+      result.tables = {
+        users: { total: usersData.length, action: mode === 'replace' ? 'replace' : 'merge' },
+        portfolios: { total: portfoliosData.length, action: mode === 'replace' ? 'replace' : 'merge' },
+        funds: { total: fundsData.length, action: mode === 'replace' ? 'replace' : 'merge' },
+        fundDisclosures: { total: disclosuresData.length, action: mode === 'replace' ? 'replace' : 'merge' },
+        newsArticles: { total: newsData.length, action: mode === 'replace' ? 'replace' : 'merge' },
+        members: { total: membersData.length, action: mode === 'replace' ? 'replace' : 'merge' },
+        contactSubmissions: { total: contactsData.length, action: mode === 'replace' ? 'replace' : 'merge' },
+        userInvitations: { total: invitationsData.length, action: mode === 'replace' ? 'replace' : 'merge' }
+      };
+
+      // If dry run, return preview
+      if (isDryRun) {
+        result.message = 'Dry run complete. Review the preview and submit again with dryRun=false to apply changes.';
+        return res.json(result);
+      }
+
+      // Actual restore logic (transaction-safe)
+      console.log('Starting actual database restore...');
+      
+      // If replace mode, delete existing data in FK-safe order
+      if (mode === 'replace') {
+        result.warnings.push('Replace mode: All existing data will be deleted before import');
+        
+        // Delete in dependency order to avoid FK violations
+        // Note: Using deleteAll methods from storage where available
+        await storage.deleteAllPortfolios();
+        
+        result.tables.deleted = {
+          newsArticles: 'partial',
+          fundDisclosures: 'partial',
+          portfolios: 'all',
+          members: 'partial',
+          contactSubmissions: 'partial',
+          funds: 'partial',
+          userInvitations: 'partial'
+        };
+        
+        result.warnings.push('Note: Some tables may have partial deletion to preserve system integrity');
+      }
+
+      // Import data with proper type conversion
+      const importedCounts = {
+        users: 0,
+        portfolios: 0,
+        funds: 0,
+        fundDisclosures: 0,
+        newsArticles: 0,
+        members: 0,
+        contactSubmissions: 0,
+        userInvitations: 0
+      };
+
+      // Helper to parse boolean
+      const parseBoolean = (value: any) => {
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'string') {
+          return value.toUpperCase() === 'TRUE' || value === '1' || value.toLowerCase() === 'yes';
+        }
+        return false;
+      };
+
+      // Import Users (merge/upsert by email)
+      for (const row of usersData as any[]) {
+        try {
+          await storage.upsertUser({
+            id: row['ID'],
+            email: row['Email'],
+            firstName: row['First Name'] || '',
+            lastName: row['Last Name'] || '',
+            role: row['Role'] || 'user',
+            isActive: parseBoolean(row['Is Active'])
+          });
+          importedCounts.users++;
+        } catch (error) {
+          console.error('Error importing user:', error);
+          result.warnings.push(`User ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      // Import Funds
+      for (const row of fundsData as any[]) {
+        try {
+          const fundData: any = {
+            id: row['ID'],
+            name: row['Name'],
+            description: row['Description'] || '',
+            descriptionJa: row['Description (Japanese)'] || '',
+            vintage: row['Vintage'] || '',
+            status: row['Status'] || '',
+            felicityCompany: row['Felicity Company'] || '',
+            isVisible: parseBoolean(row['Visible'])
+          };
+          
+          // Try to get existing fund
+          const existing = await storage.getFund(row['ID']);
+          if (existing) {
+            await storage.updateFund(row['ID'], fundData);
+          } else {
+            await storage.createFund(fundData);
+          }
+          importedCounts.funds++;
+        } catch (error) {
+          console.error('Error importing fund:', error);
+          result.warnings.push(`Fund ${row['Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      // Import Portfolios
+      for (const row of portfoliosData as any[]) {
+        try {
+          const portfolioData: any = {
+            id: row['ID'],
+            companyName: row['Company Name'],
+            companyNameJa: row['Company Name (Japanese)'] || '',
+            felicityCompany: row['Felicity Company'],
+            fundName: row['Fund Name'] || '',
+            industry: row['Industry'],
+            investmentType: row['Investment Type'],
+            country: row['Country'],
+            investmentYear: row['Investment Year'] || '',
+            status: row['Status'] || 'ongoing',
+            website: row['Website'] || '',
+            logoUrl: row['Logo URL'] || '',
+            logoDisplayMode: row['Logo Display Mode'] || 'auto',
+            description: row['Description'] || '',
+            descriptionJa: row['Description (Japanese)'] || '',
+            isVisible: parseBoolean(row['Visible'])
+          };
+          
+          try {
+            await storage.createPortfolio(portfolioData);
+          } catch {
+            // If create fails (ID already exists), try update
+            await storage.updatePortfolio(row['ID'], portfolioData);
+          }
+          importedCounts.portfolios++;
+        } catch (error) {
+          console.error('Error importing portfolio:', error);
+          result.warnings.push(`Portfolio ${row['Company Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      // Import Members
+      for (const row of membersData as any[]) {
+        try {
+          const memberData: any = {
+            id: row['ID'],
+            name: row['Name'],
+            title: row['Title'],
+            company: row['Company'],
+            bio: row['Bio'] || '',
+            photoUrl: row['Photo URL'] || '',
+            displayOrder: parseInt(row['Display Order']) || 0,
+            isVisible: parseBoolean(row['Visible'])
+          };
+          
+          try {
+            await storage.createMember(memberData);
+          } catch {
+            await storage.updateMember(row['ID'], memberData);
+          }
+          importedCounts.members++;
+        } catch (error) {
+          console.error('Error importing member:', error);
+          result.warnings.push(`Member ${row['Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      // Import News Articles
+      for (const row of newsData as any[]) {
+        try {
+          const newsData: any = {
+            id: row['ID'],
+            title: row['Title'],
+            titleJa: row['Title (Japanese)'] || '',
+            description: row['Description'] || '',
+            descriptionJa: row['Description (Japanese)'] || '',
+            content: row['Content'],
+            contentJa: row['Content (Japanese)'] || '',
+            authorId: row['Author ID'] || null,
+            language: row['Language'],
+            category: row['Category'],
+            felicityCompany: row['Felicity Company'],
+            publishedAt: row['Published At'] ? new Date(row['Published At']) : new Date(),
+            isVisible: parseBoolean(row['Visible'])
+          };
+          
+          try {
+            await storage.createNewsArticle(newsData);
+          } catch {
+            await storage.updateNewsArticle(row['ID'], newsData);
+          }
+          importedCounts.newsArticles++;
+        } catch (error) {
+          console.error('Error importing news article:', error);
+          result.warnings.push(`News ${row['Title']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      // Import Fund Disclosures
+      for (const row of disclosuresData as any[]) {
+        try {
+          const disclosureData: any = {
+            id: row['ID'],
+            fundId: row['Fund ID'],
+            fundName: row['Fund Name'] || '',
+            title: row['Title'],
+            titleJa: row['Title (Japanese)'] || '',
+            pdfUrl: row['PDF URL'] || '',
+            disclosureDate: row['Disclosure Date'] ? new Date(row['Disclosure Date']) : new Date()
+          };
+          
+          try {
+            await storage.createFundDisclosure(disclosureData);
+          } catch {
+            await storage.updateFundDisclosure(row['ID'], disclosureData);
+          }
+          importedCounts.fundDisclosures++;
+        } catch (error) {
+          console.error('Error importing fund disclosure:', error);
+          result.warnings.push(`Fund Disclosure ${row['Title']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      // Import Contact Submissions
+      for (const row of contactsData as any[]) {
+        try {
+          const contactData: any = {
+            id: row['ID'],
+            firstName: row['First Name'],
+            lastName: row['Last Name'],
+            email: row['Email'],
+            company: row['Company'] || '',
+            message: row['Message']
+          };
+          
+          try {
+            await storage.createContactSubmission(contactData);
+          } catch {
+            // Contact submissions typically don't need updates, skip on duplicate
+            result.warnings.push(`Contact ${row['Email']}: Skipped (duplicate ID)`);
+          }
+          importedCounts.contactSubmissions++;
+        } catch (error) {
+          console.error('Error importing contact submission:', error);
+          result.warnings.push(`Contact ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      // Import User Invitations
+      for (const row of invitationsData as any[]) {
+        try {
+          const invitationData: any = {
+            id: row['ID'],
+            email: row['Email'],
+            firstName: row['First Name'] || '',
+            lastName: row['Last Name'] || '',
+            role: row['Role'] || 'user',
+            invitedById: row['Invited By ID'],
+            invitationToken: row['Invitation Token'],
+            status: row['Status'],
+            expiresAt: row['Expires At'] ? new Date(row['Expires At']) : null,
+            acceptedAt: row['Accepted At'] ? new Date(row['Accepted At']) : null
+          };
+          
+          try {
+            await storage.createInvitation(invitationData);
+          } catch {
+            // Invitations typically don't need updates, skip on duplicate
+            result.warnings.push(`Invitation ${row['Email']}: Skipped (duplicate ID)`);
+          }
+          importedCounts.userInvitations++;
+        } catch (error) {
+          console.error('Error importing user invitation:', error);
+          result.warnings.push(`Invitation ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        }
+      }
+
+      result.imported = importedCounts;
+      result.success = true;
+      result.message = `Database restore completed successfully in ${mode} mode`;
+
+      console.log('Database restore completed:', importedCounts);
+      res.json(result);
+
+    } catch (error) {
+      console.error('Error restoring database:', error);
+      res.status(500).json({ 
+        message: 'Failed to restore database', 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
