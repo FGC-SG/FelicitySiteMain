@@ -2431,7 +2431,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validateColumns(contactsData, ['ID', 'Email', 'Message'], 'Contact Submissions');
       }
       if (disclosuresData.length > 0) {
-        validateColumns(disclosuresData, ['ID', 'Fund ID', 'Title'], 'Fund Disclosures');
+        validateColumns(disclosuresData, ['ID', 'Fund ID'], 'Fund Disclosures');
       }
       if (invitationsData.length > 0) {
         validateColumns(invitationsData, ['ID', 'Email'], 'User Invitations');
@@ -2651,7 +2651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             id: row['ID'],
             fundId: row['Fund ID'],
             fundName: row['Fund Name'] || '',
-            title: row['Title'],
+            title: row['Title'] || row['Title (Japanese)'] || '',
             titleJa: row['Title (Japanese)'] || '',
             pdfUrl: row['PDF URL'] || '',
             disclosureDate: row['Disclosure Date'] ? new Date(row['Disclosure Date']) : new Date()
