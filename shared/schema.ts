@@ -77,10 +77,13 @@ export const portfolios = pgTable("portfolios", {
   descriptionJa: text("description_ja"),
   website: varchar("website"),
   logoUrl: varchar("logo_url"),
+  logoDisplayMode: varchar("logo_display_mode").notNull().default("auto"), // auto, light, dark - controls logo background display
   isVisible: boolean("is_visible").default(true), // Controls visibility on public Portfolio page
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const logoDisplayModeSchema = z.enum(["auto", "light", "dark"]);
 
 export type InsertPortfolio = typeof portfolios.$inferInsert;
 export type Portfolio = typeof portfolios.$inferSelect;
