@@ -53,50 +53,93 @@ export async function getUncachableSharePointClient() {
  * Upload a file to SharePoint
  * @param fileName - Name of the file to upload
  * @param fileBuffer - File content as Buffer
- * @param siteId - SharePoint site ID (optional, uses default site if not provided)
- * @param folderPath - Path to folder in SharePoint (e.g., 'Shared Documents/Backups')
+ * @param folderPath - Path to folder in SharePoint (e.g., 'Shared Documents/DatabaseBackups')
  */
 export async function uploadToSharePoint(
   fileName: string,
   fileBuffer: Buffer,
-  folderPath: string = 'Shared Documents/DatabaseBackups'
+  folderPath: string = 'DatabaseBackups'
 ): Promise<{ success: boolean; webUrl?: string; error?: string }> {
   try {
     const client = await getUncachableSharePointClient();
     
-    // Get the default site (root site)
-    const sites = await client.api('/sites?search=*').get();
+    // Target specific SharePoint site: fgcsg.sharepoint.com/sites/FGCSG-Article63
+    const hostname = 'fgcsg.sharepoint.com';
+    const sitePath = '/sites/FGCSG-Article63';
     
-    if (!sites.value || sites.value.length === 0) {
-      throw new Error('No SharePoint sites found');
+    console.log(`Accessing SharePoint site: ${hostname}${sitePath}`);
+    
+    // Get the site
+    let site;
+    try {
+      site = await client.api(`/sites/${hostname}:${sitePath}`).get();
+      console.log('SharePoint site found:', site.id);
+    } catch (error) {
+      console.error('Error accessing SharePoint site:', error);
+      throw new Error('Unable to access SharePoint site. Please check permissions.');
     }
     
-    const siteId = sites.value[0].id;
+    // Get the default document library (drive)
+    const drives = await client.api(`/sites/${site.id}/drives`).get();
+    
+    if (!drives.value || drives.value.length === 0) {
+      throw new Error('No document library found in SharePoint site');
+    }
+    
+    const driveId = drives.value[0].id;
+    console.log('Using drive:', driveId);
     
     // Create folder path if it doesn't exist
     const folderParts = folderPath.split('/').filter(p => p);
-    let currentPath = '/drive/root';
+    let currentFolderId = 'root';
     
     for (const folderName of folderParts) {
       try {
         // Try to get the folder
-        await client.api(`${currentPath}:/${folderName}`).get();
-        currentPath = `${currentPath}:/${folderName}`;
+        const folder = await client
+          .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
+          .filter(`name eq '${folderName}'`)
+          .get();
+        
+        if (folder.value && folder.value.length > 0) {
+          currentFolderId = folder.value[0].id;
+          console.log(`Found existing folder: ${folderName}`);
+        } else {
+          // Create the folder
+          const newFolder = await client
+            .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
+            .post({
+              name: folderName,
+              folder: {},
+              '@microsoft.graph.conflictBehavior': 'rename'
+            });
+          currentFolderId = newFolder.id;
+          console.log(`Created new folder: ${folderName}`);
+        }
       } catch (error) {
-        // Folder doesn't exist, create it
-        await client.api(`${currentPath}/children`).post({
-          name: folderName,
-          folder: {},
-          '@microsoft.graph.conflictBehavior': 'rename'
-        });
-        currentPath = `${currentPath}:/${folderName}`;
+        console.error(`Error with folder ${folderName}:`, error);
+        // Try to create it anyway
+        try {
+          const newFolder = await client
+            .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
+            .post({
+              name: folderName,
+              folder: {},
+              '@microsoft.graph.conflictBehavior': 'rename'
+            });
+          currentFolderId = newFolder.id;
+          console.log(`Created new folder: ${folderName}`);
+        } catch (createError) {
+          console.error('Failed to create folder:', createError);
+          throw createError;
+        }
       }
     }
     
     // Upload the file
-    const uploadPath = `${currentPath}:/${fileName}:/content`;
+    console.log(`Uploading file ${fileName} to folder ${currentFolderId}`);
     const response = await client
-      .api(`/sites/${siteId}${uploadPath}`)
+      .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}:/${fileName}:/content`)
       .put(fileBuffer);
     
     console.log('File uploaded to SharePoint successfully:', response.webUrl);
