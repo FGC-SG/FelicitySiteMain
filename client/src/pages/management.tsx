@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { AddNewsForm } from "@/components/forms/add-news-form";
 import { NewsManagement } from "@/components/news-management";
-import { Users, FileText, UserPlus, Building2, PieChart, Upload } from "lucide-react";
+import { Users, FileText, UserPlus, Building2, PieChart, Upload, Database } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type User } from "@shared/schema";
 
@@ -88,6 +88,42 @@ export default function ManagementPage() {
       toast({
         title: language === "jp" ? "テンプレートエクスポート失敗" : "Template Export Failed",
         description: language === "jp" ? "ニューステンプレートのエクスポートに失敗しました。再度お試しください。" : "Failed to export news template. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDatabaseBackup = async () => {
+    try {
+      const response = await fetch('/api/export/database-backup', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export database backup');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: language === "jp" ? "バックアップ成功" : "Backup Successful",
+        description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Error exporting database backup:', error);
+      toast({
+        title: language === "jp" ? "バックアップ失敗" : "Backup Failed",
+        description: language === "jp" ? "データベースバックアップに失敗しました。" : "Failed to create database backup.",
         variant: "destructive",
       });
     }
@@ -245,7 +281,7 @@ export default function ManagementPage() {
     return null; // Will redirect to login
   }
 
-  const managementSections = [
+  const baseSections = [
     {
       title: "User Management",
       description: "Manage team members and organizational structure",
@@ -300,6 +336,23 @@ export default function ManagementPage() {
       action: () => window.location.href = `/fund-disclosure-management?lang=${language}`
     }
   ];
+
+  // Add database backup section for superadmin users only
+  const managementSections = (user as any)?.role === 'superadmin' 
+    ? [
+        ...baseSections,
+        {
+          title: language === "jp" ? "データベースバックアップ" : "Database Backup",
+          description: language === "jp" 
+            ? "すべてのデータベーステーブルをExcelファイルにエクスポート（MS Access互換）" 
+            : "Export all database tables to Excel file (MS Access compatible)",
+          icon: Database,
+          color: "bg-red-500",
+          stats: language === "jp" ? "完全バックアップ" : "Full Backup",
+          action: handleDatabaseBackup
+        }
+      ]
+    : baseSections;
 
   return (
     <div className="min-h-screen bg-background font-sans">

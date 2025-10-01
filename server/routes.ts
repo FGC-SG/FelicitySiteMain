@@ -2178,9 +2178,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'ID': n.id,
         'Title': n.title,
         'Title (Japanese)': n.titleJa || '',
+        'Description': n.description || '',
+        'Description (Japanese)': n.descriptionJa || '',
         'Content': n.content,
         'Content (Japanese)': n.contentJa || '',
-        'Author': n.author,
+        'Author ID': n.authorId || '',
+        'Language': n.language,
+        'Category': n.category,
+        'Felicity Company': n.felicityCompany,
         'Published At': n.publishedAt ? new Date(n.publishedAt).toISOString() : '',
         'Visible': n.isVisible !== false ? 'TRUE' : 'FALSE',
         'Created At': n.createdAt ? new Date(n.createdAt).toISOString() : '',
@@ -2196,13 +2201,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const memberData = members.map(m => ({
         'ID': m.id,
         'Name': m.name,
-        'Name (Japanese)': m.nameJa || '',
-        'Position': m.position,
-        'Position (Japanese)': m.positionJa || '',
+        'Title': m.title,
+        'Company': m.company,
         'Bio': m.bio || '',
-        'Bio (Japanese)': m.bioJa || '',
         'Photo URL': m.photoUrl || '',
         'Display Order': m.displayOrder || 0,
+        'Visible': m.isVisible !== false ? 'TRUE' : 'FALSE',
         'Created At': m.createdAt ? new Date(m.createdAt).toISOString() : '',
         'Updated At': m.updatedAt ? new Date(m.updatedAt).toISOString() : ''
       }));
@@ -2252,9 +2256,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const users = await storage.getAllUsers();
       const userData = users.map(u => ({
         'ID': u.id,
-        'Email': u.email,
-        'Username': u.username || '',
-        'Role': u.role || 'user',
+        'Email': u.email || '',
+        'First Name': u.firstName || '',
+        'Last Name': u.lastName || '',
+        'Role': u.role || 'member',
+        'Is Active': u.isActive !== false ? 'TRUE' : 'FALSE',
         'Created At': u.createdAt ? new Date(u.createdAt).toISOString() : '',
         'Updated At': u.updatedAt ? new Date(u.updatedAt).toISOString() : ''
       }));
@@ -2267,9 +2273,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contacts = await storage.getContactSubmissions();
       const contactData = contacts.map(c => ({
         'ID': c.id,
-        'Name': c.name,
+        'First Name': c.firstName,
+        'Last Name': c.lastName,
         'Email': c.email,
-        'Subject': c.subject,
+        'Company': c.company || '',
         'Message': c.message,
         'Created At': c.createdAt ? new Date(c.createdAt).toISOString() : ''
       }));
@@ -2283,12 +2290,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const invitationData = invitations.map(i => ({
         'ID': i.id,
         'Email': i.email,
+        'First Name': i.firstName || '',
+        'Last Name': i.lastName || '',
         'Role': i.role || 'user',
-        'Invited By': i.invitedBy,
+        'Invited By ID': i.invitedById,
         'Invitation Token': i.invitationToken,
-        'Is Active': i.isActive ? 'TRUE' : 'FALSE',
+        'Status': i.status,
         'Created At': i.createdAt ? new Date(i.createdAt).toISOString() : '',
-        'Expires At': i.expiresAt ? new Date(i.expiresAt).toISOString() : ''
+        'Expires At': i.expiresAt ? new Date(i.expiresAt).toISOString() : '',
+        'Accepted At': i.acceptedAt ? new Date(i.acceptedAt).toISOString() : ''
       }));
       if (invitationData.length > 0) {
         const ws8 = XLSX.utils.json_to_sheet(invitationData);
