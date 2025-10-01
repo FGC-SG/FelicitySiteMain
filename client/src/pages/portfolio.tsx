@@ -25,10 +25,17 @@ function PortfolioPage() {
   const { user, isAuthenticated } = useAuth();
   const t = useTranslation(language);
 
-  // Helper function to determine if a logo needs dark mode
-  const needsDarkModeLogo = (companyName: string): boolean => {
-    const darkModeLogos = ['iprice', 'h3 dynamics'];
-    return darkModeLogos.some(name => companyName.toLowerCase().includes(name));
+  // Helper function to get logo container class based on display mode
+  const getLogoContainerClass = (logoDisplayMode?: string): string => {
+    switch (logoDisplayMode) {
+      case 'dark':
+        return 'logo-dark-mode border border-gray-700';
+      case 'light':
+        return 'bg-white dark:bg-white border border-gray-200';
+      case 'auto':
+      default:
+        return 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700';
+    }
   };
 
   const { data: portfolios, isLoading } = useQuery<Portfolio[]>({
@@ -272,11 +279,7 @@ function PortfolioPage() {
                   <CardHeader>
                     {/* Company Logo */}
                     {portfolio.logoUrl && portfolio.logoUrl.trim() !== "" && (
-                      <div className={`mb-3 flex justify-center p-4 rounded-lg ${
-                        needsDarkModeLogo(portfolio.companyName) 
-                          ? 'logo-dark-mode border border-gray-700' 
-                          : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
-                      }`}>
+                      <div className={`mb-3 flex justify-center p-4 rounded-lg ${getLogoContainerClass((portfolio as any).logoDisplayMode)}`}>
                         <img 
                           src={portfolio.logoUrl} 
                           alt={`${portfolio.companyName} logo`}
