@@ -76,6 +76,7 @@ export const portfolios = pgTable("portfolios", {
   description: text("description"),
   descriptionJa: text("description_ja"),
   website: varchar("website"),
+  logoUrl: varchar("logo_url"),
   isVisible: boolean("is_visible").default(true), // Controls visibility on public Portfolio page
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

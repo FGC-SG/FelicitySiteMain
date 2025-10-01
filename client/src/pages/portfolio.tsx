@@ -263,6 +263,17 @@ function PortfolioPage() {
               {filteredPortfolios.map((portfolio) => (
                 <Card key={portfolio.id} className="hover:shadow-lg transition-shadow" data-testid={`card-portfolio-${portfolio.id}`}>
                   <CardHeader>
+                    {/* Company Logo */}
+                    {portfolio.logoUrl && (
+                      <div className="mb-3 flex justify-center">
+                        <img 
+                          src={portfolio.logoUrl} 
+                          alt={`${portfolio.companyName} logo`}
+                          className="h-16 w-auto object-contain"
+                          data-testid={`img-logo-${portfolio.id}`}
+                        />
+                      </div>
+                    )}
                     <div className="flex justify-between items-start mb-2">
                       <CardTitle className="text-lg" data-testid={`text-company-name-${portfolio.id}`}>
                         {language === 'jp' && portfolio.companyNameJa 

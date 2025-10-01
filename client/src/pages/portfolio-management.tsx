@@ -35,6 +35,7 @@ const portfolioFormSchema = z.object({
   investmentYear: z.string().regex(/^(0[1-9]|1[0-2])\/\d{4}$/, "Investment year must be in MM/YYYY format").optional().or(z.literal("")),
   status: z.enum(["ongoing", "exit"]).default("ongoing"),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  logoUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   description: z.string().min(10, "Description must be at least 10 characters"),
   descriptionJa: z.string().optional().or(z.literal("")),
 });
@@ -263,6 +264,7 @@ export default function PortfolioManagementPage() {
       investmentYear: "",
       status: "ongoing",
       website: "",
+      logoUrl: "",
       description: "",
       descriptionJa: "",
     },
@@ -424,6 +426,7 @@ export default function PortfolioManagementPage() {
       investmentYear: portfolio.investmentYear ?? "",
       status: (portfolio as any).status ?? "ongoing",
       website: portfolio.website ?? "",
+      logoUrl: (portfolio as any).logoUrl ?? "",
       description: portfolio.description ?? "",
       descriptionJa: portfolio.descriptionJa ?? "",
     });
@@ -445,7 +448,7 @@ export default function PortfolioManagementPage() {
       country: "",
       investmentYear: "",
       website: "",
-
+      logoUrl: "",
       description: "",
       descriptionJa: "",
     });
@@ -1660,7 +1663,7 @@ export default function PortfolioManagementPage() {
                               country: "",
                               investmentYear: "",
                               website: "",
-                        
+                              logoUrl: "",
                               description: "",
                               descriptionJa: "",
                             });
@@ -2046,6 +2049,25 @@ export default function PortfolioManagementPage() {
                               </FormItem>
                             )}
                           />
+                          
+                          <FormField
+                            control={form.control}
+                            name="logoUrl"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{language === "en" ? "Company Logo URL" : "会社ロゴURL"}</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="url"
+                                    placeholder="https://example.com/logo.png"
+                                    data-testid="input-logo-url" 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
@@ -2100,7 +2122,7 @@ export default function PortfolioManagementPage() {
                                 country: "",
                                 investmentYear: "",
                                 website: "",
-                          
+                                logoUrl: "",
                                 description: "",
                                 descriptionJa: "",
                               });
