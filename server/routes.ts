@@ -2408,9 +2408,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validateColumns = (data: any[], requiredColumns: string[], tableName: string) => {
         if (data.length === 0) return [];
         const firstRow = data[0];
+        const actualColumns = Object.keys(firstRow);
+        console.log(`${tableName} - Available columns:`, actualColumns);
         const missing = requiredColumns.filter(col => !(col in firstRow));
         if (missing.length > 0) {
-          result.errors.push(`${tableName}: Missing required columns: ${missing.join(', ')}`);
+          result.errors.push(`${tableName}: Missing required columns: ${missing.join(', ')}. Available: ${actualColumns.join(', ')}`);
         }
         return missing;
       };
