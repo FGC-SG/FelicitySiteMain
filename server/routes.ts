@@ -2429,7 +2429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validateColumns(contactsData, ['ID', 'Email', 'Message'], 'Contact Submissions');
       }
       if (disclosuresData.length > 0) {
-        validateColumns(disclosuresData, ['ID', 'Fund ID', 'Type'], 'Fund Disclosures');
+        validateColumns(disclosuresData, ['ID', 'Fund ID', 'Title'], 'Fund Disclosures');
       }
       if (invitationsData.length > 0) {
         validateColumns(invitationsData, ['ID', 'Email'], 'User Invitations');
