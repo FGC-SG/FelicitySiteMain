@@ -2360,9 +2360,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Parse Excel file
       const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
       
+      // Log available sheets for debugging
+      console.log('Available sheets in workbook:', workbook.SheetNames);
+      
       // Validate required sheets exist
       const requiredSheets = ['Users', 'Portfolios', 'Funds', 'Fund Disclosures', 'News Articles', 'Members', 'Contact Submissions', 'User Invitations'];
       const missingSheets = requiredSheets.filter(sheet => !workbook.SheetNames.includes(sheet));
+      
+      console.log('Required sheets:', requiredSheets);
+      console.log('Missing sheets:', missingSheets);
       
       if (missingSheets.length > 0) {
         return res.status(400).json({ 
