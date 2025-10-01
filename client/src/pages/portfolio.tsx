@@ -34,8 +34,8 @@ function PortfolioPage() {
   const investmentTypes = Array.from(new Set(portfolios?.map(p => p.investmentType) || []));
   const countries = Array.from(new Set(portfolios?.map(p => p.country) || []));
 
-  // Filter portfolios based on search and filters
-  const filteredPortfolios = portfolios?.filter(portfolio => {
+  // Filter portfolios based on search and filters, then sort alphabetically by company name
+  const filteredPortfolios = (portfolios?.filter(portfolio => {
     // First, check if portfolio is visible (only show visible portfolios on public page)
     if ((portfolio as any).isVisible === false) {
       return false;
@@ -52,7 +52,7 @@ function PortfolioPage() {
     const matchesCompany = filterCompany === "all" || portfolio.felicityCompany === filterCompany;
     
     return matchesSearch && matchesType && matchesCountry && matchesCompany;
-  }) || [];
+  }) || []).sort((a, b) => a.companyName.localeCompare(b.companyName));
 
   const getInvestmentTypeColor = (type: string) => {
     switch (type) {
