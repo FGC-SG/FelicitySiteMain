@@ -2214,14 +2214,11 @@ export default function PortfolioManagementPage() {
                   <CardHeader className="pb-3">
                     {/* Company Logo */}
                     {portfolio.logoUrl && (
-                      <div 
-                        className="mb-3 flex justify-center p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg"
-                        data-testid={`logo-container-${portfolio.id}`}
-                      >
+                      <div className="mb-3 flex justify-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <img 
                           src={portfolio.logoUrl} 
                           alt={`${portfolio.companyName} logo`}
-                          className="h-12 w-auto object-contain drop-shadow-sm"
+                          className="h-12 w-auto object-contain"
                           data-testid={`img-logo-${portfolio.id}`}
                         />
                       </div>
