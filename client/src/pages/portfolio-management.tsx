@@ -36,6 +36,7 @@ const portfolioFormSchema = z.object({
   status: z.enum(["ongoing", "exit"]).default("ongoing"),
   website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   logoUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  logoDisplayMode: z.enum(["auto", "light", "dark"]).default("auto"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   descriptionJa: z.string().optional().or(z.literal("")),
 });
@@ -278,6 +279,7 @@ export default function PortfolioManagementPage() {
       status: "ongoing",
       website: "",
       logoUrl: "",
+      logoDisplayMode: "auto",
       description: "",
       descriptionJa: "",
     },
@@ -503,6 +505,7 @@ export default function PortfolioManagementPage() {
       status: (portfolio as any).status ?? "ongoing",
       website: portfolio.website ?? "",
       logoUrl: portfolio.logoUrl ?? "",
+      logoDisplayMode: ((portfolio as any).logoDisplayMode ?? "auto") as "auto" | "light" | "dark",
       description: portfolio.description ?? "",
       descriptionJa: portfolio.descriptionJa ?? "",
     });
@@ -525,6 +528,7 @@ export default function PortfolioManagementPage() {
       investmentYear: "",
       website: "",
       logoUrl: "",
+      logoDisplayMode: "auto",
       description: "",
       descriptionJa: "",
     });
@@ -2156,6 +2160,35 @@ export default function PortfolioManagementPage() {
                                     }
                                   </Button>
                                 </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="logoDisplayMode"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{language === "en" ? "Logo Display Mode" : "ロゴ表示モード"}</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger data-testid="select-logo-display-mode">
+                                      <SelectValue placeholder={language === "en" ? "Select display mode" : "表示モードを選択"} />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="auto">
+                                      {language === "en" ? "Auto (Theme-adaptive)" : "自動（テーマ適応）"}
+                                    </SelectItem>
+                                    <SelectItem value="light">
+                                      {language === "en" ? "Light (Light background)" : "ライト（明るい背景）"}
+                                    </SelectItem>
+                                    <SelectItem value="dark">
+                                      {language === "en" ? "Dark (Dark background)" : "ダーク（暗い背景）"}
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
                                 <FormMessage />
                               </FormItem>
                             )}
