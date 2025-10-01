@@ -205,9 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Temporary production access codes
       const tempCodes = {
-        'fgc2025': { email: 'admin@fgcsg.com', role: 'superadmin' },
-        'felicity': { email: 'temp@fgcsg.com', role: 'superadmin' },
-        'prod2025': { email: 'production@fgcsg.com', role: 'superadmin' }
+        'fgc2025': { email: 'admin@fgcsg.com', role: 'superadmin' }
       };
       
       if (!tempCodes[code as keyof typeof tempCodes]) {
