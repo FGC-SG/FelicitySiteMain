@@ -265,7 +265,7 @@ function PortfolioPage() {
                   <CardHeader>
                     {/* Company Logo */}
                     {portfolio.logoUrl && (
-                      <div className="mb-3 flex justify-center p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <div className="mb-3 flex justify-center p-4 logo-dark-mode border border-gray-700">
                         <img 
                           src={portfolio.logoUrl} 
                           alt={`${portfolio.companyName} logo`}
