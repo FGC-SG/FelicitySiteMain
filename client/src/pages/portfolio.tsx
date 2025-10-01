@@ -264,7 +264,7 @@ function PortfolioPage() {
                 <Card key={portfolio.id} className="hover:shadow-lg transition-shadow" data-testid={`card-portfolio-${portfolio.id}`}>
                   <CardHeader>
                     {/* Company Logo */}
-                    {portfolio.logoUrl && (
+                    {portfolio.logoUrl && portfolio.logoUrl.trim() !== "" && (
                       <div className="mb-3 flex justify-center p-4 logo-dark-mode border border-gray-700">
                         <img 
                           src={portfolio.logoUrl} 
