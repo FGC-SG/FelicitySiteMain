@@ -152,15 +152,21 @@
   
   /* Portfolio investment type badges */
   .portfolio-equity-badge {
-    @apply border-[color:var(--portfolio-equity-border)] text-[color:var(--portfolio-equity)] bg-[color:var(--portfolio-equity-light)];
+    border-color: var(--portfolio-equity-border);
+    color: var(--portfolio-equity);
+    background-color: var(--portfolio-equity-light);
   }
   
   .portfolio-debt-badge {
-    @apply border-[color:var(--portfolio-debt-border)] text-[color:var(--portfolio-debt)] bg-[color:var(--portfolio-debt-light)];
+    border-color: var(--portfolio-debt-border);
+    color: var(--portfolio-debt);
+    background-color: var(--portfolio-debt-light);
   }
   
   .portfolio-secondary-badge {
-    @apply border-[color:var(--portfolio-secondary-border)] text-[color:var(--portfolio-secondary)] bg-[color:var(--portfolio-secondary-light)];
+    border-color: var(--portfolio-secondary-border);
+    color: var(--portfolio-secondary);
+    background-color: var(--portfolio-secondary-light);
   }
 
   /* Orbital satellite descent to Marina Bay Sands */
