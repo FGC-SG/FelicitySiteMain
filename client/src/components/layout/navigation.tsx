@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LayoutToggle } from "@/components/layout-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { Menu, X, User } from "lucide-react";
+import { Grid, User } from "lucide-react";
 import logoPath from "@assets/logo_color_1756362140059.jpg";
 
 interface NavigationProps {
@@ -102,8 +102,8 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
             </div>
           </div>
 
-          {/* Language & Auth */}
-          <div className="flex items-center space-x-2">
+          {/* Desktop: Language & Auth */}
+          <div className="hidden md:flex items-center space-x-2">
             <LayoutToggle />
             <ThemeToggle />
             <LanguageSwitcher
@@ -150,7 +150,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile: 9-dots menu button */}
           <div className="md:hidden">
             <Button
               variant="ghost"
@@ -158,19 +158,16 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               data-testid="button-mobile-menu"
             >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              <Grid className="h-6 w-6" />
             </Button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-background">
             <div className="px-2 pt-2 pb-3 space-y-1">
+              {/* Navigation Items */}
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -193,14 +190,79 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   )}
                 </Link>
               ))}
+              
+              {/* Divider */}
+              <div className="border-t border-border my-2"></div>
+              
+              {/* Layout Toggle */}
               <div className="flex items-center justify-between px-3 py-2">
                 <span className="text-base font-medium text-muted-foreground">Layout</span>
                 <LayoutToggle />
               </div>
+              
+              {/* Theme Toggle */}
               <div className="flex items-center justify-between px-3 py-2">
                 <span className="text-base font-medium text-muted-foreground">Theme</span>
                 <ThemeToggle />
               </div>
+              
+              {/* Language Switcher */}
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-base font-medium text-muted-foreground">Language</span>
+                <LanguageSwitcher
+                  currentLanguage={language}
+                  onLanguageChange={onLanguageChange}
+                />
+              </div>
+              
+              {/* Admin Login/Logout */}
+              {!isLoading && (
+                <>
+                  {isAuthenticated ? (
+                    <div className="space-y-1 px-3 py-2">
+                      <Link href="/management">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full flex items-center justify-center space-x-1"
+                          data-testid="mobile-button-management"
+                          onClick={handleNavClick}
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Admin Login</span>
+                        </Button>
+                      </Link>
+                      <Button
+                        onClick={() => {
+                          handleLogout();
+                          handleNavClick();
+                        }}
+                        className="w-full felicity-bg text-primary-foreground hover:opacity-90"
+                        size="sm"
+                        data-testid="mobile-button-logout"
+                      >
+                        {t.nav.logout}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2">
+                      <Button
+                        onClick={() => {
+                          setShowLoginModal(true);
+                          handleNavClick();
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="w-full flex items-center justify-center space-x-1"
+                        data-testid="mobile-button-admin-login"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>Admin Login</span>
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         )}
