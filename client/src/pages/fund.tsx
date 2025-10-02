@@ -5,7 +5,8 @@ import { Footer } from "@/components/layout/footer";
 import { type Language } from "@/lib/i18n";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PieChart, TrendingUp } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PieChart, TrendingUp, ArrowUpDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { type Fund as FundType } from "@shared/schema";
 
@@ -14,6 +15,7 @@ export default function FundPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const urlLanguage = urlParams.get('lang') as Language;
   const [language, setLanguage] = useState<Language>(urlLanguage === 'jp' ? 'jp' : 'en');
+  const [sortBy, setSortBy] = useState<'alphabetical' | 'vintage'>('alphabetical');
 
   // Fetch funds data
   const { data: allFunds = [], isLoading } = useQuery({
@@ -21,7 +23,19 @@ export default function FundPage() {
   });
 
   // Filter only visible funds for public display
-  const funds = (allFunds as FundType[]).filter((fund: FundType) => fund.isVisible !== false);
+  const visibleFunds = (allFunds as FundType[]).filter((fund: FundType) => fund.isVisible !== false);
+
+  // Sort funds based on selected sorting method
+  const funds = [...visibleFunds].sort((a, b) => {
+    if (sortBy === 'alphabetical') {
+      return a.name.localeCompare(b.name);
+    } else {
+      // Sort by vintage (newest first, treating 'TBD' or null as oldest)
+      const vintageA = a.vintage ? parseInt(a.vintage) : 0;
+      const vintageB = b.vintage ? parseInt(b.vintage) : 0;
+      return vintageB - vintageA;
+    }
+  });
 
   const t = {
     title: language === 'jp' ? "投資ファンド" : "Investment Funds",
@@ -29,6 +43,9 @@ export default function FundPage() {
     description: language === 'jp' ? "アジア太平洋地域をフォーカスした当社の専門的な投資ファンドをご覧ください。各ファンドは、高成長企業への投資機会を通じて、持続的な価値創造を追求しています。" : "Explore our specialized investment funds focused on the Asia-Pacific region. Each fund pursues sustainable value creation through investment opportunities in high-growth companies.",
     noFunds: language === 'jp' ? "現在、表示できるファンドはありません。" : "No funds are currently available for display.",
     vintage: language === 'jp' ? "ビンテージ" : "Vintage",
+    sortBy: language === 'jp' ? "並べ替え" : "Sort by",
+    sortAlphabetical: language === 'jp' ? "名前順（A-Z）" : "Alphabetical (A-Z)",
+    sortVintage: language === 'jp' ? "ビンテージ（新しい順）" : "Vintage (Newest First)",
   };
 
   return (
@@ -56,6 +73,29 @@ export default function FundPage() {
               </p>
             </div>
           </div>
+
+          {/* Sorting Controls */}
+          {!isLoading && (funds as FundType[]).length > 0 && (
+            <div className="flex justify-end mb-8">
+              <div className="flex items-center gap-3">
+                <ArrowUpDown className="w-4 h-4 text-gray-600" />
+                <span className="text-sm text-gray-600 font-medium">{t.sortBy}:</span>
+                <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'alphabetical' | 'vintage')}>
+                  <SelectTrigger className="w-[200px] bg-white" data-testid="select-sort-funds">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="alphabetical" data-testid="option-sort-alphabetical">
+                      {t.sortAlphabetical}
+                    </SelectItem>
+                    <SelectItem value="vintage" data-testid="option-sort-vintage">
+                      {t.sortVintage}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
           {/* Funds Grid */}
           {isLoading ? (
