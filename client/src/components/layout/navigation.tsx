@@ -75,8 +75,8 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-4 flex items-baseline space-x-3">
+          <div className="hidden md:flex md:items-center md:flex-1 md:justify-center">
+            <div className="flex items-baseline space-x-3">
               {navItems.map((item: any) => (
                 <Link
                   key={item.href}
@@ -151,7 +151,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
           </div>
 
           {/* Mobile: 9-dots menu button */}
-          <div className="md:hidden">
+          <div className="flex md:hidden">
             <Button
               variant="ghost"
               size="sm"
