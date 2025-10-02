@@ -70,13 +70,12 @@ function PortfolioPage() {
   const getInvestmentTypeColor = (type: string) => {
     switch (type) {
       case "buyout":
-        return "border-blue-500 text-blue-700 bg-blue-50 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-400";
       case "growthequity":
-        return "border-green-500 text-green-700 bg-green-50 dark:bg-green-950 dark:text-green-300 dark:border-green-400";
+        return "portfolio-equity-badge";
       case "secondary":
-        return "border-purple-500 text-purple-700 bg-purple-50 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-400";
+        return "portfolio-secondary-badge";
       default:
-        return "border-gray-500 text-gray-700 bg-gray-50 dark:bg-gray-950 dark:text-gray-300 dark:border-gray-400";
+        return "border-muted-foreground text-muted-foreground bg-muted";
     }
   };
 

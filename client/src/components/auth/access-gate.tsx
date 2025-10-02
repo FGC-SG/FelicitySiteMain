@@ -1,25 +1,39 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Shield, Lock, Key } from "lucide-react";
 import logoPath from "@assets/logo_color_1756362140059.jpg";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const accessCodeSchema = z.object({
+  code: z.string().min(1, "Access code is required"),
+});
+
+type AccessCodeForm = z.infer<typeof accessCodeSchema>;
 
 interface AccessGateProps {
   onAccessGranted: () => void;
 }
 
 export function AccessGate({ onAccessGranted }: AccessGateProps) {
-  const [accessCode, setAccessCode] = useState("");
   const { toast } = useToast();
+  
+  const form = useForm<AccessCodeForm>({
+    resolver: zodResolver(accessCodeSchema),
+    defaultValues: {
+      code: "",
+    },
+  });
 
   const accessMutation = useMutation({
-    mutationFn: async (code: string) => {
-      const response = await apiRequest("POST", "/api/auth/temp-login", { code });
+    mutationFn: async (data: AccessCodeForm) => {
+      const response = await apiRequest("POST", "/api/auth/temp-login", { code: data.code });
       return await response.json();
     },
     onSuccess: () => {
@@ -39,11 +53,8 @@ export function AccessGate({ onAccessGranted }: AccessGateProps) {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (accessCode.trim()) {
-      accessMutation.mutate(accessCode.trim());
-    }
+  const handleSubmit = (data: AccessCodeForm) => {
+    accessMutation.mutate(data);
   };
 
   return (
@@ -82,37 +93,46 @@ export function AccessGate({ onAccessGranted }: AccessGateProps) {
           </CardHeader>
           
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="accessCode" className="text-white text-sm font-medium">
-                  Access Code
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="accessCode"
-                    type="text"
-                    placeholder="Enter access code"
-                    value={accessCode}
-                    onChange={(e) => setAccessCode(e.target.value)}
-                    className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-300 focus:border-blue-400 focus:ring-blue-400"
-                    data-testid="input-access-code"
-                    autoComplete="off"
-                    autoFocus
-                  />
-                </div>
-              </div>
-              
-              <Button 
-                type="submit"
-                disabled={!accessCode.trim() || accessMutation.isPending}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
-                data-testid="button-access-submit"
-              >
-                <Key className="h-4 w-4 mr-2" />
-                {accessMutation.isPending ? "Verifying..." : "Enter"}
-              </Button>
-            </form>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white text-sm font-medium">
+                        Access Code
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            {...field}
+                            type="text"
+                            placeholder="Enter access code"
+                            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-300 focus:border-blue-400 focus:ring-blue-400"
+                            data-testid="input-access-code"
+                            autoComplete="off"
+                            autoFocus
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-red-300" />
+                    </FormItem>
+                  )}
+                />
+                
+                <Button 
+                  type="submit"
+                  disabled={accessMutation.isPending}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
+                  data-testid="button-access-submit"
+                >
+                  <Key className="h-4 w-4 mr-2" />
+                  {accessMutation.isPending ? "Verifying..." : "Enter"}
+                </Button>
+              </form>
+            </Form>
             
             {/* Hint for access code */}
 
