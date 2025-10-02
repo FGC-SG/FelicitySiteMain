@@ -16,7 +16,7 @@ export function LanguageSwitcher({ currentLanguage, onLanguageChange }: Language
         className={
           currentLanguage === 'en'
             ? 'felicity-bg text-primary-foreground felicity-border'
-            : 'text-muted-foreground border-gray-300'
+            : 'text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800'
         }
         data-testid="button-lang-en"
       >
@@ -29,7 +29,7 @@ export function LanguageSwitcher({ currentLanguage, onLanguageChange }: Language
         className={
           currentLanguage === 'jp'
             ? 'felicity-bg text-primary-foreground felicity-border'
-            : 'text-muted-foreground border-gray-300'
+            : 'text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800'
         }
         data-testid="button-lang-jp"
       >
