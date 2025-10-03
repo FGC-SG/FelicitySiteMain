@@ -159,6 +159,49 @@ function PortfolioPage() {
     }
   };
 
+  const getSectorFromIndustry = (industry: string): string => {
+    // Map industries to GICS sectors
+    const industryToSector: Record<string, string> = {
+      'Technology': 'Information Technology',
+      'Information Technologies': 'Information Technology',
+      'Information Technology': 'Information Technology',
+      'Software': 'Information Technology',
+      'Internet': 'Information Technology',
+      'Healthcare': 'Health Care',
+      'Health Care': 'Health Care',
+      'Medical': 'Health Care',
+      'Pharmaceuticals': 'Health Care',
+      'Biotechnology': 'Health Care',
+      'Financial Services': 'Financials',
+      'Financials': 'Financials',
+      'Banking': 'Financials',
+      'Insurance': 'Financials',
+      'Real Estate': 'Real Estate',
+      'Energy': 'Energy',
+      'Renewable Energy': 'Energy',
+      'Oil & Gas': 'Energy',
+      'Materials': 'Materials',
+      'Chemicals': 'Materials',
+      'Construction': 'Materials',
+      'Consumer Discretionary': 'Consumer Discretionary',
+      'Consumer Goods': 'Consumer Discretionary',
+      'Retail': 'Consumer Discretionary',
+      'Automotive': 'Consumer Discretionary',
+      'Consumer Staples': 'Consumer Staples',
+      'Food & Beverages': 'Consumer Staples',
+      'Food': 'Consumer Staples',
+      'Beverages': 'Consumer Staples',
+      'Industrials': 'Industrials',
+      'Manufacturing': 'Industrials',
+      'Transportation': 'Industrials',
+      'Utilities': 'Utilities',
+      'Telecommunications': 'Communication Services',
+      'Media': 'Communication Services',
+    };
+    
+    return industryToSector[industry] || 'Others';
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -313,16 +356,21 @@ function PortfolioPage() {
                         </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center text-sm text-gray-500 space-x-4 mb-2">
-                      <div className="flex items-center">
-                        <Building2 className="h-4 w-4 mr-1" />
-                        <span data-testid={`text-industry-${portfolio.id}`}>{portfolio.industry}</span>
+                    <div className="space-y-2 mb-2">
+                      <div className="flex items-center text-sm text-gray-500 space-x-4">
+                        <div className="flex items-center">
+                          <Building2 className="h-4 w-4 mr-1" />
+                          <span data-testid={`text-industry-${portfolio.id}`}>{portfolio.industry}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          <span data-testid={`text-country-${portfolio.id}`}>
+                            {formatCountryName(portfolio.country)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        <span data-testid={`text-country-${portfolio.id}`}>
-                          {formatCountryName(portfolio.country)}
-                        </span>
+                      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium" data-testid={`text-sector-${portfolio.id}`}>
+                        {language === 'jp' ? 'セクター:' : 'Sector:'} {getSectorFromIndustry(portfolio.industry)}
                       </div>
                     </div>
                     <div className="text-xs text-blue-600 font-medium" data-testid={`text-felicity-company-${portfolio.id}`}>
