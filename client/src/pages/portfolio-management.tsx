@@ -533,9 +533,6 @@ export default function PortfolioManagementPage() {
       descriptionJa: "",
     });
     setSelectedSector("");
-    setSelectedIndustryGroup("");
-    setSelectedIndustry("");
-    setSelectedSubIndustry("");
   };
 
   const handleSubmit = (data: PortfolioFormData) => {
@@ -735,14 +732,12 @@ export default function PortfolioManagementPage() {
   };
 
   const handleGicsSelection = (result: any) => {
-    // Set the GICS selections based on the selected result
+    // Set the sector from the search result
     setSelectedSector(result.sector || "");
-    setSelectedIndustryGroup(result.industryGroup || "");
-    setSelectedIndustry(result.industry || "");
-    setSelectedSubIndustry(result.subIndustry || "");
     
-    // Set the industry field in the form
-    form.setValue('industry', result.value);
+    // Get the sector label and set it as the industry
+    const sectorLabel = gicsData[result.sector]?.label || result.value;
+    form.setValue('industry', sectorLabel);
     
     // Close the search
     setGicsSearchTerm("");
@@ -1483,37 +1478,13 @@ export default function PortfolioManagementPage() {
 
   // State for GICS selection
   const [selectedSector, setSelectedSector] = useState<string>("");
-  const [selectedIndustryGroup, setSelectedIndustryGroup] = useState<string>("");
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
-  const [selectedSubIndustry, setSelectedSubIndustry] = useState<string>("");
 
-  // Reset downstream selections when higher level changes
+  // Set industry directly from sector selection
   const handleSectorChange = (sectorValue: string) => {
     setSelectedSector(sectorValue);
-    setSelectedIndustryGroup("");
-    setSelectedIndustry("");
-    setSelectedSubIndustry("");
-    form.setValue("industry", "");
-  };
-
-  const handleIndustryGroupChange = (groupValue: string) => {
-    setSelectedIndustryGroup(groupValue);
-    setSelectedIndustry("");
-    setSelectedSubIndustry("");
-    form.setValue("industry", "");
-  };
-
-  const handleIndustryChange = (industryValue: string) => {
-    setSelectedIndustry(industryValue);
-    setSelectedSubIndustry("");
-    form.setValue("industry", "");
-  };
-
-  const handleSubIndustryChange = (subIndustryValue: string) => {
-    setSelectedSubIndustry(subIndustryValue);
-    const selectedSubIndustryData = getSelectedSubIndustryData(subIndustryValue);
-    if (selectedSubIndustryData) {
-      form.setValue("industry", selectedSubIndustryData.label);
+    const sectorLabel = gicsData[sectorValue]?.label;
+    if (sectorLabel) {
+      form.setValue("industry", sectorLabel);
     }
   };
 
@@ -1531,18 +1502,11 @@ export default function PortfolioManagementPage() {
 
   // Initialize GICS selections when editing
   const initializeGicsFromIndustry = (industryLabel: string) => {
+    // Find the sector that matches the industry label
     for (const [sectorKey, sector] of Object.entries(gicsData)) {
-      for (const [groupKey, industryGroup] of Object.entries(sector.industryGroups) as [string, any][]) {
-        for (const [industryKey, industry] of Object.entries(industryGroup.industries) as [string, any][]) {
-          const subIndustry = industry.subIndustries?.find((sub: { value: string; label: string }) => sub.label === industryLabel);
-          if (subIndustry) {
-            setSelectedSector(sectorKey);
-            setSelectedIndustryGroup(groupKey);
-            setSelectedIndustry(industryKey);
-            setSelectedSubIndustry(subIndustry.value);
-            return;
-          }
-        }
+      if (sector.label === industryLabel) {
+        setSelectedSector(sectorKey);
+        return;
       }
     }
   };
@@ -1749,9 +1713,6 @@ export default function PortfolioManagementPage() {
                               descriptionJa: "",
                             });
                             setSelectedSector("");
-                            setSelectedIndustryGroup("");
-                            setSelectedIndustry("");
-                            setSelectedSubIndustry("");
                           }
                         }}>
                   <DialogTrigger asChild>
@@ -1930,7 +1891,7 @@ export default function PortfolioManagementPage() {
                             
                             {/* Sector Selection */}
                             <div>
-                              <Label htmlFor="sector" className="text-sm text-muted-foreground">Sector</Label>
+                              <Label htmlFor="sector" className="text-sm text-muted-foreground">Sector (GICS Classification)</Label>
                               <Select onValueChange={handleSectorChange} value={selectedSector}>
                                 <SelectTrigger data-testid="select-sector">
                                   <SelectValue placeholder="Select sector" />
@@ -1944,63 +1905,6 @@ export default function PortfolioManagementPage() {
                                 </SelectContent>
                               </Select>
                             </div>
-
-                            {/* Industry Group Selection */}
-                            {selectedSector && (
-                              <div>
-                                <Label htmlFor="industry-group" className="text-sm text-muted-foreground">Industry Group</Label>
-                                <Select onValueChange={handleIndustryGroupChange} value={selectedIndustryGroup}>
-                                  <SelectTrigger data-testid="select-industry-group">
-                                    <SelectValue placeholder="Select industry group" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Object.entries(gicsData[selectedSector]?.industryGroups || {}).map(([key, group]: [string, any]) => (
-                                      <SelectItem key={key} value={key}>
-                                        {group.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            )}
-
-                            {/* Industry Selection */}
-                            {selectedIndustryGroup && (
-                              <div>
-                                <Label htmlFor="industry" className="text-sm text-muted-foreground">Industry</Label>
-                                <Select onValueChange={handleIndustryChange} value={selectedIndustry}>
-                                  <SelectTrigger data-testid="select-industry">
-                                    <SelectValue placeholder="Select industry" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Object.entries(gicsData[selectedSector]?.industryGroups[selectedIndustryGroup]?.industries || {}).map(([key, industry]: [string, any]) => (
-                                      <SelectItem key={key} value={key}>
-                                        {industry.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            )}
-
-                            {/* Sub-Industry Selection */}
-                            {selectedIndustry && (
-                              <div>
-                                <Label htmlFor="sub-industry" className="text-sm text-muted-foreground">Sub-Industry</Label>
-                                <Select onValueChange={handleSubIndustryChange} value={selectedSubIndustry}>
-                                  <SelectTrigger data-testid="select-sub-industry">
-                                    <SelectValue placeholder="Select sub-industry" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {(gicsData[selectedSector]?.industryGroups[selectedIndustryGroup]?.industries[selectedIndustry]?.subIndustries || []).map((subIndustry: { value: string; label: string }) => (
-                                      <SelectItem key={subIndustry.value} value={subIndustry.value}>
-                                        {subIndustry.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            )}
 
                             {/* Hidden field to store the final industry value */}
                             <FormField
@@ -2016,12 +1920,12 @@ export default function PortfolioManagementPage() {
                               )}
                             />
 
-                            {/* Display selected industry */}
-                            {selectedSubIndustry && (
+                            {/* Display selected sector */}
+                            {selectedSector && (
                               <div className="p-3 bg-muted rounded-md">
-                                <p className="text-sm font-medium">Selected Industry:</p>
+                                <p className="text-sm font-medium">Selected Sector:</p>
                                 <p className="text-sm text-muted-foreground">
-                                  {getSelectedSubIndustryData(selectedSubIndustry)?.label}
+                                  {gicsData[selectedSector]?.label}
                                 </p>
                               </div>
                             )}
@@ -2252,9 +2156,6 @@ export default function PortfolioManagementPage() {
                                 descriptionJa: "",
                               });
                               setSelectedSector("");
-                              setSelectedIndustryGroup("");
-                              setSelectedIndustry("");
-                              setSelectedSubIndustry("");
                             }}
                             data-testid="button-cancel-portfolio"
                           >
