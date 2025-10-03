@@ -2209,7 +2209,7 @@ export default function PortfolioManagementPage() {
                         </p>
                         {/* Sector Information */}
                         <p className="text-xs text-blue-600 font-medium mt-1" data-testid={`text-sector-${portfolio.id}`}>
-                          {language === 'jp' ? 'セクター:' : 'Sector:'} {getSectorFromIndustry(portfolio.industry)}
+                          {language === 'jp' ? 'セクター:' : 'Sector:'} {portfolio.industry}
                         </p>
                       </div>
                       <div className="flex flex-col gap-1">
