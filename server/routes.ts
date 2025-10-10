@@ -1604,7 +1604,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Investment Year': '',
           'Description': '',
           'Description (Japanese)': '',
-          'Website': ''
+          'Website': '',
+          'Company Logo URL': ''
         }
       ];
 
@@ -1675,7 +1676,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Investment Year': portfolio.investmentYear || '',
         'Description': portfolio.description || '',
         'Description (Japanese)': portfolio.descriptionJa || '',
-        'Website': portfolio.website || ''
+        'Website': portfolio.website || '',
+        'Company Logo URL': portfolio.logoUrl || ''
       }));
 
       // Create workbook and worksheet
@@ -1821,6 +1823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description: rowData['Description'] || rowData['description'] || '',
             descriptionJa: rowData['Description (Japanese)'] || rowData['descriptionJa'] || '',
             website: rowData['Website'] || rowData['website'] || '',
+            logoUrl: rowData['Company Logo URL'] || rowData['logoUrl'] || '',
           };
 
           // Validate required fields
