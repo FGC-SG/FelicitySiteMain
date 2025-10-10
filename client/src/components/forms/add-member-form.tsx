@@ -231,6 +231,9 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
                 <SelectItem value="Felicity Capital Co., Ltd.">
                   Felicity Capital Co., Ltd.
                 </SelectItem>
+                <SelectItem value="Felicity Group">
+                  Felicity Group
+                </SelectItem>
               </SelectContent>
             </Select>
             {form.formState.errors.company && (
