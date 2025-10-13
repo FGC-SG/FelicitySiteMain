@@ -76,13 +76,13 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:flex-1 md:justify-center">
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 flex-nowrap">
               {navItems.map((item: any) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className={`px-3 py-2 text-sm font-medium transition-colors rounded-md ${
+                  className={`px-3 py-2 text-sm font-medium transition-colors rounded-md whitespace-nowrap ${
                     location === item.href
                       ? "felicity-primary bg-primary/5"
                       : "text-muted-foreground hover:felicity-primary hover:bg-primary/5"
@@ -90,9 +90,9 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   data-testid={`nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
                   {item.href === '/fund-disclosures' ? (
-                    <div className="flex flex-col items-center leading-tight">
+                    <div className="flex flex-col items-center leading-tight whitespace-nowrap">
                       <span>{item.label}</span>
-                      <span className="text-xs opacity-75">金商法63条開示</span>
+                      <span className="text-xs opacity-75 whitespace-nowrap">金商法63条開示</span>
                     </div>
                   ) : (
                     item.label
