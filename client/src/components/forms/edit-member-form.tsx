@@ -21,7 +21,7 @@ const memberSchema = z.object({
   name: z.string().min(1, "Name is required"),
   title: z.string().min(1, "Title is required"),
   company: z.string().min(1, "Company is required"),
-  bio: z.string().optional(),
+  bio: z.string().max(1000, "Biography must be 1000 characters or less").optional(),
   displayOrder: z.number().default(0),
 });
 
@@ -277,6 +277,14 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
               rows={4}
               data-testid="textarea-edit-member-bio"
             />
+            <div className="flex justify-between items-center text-sm">
+              <span className={(form.watch("bio") || "").length > 1000 ? "text-destructive" : "text-muted-foreground"}>
+                {(form.watch("bio") || "").length} / 1000 {language === "en" ? "characters" : "文字"}
+              </span>
+              {form.formState.errors.bio && (
+                <span className="text-destructive">{form.formState.errors.bio.message}</span>
+              )}
+            </div>
           </div>
 
           {/* Display Order */}
