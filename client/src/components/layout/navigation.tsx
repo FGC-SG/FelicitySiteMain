@@ -76,21 +76,21 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:flex-1 md:justify-center">
-            <div className="flex items-baseline space-x-3">
+            <div className="flex items-center space-x-1">
               {navItems.map((item: any) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 text-sm font-medium transition-colors rounded-md ${
                     location === item.href
-                      ? "felicity-primary"
-                      : "text-muted-foreground hover:felicity-primary"
+                      ? "felicity-primary bg-primary/5"
+                      : "text-muted-foreground hover:felicity-primary hover:bg-primary/5"
                   }`}
                   data-testid={`nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
                   {item.href === '/fund-disclosures' ? (
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center leading-tight">
                       <span>{item.label}</span>
                       <span className="text-xs opacity-75">金商法63条開示</span>
                     </div>

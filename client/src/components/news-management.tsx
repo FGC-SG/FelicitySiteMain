@@ -406,12 +406,6 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                       <Calendar className="h-4 w-4" />
                       {article.publishedAt ? formatDate(article.publishedAt) : 'N/A'}
                     </div>
-                    {article.authorId && (
-                      <div className="flex items-center gap-1" data-testid={`text-news-author-${article.id}`}>
-                        <User className="h-4 w-4" />
-                        {language === "en" ? "Author ID" : "作成者ID"}: {article.authorId.slice(0, 8)}...
-                      </div>
-                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button 
