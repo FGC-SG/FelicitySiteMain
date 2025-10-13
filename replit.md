@@ -22,7 +22,7 @@ The website is structured as a multi-page application.
 - **Frontend**: Built with React, TypeScript, Vite, TailwindCSS, and shadcn/ui. Uses Wouter for routing and TanStack Query for data fetching. Forms are managed with React Hook Form and Zod validation.
 - **Backend**: Developed with Express.js and TypeScript.
 - **Database**: PostgreSQL, managed with Drizzle ORM.
-- **Authentication**: Custom email/password authentication system with bcrypt hashing and session management, including a one-click user invitation system and password reset functionality. Temporary access codes are available for public testing.
+- **Authentication**: Custom email/password authentication system with bcrypt hashing and session management, including a one-click user invitation system and password reset functionality. Admin access requires email/password login only. Public website is directly accessible without access gates.
 - **Content Management**:
     - **News**: Comprehensive view, add, edit, and delete functionality for news articles, with full bilingual support and "Read More" modals.
     - **Members**: Full CRUD operations for member profiles, including photo uploads, display order control, and role-based access.
