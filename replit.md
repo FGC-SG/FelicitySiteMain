@@ -39,6 +39,7 @@ The website is structured as a multi-page application.
 
 ### Feature Specifications
 - **Bilingual Capabilities**: Supports English and Japanese for all public and administrative content.
+- **Management Message**: Dedicated section on home page displaying message from Group Representative Tomohiro Fujita, dated July 31, 2025, explaining company restructuring and vision. Fully bilingual with comprehensive content.
 - **User Authentication**: Secure login/logout, user creation, role assignment, and password management.
 - **Content Management Systems**: Dedicated modules for News, Members, and Portfolio data.
 - **Responsive Design**: Optimized for various devices using TailwindCSS and shadcn/ui.

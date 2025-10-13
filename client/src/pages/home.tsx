@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/sections/hero";
+import { ManagementMessage } from "@/components/sections/management-message";
 import { InvestmentFocus } from "@/components/sections/investment-focus";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -169,6 +170,7 @@ export default function Home() {
       )}
       
       <Hero language={language} />
+      <ManagementMessage language={language} />
       <InvestmentFocus language={language} />
       <Footer language={language} />
     </div>

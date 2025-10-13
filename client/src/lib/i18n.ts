@@ -104,6 +104,17 @@ export interface TranslationStrings {
     contact: string;
     copyright: string;
   };
+  managementMessage: {
+    title: string;
+    paragraph1: string;
+    paragraph2: string;
+    paragraph3: string;
+    paragraph4: string;
+    paragraph5: string;
+    date: string;
+    companies: string;
+    signature: string;
+  };
 }
 
 export const translations: Record<'en' | 'jp', TranslationStrings> = {
@@ -194,6 +205,17 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       quickLinks: "Quick Links",
       contact: "Contact",
       copyright: "© 2025 Felicity Global Capital Pte. Ltd. All rights reserved."
+    },
+    managementMessage: {
+      title: "Message from Management",
+      paragraph1: "We have been involved in a wide range of investments—from growth investments and buyouts in Japan to various opportunities across the Asian region. Walking alongside companies in their journeys of growth and transformation, and pursuing long-term value creation together with our investors, has been a source of great pride for us.",
+      paragraph2: "Now, with Felicity Global Capital Pte. Ltd. based in Singapore and Felicity Capital Co., Ltd. in Japan as our two core entities, we have established a new corporate structure to drive our fund operations more strategically and dynamically. Our focus will be on two main pillars: investments in Asian companies and succession investments within Japan.",
+      paragraph3: "Through this restructuring, we have strengthened our expertise in each region and sector, and built an operating framework that can respond to new challenges with greater agility and flexibility. Going forward, we will not limit ourselves to existing investment areas, but will boldly venture into new domains beyond our current scope. By making flexible yet fundamental investment decisions in the face of a constantly changing economic environment, we aim to create sustainable value.",
+      paragraph4: "The name Felicity means \"bliss\" or \"supreme happiness.\" It reflects our wish to deliver \"happy outcomes\" not only to our investors and portfolio companies, but also to all stakeholders—including society at large—through our investments.",
+      paragraph5: "In this era of change, we move forward into a new phase with sound judgment and strong execution. We sincerely thank you for supporting the first step of the Felicity Group's new journey.",
+      date: "July 31, 2025",
+      companies: "Felicity Global Capital Pte. Ltd.\nFelicity Capital Co., Ltd.",
+      signature: "Group Representative\nTomohiro Fujita"
     },
     members: {
       title: "Our Leadership Team",
@@ -301,6 +323,17 @@ export const translations: Record<'en' | 'jp', TranslationStrings> = {
       quickLinks: "クイックリンク",
       contact: "お問い合わせ",
       copyright: "© 2025 Felicity Global Capital Pte. Ltd. All rights reserved."
+    },
+    managementMessage: {
+      title: "経営メッセージ",
+      paragraph1: "私たちはこれまで、国内そしてアジア地域における成長投資、バイアウト投資等幅広い分野において、数多くの投資に携わってまいりました。企業の成長や変革の過程に寄り添いながら、投資家の皆様とともに長期的な価値創出を追求してきたことは、私たちの大きな誇りです。",
+      paragraph2: "そしてこのたび、シンガポールを本拠とするFelicity Global Capital Pte. Ltd.と、日本の株式会社Felicity Capitalの2社を両輪とし、アジア企業への投資と日本国内の事業承継投資という二つの投資事業を軸に、より戦略的かつ機動的にファンド運営を推進していく新たな体制を整えました。",
+      paragraph3: "この体制再編により、各地域・領域における専門性をさらに高めるとともに、次なる挑戦に柔軟かつ機動的に対応できる運営体制を整えました。今後は、既存分野の投資に限らず、これまでの枠を超えた新たな投資領域にも果敢に挑戦してまいります。変化し続ける経済環境と向き合いながら、柔軟かつ本質的な投資判断で、持続的な価値創出を目指していきます。",
+      paragraph4: "Felicity（フェリシティ）という名前には、「至福」や「この上ない幸福」といった意味があります。この社名には、投資を通じて、投資家、投資先企業をはじめとするステークスホルダーはもとより、社会全体にとって、'幸せな結果'をもたらしたいという私たちの想いが込められています。",
+      paragraph5: "変化の時代であるいま、私たちはより確かな判断力と実行力をもって、新たなフェーズへと歩みを進めます。Felicityグループとしての第一歩を、何卒よろしくお願い申し上げます。",
+      date: "2025年7月31日",
+      companies: "Felicity Global Capital Pte. Ltd.\n株式会社 Felicity Capital",
+      signature: "グループ代表\n藤 田 智 弘"
     },
     members: {
       title: "リーダーシップチーム",
