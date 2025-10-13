@@ -272,7 +272,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        onSuccess={() => window.location.reload()}
+        onSuccess={() => window.location.href = "/management"}
         language={language}
       />
     </nav>
