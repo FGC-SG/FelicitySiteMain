@@ -198,63 +198,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Temporary production login route for quick access
-  app.post('/api/auth/temp-login', async (req, res) => {
+  // Simple access gate verification (does not create user session)
+  app.post('/api/auth/verify-access', async (req, res) => {
     try {
       const { code } = req.body;
       
-      // Temporary production access codes
-      const tempCodes = {
-        'fgc2025': { email: 'admin@fgcsg.com', role: 'superadmin' }
-      };
+      // Verify access code without creating session
+      const validCodes = ['fgc2025'];
       
-      if (!tempCodes[code as keyof typeof tempCodes]) {
-        return res.status(401).json({ message: "Invalid access code" });
+      if (validCodes.includes(code)) {
+        return res.json({ valid: true });
       }
       
-      const tempUser = tempCodes[code as keyof typeof tempCodes];
-      
-      // Create unique temporary ID
-      const tempId = `temp-${Date.now()}`;
-      
-      // Create temporary session user
-      const sessionUser = {
-        id: tempId,
-        email: tempUser.email,
-        firstName: 'Temporary',
-        lastName: 'Admin',
-        role: tempUser.role,
-        isActive: true,
-        profileImageUrl: null,
-        isTemporary: true // Flag to identify temporary sessions
-      };
-      
-      // Store temporary user in database to satisfy foreign key constraints
-      try {
-        await storage.upsertUser({
-          id: tempId,
-          email: tempUser.email,
-          firstName: 'Temporary',
-          lastName: 'Admin',
-          role: tempUser.role,
-          isActive: true,
-          profileImageUrl: null
-        });
-      } catch (error) {
-        console.error("Error storing temporary user:", error);
-        // Continue anyway - the session will still work for most operations
-      }
-      
-      // Set session
-      (req as any).session.user = sessionUser;
-      
-      console.log(`Temporary login successful with code: ${code}`);
-      res.json(sessionUser);
+      return res.status(401).json({ valid: false, message: "Invalid access code" });
     } catch (error) {
-      console.error("Error during temporary login:", error);
-      res.status(500).json({ message: "Temporary login failed" });
+      console.error("Error verifying access code:", error);
+      res.status(500).json({ message: "Access verification failed" });
     }
   });
+
 
   // Contact form submission
   app.post("/api/contact", async (req, res) => {

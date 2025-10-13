@@ -33,16 +33,18 @@ export function AccessGate({ onAccessGranted }: AccessGateProps) {
 
   const accessMutation = useMutation({
     mutationFn: async (data: AccessCodeForm) => {
-      const response = await apiRequest("POST", "/api/auth/temp-login", { code: data.code });
+      const response = await apiRequest("POST", "/api/auth/verify-access", { code: data.code });
       return await response.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "Access Granted",
-        description: "Welcome to Felicity Global Capital",
-        variant: "default",
-      });
-      onAccessGranted();
+    onSuccess: (data) => {
+      if (data.valid) {
+        toast({
+          title: "Access Granted",
+          description: "Welcome to Felicity Global Capital",
+          variant: "default",
+        });
+        onAccessGranted();
+      }
     },
     onError: (error: any) => {
       toast({
