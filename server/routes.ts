@@ -198,25 +198,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Simple access gate verification (does not create user session)
-  app.post('/api/auth/verify-access', async (req, res) => {
-    try {
-      const { code } = req.body;
-      
-      // Verify access code without creating session
-      const validCodes = ['fgc2025'];
-      
-      if (validCodes.includes(code)) {
-        return res.json({ valid: true });
-      }
-      
-      return res.status(401).json({ valid: false, message: "Invalid access code" });
-    } catch (error) {
-      console.error("Error verifying access code:", error);
-      res.status(500).json({ message: "Access verification failed" });
-    }
-  });
-
 
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
