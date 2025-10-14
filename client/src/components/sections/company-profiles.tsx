@@ -122,7 +122,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                     data-testid="link-japan-url"
                   >
                     <Globe className="h-3 w-3" />
-                    <span>https://felicitycapital.jp/</span>
+                    <span>fgcsg.com</span>
                   </a>
                 </div>
               </div>
