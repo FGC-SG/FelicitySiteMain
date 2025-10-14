@@ -62,7 +62,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                     data-testid="link-singapore-url"
                   >
                     <Globe className="h-3 w-3" />
-                    <span>fgcsg.com</span>
+                    <span>www.fgcsg.com</span>
                   </a>
                 </div>
               </div>
@@ -122,7 +122,7 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                     data-testid="link-japan-url"
                   >
                     <Globe className="h-3 w-3" />
-                    <span>fgcsg.com</span>
+                    <span>https://felicitycapital.jp/</span>
                   </a>
                 </div>
               </div>
