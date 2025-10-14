@@ -63,9 +63,9 @@ export async function uploadToSharePoint(
   try {
     const client = await getUncachableSharePointClient();
     
-    // Target specific SharePoint site: fgcsg.sharepoint.com/sites/FGCSG-Article63
+    // Target specific SharePoint site: fgcsg.sharepoint.com/sites/FGCSite
     const hostname = 'fgcsg.sharepoint.com';
-    const sitePath = '/sites/FGCSG-Article63';
+    const sitePath = '/sites/FGCSite';
     
     console.log(`Accessing SharePoint site: ${hostname}${sitePath}`);
     
