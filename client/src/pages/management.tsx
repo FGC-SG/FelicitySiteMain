@@ -178,23 +178,10 @@ export default function ManagementPage() {
   };
 
   const handleDatabaseBackup = async () => {
-    console.log('Database backup initiated - file picker mode');
+    console.log('Database backup initiated');
     setIsBackingUp(true);
     
     try {
-      // Check if File System Access API is supported
-      if (!('showSaveFilePicker' in window)) {
-        toast({
-          title: language === "jp" ? "ブラウザ非対応" : "Browser Not Supported",
-          description: language === "jp" 
-            ? "このブラウザではファイル保存場所の選択ができません。Chrome、Edge、またはOperaをご利用ください。" 
-            : "This browser doesn't support file location selection. Please use Chrome, Edge, or Opera.",
-          variant: "destructive",
-        });
-        setIsBackingUp(false);
-        return;
-      }
-
       const response = await fetch('/api/export/database-backup', {
         method: 'GET',
         credentials: 'include',
@@ -209,47 +196,79 @@ export default function ManagementPage() {
       const blob = await response.blob();
       console.log('Backup blob received, size:', blob.size);
       
-      // Use File System Access API to let user choose save location
       const filename = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
       
-      try {
-        const handle = await (window as any).showSaveFilePicker({
-          suggestedName: filename,
-          types: [{
-            description: 'Excel Files',
-            accept: {
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
-            }
-          }]
-        });
-        
-        const writable = await handle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-        
-        console.log('File saved successfully');
-        toast({
-          title: language === "jp" ? "バックアップ成功" : "Backup Successful",
-          description: language === "jp" ? "データベースバックアップが保存されました。" : "Database backup saved successfully.",
-        });
-      } catch (pickerError: any) {
-        if (pickerError.name === 'AbortError') {
-          console.log('User cancelled file picker');
-          toast({
-            title: language === "jp" ? "キャンセル" : "Cancelled",
-            description: language === "jp" ? "保存がキャンセルされました。" : "Save operation cancelled.",
+      // Try File System Access API first (Chrome, Edge, Opera)
+      if ('showSaveFilePicker' in window) {
+        try {
+          console.log('Using File System Access API');
+          const handle = await (window as any).showSaveFilePicker({
+            suggestedName: filename,
+            types: [{
+              description: 'Excel Files',
+              accept: {
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+              }
+            }]
           });
-        } else {
-          throw pickerError;
+          
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          
+          console.log('File saved successfully via File System Access API');
+          toast({
+            title: language === "jp" ? "バックアップ成功" : "Backup Successful",
+            description: language === "jp" ? "データベースバックアップが保存されました。" : "Database backup saved successfully.",
+          });
+          setShowBackupDialog(false);
+          return;
+        } catch (pickerError: any) {
+          if (pickerError.name === 'AbortError') {
+            console.log('User cancelled file picker');
+            toast({
+              title: language === "jp" ? "キャンセル" : "Cancelled",
+              description: language === "jp" ? "保存がキャンセルされました。" : "Save operation cancelled.",
+            });
+            setShowBackupDialog(false);
+            return;
+          }
+          // If picker fails for another reason, fall through to download fallback
+          console.warn('File System Access API failed, using download fallback:', pickerError);
         }
       }
+      
+      // Fallback: traditional download method
+      console.log('Using traditional download method');
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        toast({
+          title: language === "jp" ? "バックアップ成功" : "Backup Successful",
+          description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup downloaded to your Downloads folder.",
+        });
+      }, 100);
       
       setShowBackupDialog(false);
     } catch (error) {
       console.error('Error exporting database backup:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error details:', errorMessage, error);
+      
       toast({
         title: language === "jp" ? "バックアップ失敗" : "Backup Failed",
-        description: language === "jp" ? "データベースバックアップに失敗しました。" : "Failed to create database backup.",
+        description: language === "jp" 
+          ? `データベースバックアップに失敗しました: ${errorMessage}` 
+          : `Failed to create database backup: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -676,8 +695,8 @@ export default function ManagementPage() {
                   <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
                     <li>{language === "jp" ? "すべてのデータベーステーブルをエクスポート" : "Exports all database tables"}</li>
                     <li>{language === "jp" ? "MS Access互換のExcel形式" : "MS Access compatible Excel format"}</li>
-                    <li>{language === "jp" ? "ファイルエクスプローラーで保存場所を選択" : "Select save location via File Explorer"}</li>
-                    <li className="text-xs">{language === "jp" ? "※Chrome、Edge、Operaで利用可能" : "※Requires Chrome, Edge, or Opera"}</li>
+                    <li>{language === "jp" ? "保存場所を選択可能（対応ブラウザ）" : "Choose save location (supported browsers)"}</li>
+                    <li className="text-xs">{language === "jp" ? "※非対応ブラウザではダウンロードフォルダに保存" : "※Downloads folder for unsupported browsers"}</li>
                   </ul>
                 </div>
 
