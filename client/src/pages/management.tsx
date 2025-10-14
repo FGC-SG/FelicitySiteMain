@@ -18,6 +18,9 @@ export default function ManagementPage() {
   const [showAddNews, setShowAddNews] = useState(false);
   const [showNewsList, setShowNewsList] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
+  const [showBackupDialog, setShowBackupDialog] = useState(false);
+  const [backupUrl, setBackupUrl] = useState('');
+  const [isBackingUp, setIsBackingUp] = useState(false);
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge');
   const [restoreFile, setRestoreFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any>(null);
@@ -175,10 +178,13 @@ export default function ManagementPage() {
     }
   };
 
-  const handleDatabaseBackup = async () => {
-    console.log('Database backup initiated...');
+  const handleDatabaseBackup = async (customUrl?: string) => {
+    console.log('Database backup initiated...', customUrl ? `with URL: ${customUrl}` : 'download mode');
+    setIsBackingUp(true);
+    
     try {
-      const response = await fetch('/api/export/database-backup', {
+      const urlParams = customUrl ? `?url=${encodeURIComponent(customUrl)}` : '';
+      const response = await fetch(`/api/export/database-backup${urlParams}`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -191,23 +197,21 @@ export default function ManagementPage() {
       
       const contentType = response.headers.get('content-type');
       
-      // Check if response is JSON (SharePoint upload) or blob (file download)
+      // Check if response is JSON (upload successful) or blob (file download)
       if (contentType && contentType.includes('application/json')) {
-        // SharePoint upload successful
+        // Upload successful
         const result = await response.json();
-        console.log('Backup uploaded to SharePoint:', result);
+        console.log('Backup uploaded:', result);
         
         toast({
-          title: language === "jp" ? "SharePointにアップロード成功" : "Uploaded to SharePoint",
+          title: language === "jp" ? "アップロード成功" : "Upload Successful",
           description: language === "jp" 
-            ? `データベースバックアップがSharePointにアップロードされました: ${result.filename}` 
-            : `Database backup has been uploaded to SharePoint: ${result.filename}`,
+            ? `データベースバックアップがアップロードされました: ${result.filename}` 
+            : `Database backup has been uploaded: ${result.filename}`,
         });
         
-        // Optionally open SharePoint URL
-        if (result.sharePointUrl) {
-          console.log('SharePoint URL:', result.sharePointUrl);
-        }
+        setShowBackupDialog(false);
+        setBackupUrl('');
       } else {
         // Fallback: file download
         const blob = await response.blob();
@@ -232,6 +236,9 @@ export default function ManagementPage() {
             description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup has been downloaded successfully.",
           });
         }, 100);
+        
+        setShowBackupDialog(false);
+        setBackupUrl('');
       }
     } catch (error) {
       console.error('Error exporting database backup:', error);
@@ -240,6 +247,8 @@ export default function ManagementPage() {
         description: language === "jp" ? "データベースバックアップに失敗しました。" : "Failed to create database backup.",
         variant: "destructive",
       });
+    } finally {
+      setIsBackingUp(false);
     }
   };
 
@@ -463,7 +472,7 @@ export default function ManagementPage() {
           icon: Database,
           color: "bg-red-500",
           stats: language === "jp" ? "完全バックアップ" : "Full Backup",
-          action: handleDatabaseBackup
+          action: () => setShowBackupDialog(true)
         },
         {
           title: language === "jp" ? "データベース復元" : "Database Restore",
