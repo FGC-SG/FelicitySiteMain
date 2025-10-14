@@ -32,7 +32,7 @@ The website is structured as a multi-page application.
 - **Access Control**: Role-based access control (Superadmin/User) for management portals. News and Portfolio sections are publicly accessible by default.
 - **Data Export & Import**: 
     - Admin-only Excel (.xlsx) export functionality for News and Portfolio data.
-    - Superadmin-only comprehensive database backup export covering all tables (users, portfolios, funds, fund_disclosures, news, members, contact_submissions, user_invitations) in MS Access-compatible Excel format. Users can select save location via browser's native file dialog.
+    - Superadmin-only comprehensive database backup export covering all tables (users, portfolios, funds, fund_disclosures, news, members, contact_submissions, user_invitations) in MS Access-compatible Excel format. Uses File System Access API to allow users to select save location via native file explorer dialog (Chrome, Edge, Opera supported).
     - Superadmin-only database restore functionality with dry-run preview, merge/replace modes, file validation (10MB limit, .xlsx only), and comprehensive error handling.
 - **Privacy**: Includes a comprehensive Privacy Policy page compliant with PDPA (Singapore), GDPR (EU), and US privacy laws.
 

@@ -178,10 +178,23 @@ export default function ManagementPage() {
   };
 
   const handleDatabaseBackup = async () => {
-    console.log('Database backup initiated - download mode');
+    console.log('Database backup initiated - file picker mode');
     setIsBackingUp(true);
     
     try {
+      // Check if File System Access API is supported
+      if (!('showSaveFilePicker' in window)) {
+        toast({
+          title: language === "jp" ? "ブラウザ非対応" : "Browser Not Supported",
+          description: language === "jp" 
+            ? "このブラウザではファイル保存場所の選択ができません。Chrome、Edge、またはOperaをご利用ください。" 
+            : "This browser doesn't support file location selection. Please use Chrome, Edge, or Opera.",
+          variant: "destructive",
+        });
+        setIsBackingUp(false);
+        return;
+      }
+
       const response = await fetch('/api/export/database-backup', {
         method: 'GET',
         credentials: 'include',
@@ -193,29 +206,43 @@ export default function ManagementPage() {
         throw new Error('Failed to export database backup');
       }
       
-      // File download
       const blob = await response.blob();
       console.log('Backup blob received, size:', blob.size);
       
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
+      // Use File System Access API to let user choose save location
+      const filename = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
       
-      // Use setTimeout to ensure toast appears after the download prompt
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: filename,
+          types: [{
+            description: 'Excel Files',
+            accept: {
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+            }
+          }]
+        });
         
-        console.log('Showing success toast...');
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        
+        console.log('File saved successfully');
         toast({
           title: language === "jp" ? "バックアップ成功" : "Backup Successful",
-          description: language === "jp" ? "データベースバックアップがダウンロードされました。保存先を選択してください。" : "Database backup downloaded. Choose your save location.",
+          description: language === "jp" ? "データベースバックアップが保存されました。" : "Database backup saved successfully.",
         });
-      }, 100);
+      } catch (pickerError: any) {
+        if (pickerError.name === 'AbortError') {
+          console.log('User cancelled file picker');
+          toast({
+            title: language === "jp" ? "キャンセル" : "Cancelled",
+            description: language === "jp" ? "保存がキャンセルされました。" : "Save operation cancelled.",
+          });
+        } else {
+          throw pickerError;
+        }
+      }
       
       setShowBackupDialog(false);
     } catch (error) {
@@ -649,7 +676,8 @@ export default function ManagementPage() {
                   <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
                     <li>{language === "jp" ? "すべてのデータベーステーブルをエクスポート" : "Exports all database tables"}</li>
                     <li>{language === "jp" ? "MS Access互換のExcel形式" : "MS Access compatible Excel format"}</li>
-                    <li>{language === "jp" ? "保存先をブラウザで選択できます" : "Choose save location via browser dialog"}</li>
+                    <li>{language === "jp" ? "ファイルエクスプローラーで保存場所を選択" : "Select save location via File Explorer"}</li>
+                    <li className="text-xs">{language === "jp" ? "※Chrome、Edge、Operaで利用可能" : "※Requires Chrome, Edge, or Opera"}</li>
                   </ul>
                 </div>
 
