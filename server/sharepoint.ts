@@ -80,14 +80,31 @@ export async function uploadToSharePoint(
     }
     
     // Get the default document library (drive)
-    const drives = await client.api(`/sites/${site.id}/drives`).get();
+    let driveId;
     
-    if (!drives.value || drives.value.length === 0) {
-      throw new Error('No document library found in SharePoint site');
+    try {
+      // Try to get drives from the site
+      const drives = await client.api(`/sites/${site.id}/drives`).get();
+      console.log('Drives response:', JSON.stringify(drives, null, 2));
+      
+      if (drives.value && drives.value.length > 0) {
+        driveId = drives.value[0].id;
+        console.log('Using drive from drives list:', driveId);
+      } else {
+        // Try to get the default document library directly
+        console.log('No drives found, trying default drive...');
+        const defaultDrive = await client.api(`/sites/${site.id}/drive`).get();
+        driveId = defaultDrive.id;
+        console.log('Using default drive:', driveId);
+      }
+    } catch (driveError) {
+      console.error('Error getting drives:', driveError);
+      throw new Error(`Unable to access document library: ${driveError instanceof Error ? driveError.message : 'Unknown error'}`);
     }
     
-    const driveId = drives.value[0].id;
-    console.log('Using drive:', driveId);
+    if (!driveId) {
+      throw new Error('No document library found in SharePoint site');
+    }
     
     // Create folder path if it doesn't exist
     const folderParts = folderPath.split('/').filter(p => p);
