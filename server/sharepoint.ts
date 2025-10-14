@@ -53,19 +53,21 @@ export async function getUncachableSharePointClient() {
  * Upload a file to SharePoint
  * @param fileName - Name of the file to upload
  * @param fileBuffer - File content as Buffer
+ * @param customShareUrl - Optional custom SharePoint folder share URL
  * @param folderPath - Path to folder in SharePoint (e.g., 'Shared Documents/DatabaseBackups')
  */
 export async function uploadToSharePoint(
   fileName: string,
   fileBuffer: Buffer,
+  customShareUrl?: string,
   folderPath: string = 'DatabaseBackups'
 ): Promise<{ success: boolean; webUrl?: string; error?: string }> {
   try {
     const client = await getUncachableSharePointClient();
     
-    // Try using share link approach first (for folders shared via link)
-    // Share link: https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6DNKbQ07azNwCV2XF3FSZw
-    const shareUrl = 'https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6DNKbQ07azNwCV2XF3FSZw';
+    // Use custom share URL if provided, otherwise use default
+    // Default share link: https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6DNKbQ07azNwCV2XF3FSZw
+    const shareUrl = customShareUrl || 'https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6DNKbQ07azNwCV2XF3FSZw';
     
     console.log('Attempting to access SharePoint folder via share link...');
     

@@ -2084,7 +2084,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Access denied. Superadmin only.' });
       }
 
-      console.log('Creating comprehensive database backup...');
+      const customUrl = req.query.url as string | undefined;
+      console.log('Creating comprehensive database backup...', customUrl ? `with custom URL: ${customUrl}` : 'default mode');
 
       // Create workbook
       const wb = XLSX.utils.book_new();
@@ -2256,26 +2257,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Write the file to buffer
       const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-      // Try to upload to SharePoint
-      try {
-        const { uploadToSharePoint } = await import('./sharepoint.js');
-        const uploadResult = await uploadToSharePoint(filename, buffer);
-        
-        if (uploadResult.success) {
-          console.log(`Database backup uploaded to SharePoint: ${uploadResult.webUrl}`);
-          return res.json({ 
-            success: true, 
-            message: 'Database backup uploaded to SharePoint successfully',
-            sharePointUrl: uploadResult.webUrl,
-            filename 
+      // Try to upload to SharePoint if custom URL is provided
+      if (customUrl) {
+        try {
+          const { uploadToSharePoint } = await import('./sharepoint.js');
+          const uploadResult = await uploadToSharePoint(filename, buffer, customUrl);
+          
+          if (uploadResult.success) {
+            console.log(`Database backup uploaded to SharePoint: ${uploadResult.webUrl}`);
+            return res.json({ 
+              success: true, 
+              message: 'Database backup uploaded to SharePoint successfully',
+              sharePointUrl: uploadResult.webUrl,
+              filename 
+            });
+          } else {
+            throw new Error(uploadResult.error || 'SharePoint upload failed');
+          }
+        } catch (sharePointError) {
+          console.error('SharePoint upload failed:', sharePointError);
+          return res.status(500).json({ 
+            message: 'Failed to upload to SharePoint',
+            error: sharePointError instanceof Error ? sharePointError.message : 'Unknown error'
           });
-        } else {
-          throw new Error(uploadResult.error || 'SharePoint upload failed');
         }
-      } catch (sharePointError) {
-        // Fallback to download if SharePoint upload fails
-        console.warn('SharePoint upload failed, falling back to download:', sharePointError);
-        
+      } else {
+        // No URL provided, download to local Downloads folder
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(buffer);
