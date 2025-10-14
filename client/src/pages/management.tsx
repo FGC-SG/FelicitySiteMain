@@ -645,6 +645,86 @@ export default function ManagementPage() {
         )}
 
 
+        {/* Database Backup Dialog */}
+        {showBackupDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" data-testid="modal-database-backup">
+            <div className="bg-background rounded-lg p-6 w-full max-w-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold" data-testid="text-backup-title">
+                  {language === "jp" ? "データベースバックアップ" : "Database Backup"}
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowBackupDialog(false);
+                    setBackupUrl('');
+                  }}
+                  data-testid="button-close-backup"
+                >
+                  {language === "jp" ? "閉じる" : "Close"}
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" data-testid="label-sharepoint-url">
+                    {language === "jp" ? "SharePointフォルダURL（オプション）" : "SharePoint Folder URL (Optional)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={backupUrl}
+                    onChange={(e) => setBackupUrl(e.target.value)}
+                    placeholder="https://fgcsg.sharepoint.com/:f:/s/FGCSite/..."
+                    className="w-full border border-input rounded-md p-2"
+                    data-testid="input-backup-url"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {language === "jp" 
+                      ? "URLを入力しない場合、ダウンロードフォルダに保存されます" 
+                      : "Leave empty to download to your Downloads folder"}
+                  </p>
+                </div>
+
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <h4 className="font-semibold mb-2" data-testid="text-backup-info">
+                    {language === "jp" ? "バックアップ情報" : "Backup Information"}
+                  </h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
+                    <li>{language === "jp" ? "すべてのデータベーステーブルをエクスポート" : "Exports all database tables"}</li>
+                    <li>{language === "jp" ? "MS Access互換のExcel形式" : "MS Access compatible Excel format"}</li>
+                    <li>{language === "jp" ? "URL指定でSharePointに直接アップロード可能" : "Upload directly to SharePoint with URL"}</li>
+                  </ul>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowBackupDialog(false);
+                      setBackupUrl('');
+                    }}
+                    disabled={isBackingUp}
+                    data-testid="button-cancel-backup"
+                  >
+                    {language === "jp" ? "キャンセル" : "Cancel"}
+                  </Button>
+                  <Button
+                    onClick={() => handleDatabaseBackup(backupUrl || undefined)}
+                    disabled={isBackingUp}
+                    className="flex-1"
+                    data-testid="button-export-backup"
+                  >
+                    {isBackingUp 
+                      ? (language === "jp" ? "エクスポート中..." : "Exporting...") 
+                      : (language === "jp" ? "エクスポート" : "Export Backup")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Database Restore Dialog */}
         {showRestoreDialog && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" data-testid="modal-database-restore">
