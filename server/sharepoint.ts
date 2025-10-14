@@ -64,8 +64,8 @@ export async function uploadToSharePoint(
     const client = await getUncachableSharePointClient();
     
     // Try using share link approach first (for folders shared via link)
-    // Share link: https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6hxIz9IA2Uc29cajPFYx5w
-    const shareUrl = 'https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6hxIz9IA2Uc29cajPFYx5w';
+    // Share link: https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6DNKbQ07azNwCV2XF3FSZw
+    const shareUrl = 'https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6DNKbQ07azNwCV2XF3FSZw';
     
     console.log('Attempting to access SharePoint folder via share link...');
     
