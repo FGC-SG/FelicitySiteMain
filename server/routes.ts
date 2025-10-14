@@ -2084,8 +2084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Access denied. Superadmin only.' });
       }
 
-      const customUrl = req.query.url as string | undefined;
-      console.log('Creating comprehensive database backup...', customUrl ? `with custom URL: ${customUrl}` : 'default mode');
+      console.log('Creating comprehensive database backup for download...');
 
       // Create workbook
       const wb = XLSX.utils.book_new();
@@ -2257,38 +2256,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Write the file to buffer
       const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-      // Try to upload to SharePoint if custom URL is provided
-      if (customUrl) {
-        try {
-          const { uploadToSharePoint } = await import('./sharepoint.js');
-          const uploadResult = await uploadToSharePoint(filename, buffer, customUrl);
-          
-          if (uploadResult.success) {
-            console.log(`Database backup uploaded to SharePoint: ${uploadResult.webUrl}`);
-            return res.json({ 
-              success: true, 
-              message: 'Database backup uploaded to SharePoint successfully',
-              sharePointUrl: uploadResult.webUrl,
-              filename 
-            });
-          } else {
-            throw new Error(uploadResult.error || 'SharePoint upload failed');
-          }
-        } catch (sharePointError) {
-          console.error('SharePoint upload failed:', sharePointError);
-          return res.status(500).json({ 
-            message: 'Failed to upload to SharePoint',
-            error: sharePointError instanceof Error ? sharePointError.message : 'Unknown error'
-          });
-        }
-      } else {
-        // No URL provided, download to local Downloads folder
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        res.send(buffer);
-        
-        console.log(`Database backup exported as download: ${filename}`);
-      }
+      // Send file as download - browser will show save dialog for location selection
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(buffer);
+      
+      console.log(`Database backup exported as download: ${filename}`);
     } catch (error) {
       console.error('Error exporting database backup:', error);
       res.status(500).json({ message: 'Failed to export database backup' });

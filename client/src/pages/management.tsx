@@ -19,7 +19,6 @@ export default function ManagementPage() {
   const [showNewsList, setShowNewsList] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [showBackupDialog, setShowBackupDialog] = useState(false);
-  const [backupUrl, setBackupUrl] = useState('');
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge');
   const [restoreFile, setRestoreFile] = useState<File | null>(null);
@@ -178,13 +177,12 @@ export default function ManagementPage() {
     }
   };
 
-  const handleDatabaseBackup = async (customUrl?: string) => {
-    console.log('Database backup initiated...', customUrl ? `with URL: ${customUrl}` : 'download mode');
+  const handleDatabaseBackup = async () => {
+    console.log('Database backup initiated - download mode');
     setIsBackingUp(true);
     
     try {
-      const urlParams = customUrl ? `?url=${encodeURIComponent(customUrl)}` : '';
-      const response = await fetch(`/api/export/database-backup${urlParams}`, {
+      const response = await fetch('/api/export/database-backup', {
         method: 'GET',
         credentials: 'include',
       });
@@ -195,51 +193,31 @@ export default function ManagementPage() {
         throw new Error('Failed to export database backup');
       }
       
-      const contentType = response.headers.get('content-type');
+      // File download
+      const blob = await response.blob();
+      console.log('Backup blob received, size:', blob.size);
       
-      // Check if response is JSON (upload successful) or blob (file download)
-      if (contentType && contentType.includes('application/json')) {
-        // Upload successful
-        const result = await response.json();
-        console.log('Backup uploaded:', result);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Use setTimeout to ensure toast appears after the download prompt
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
         
+        console.log('Showing success toast...');
         toast({
-          title: language === "jp" ? "アップロード成功" : "Upload Successful",
-          description: language === "jp" 
-            ? `データベースバックアップがアップロードされました: ${result.filename}` 
-            : `Database backup has been uploaded: ${result.filename}`,
+          title: language === "jp" ? "バックアップ成功" : "Backup Successful",
+          description: language === "jp" ? "データベースバックアップがダウンロードされました。保存先を選択してください。" : "Database backup downloaded. Choose your save location.",
         });
-        
-        setShowBackupDialog(false);
-        setBackupUrl('');
-      } else {
-        // Fallback: file download
-        const blob = await response.blob();
-        console.log('Backup blob received, size:', blob.size);
-        
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = `felicity-database-backup-${new Date().toISOString().split('T')[0]}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        
-        // Use setTimeout to ensure toast appears after the download prompt
-        setTimeout(() => {
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-          
-          console.log('Showing success toast...');
-          toast({
-            title: language === "jp" ? "バックアップ成功" : "Backup Successful",
-            description: language === "jp" ? "データベースバックアップがダウンロードされました。" : "Database backup has been downloaded successfully.",
-          });
-        }, 100);
-        
-        setShowBackupDialog(false);
-        setBackupUrl('');
-      }
+      }, 100);
+      
+      setShowBackupDialog(false);
     } catch (error) {
       console.error('Error exporting database backup:', error);
       toast({
@@ -656,10 +634,7 @@ export default function ManagementPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    setShowBackupDialog(false);
-                    setBackupUrl('');
-                  }}
+                  onClick={() => setShowBackupDialog(false)}
                   data-testid="button-close-backup"
                 >
                   {language === "jp" ? "閉じる" : "Close"}
@@ -667,25 +642,6 @@ export default function ManagementPage() {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2" data-testid="label-sharepoint-url">
-                    {language === "jp" ? "SharePointフォルダURL（オプション）" : "SharePoint Folder URL (Optional)"}
-                  </label>
-                  <input
-                    type="text"
-                    value={backupUrl}
-                    onChange={(e) => setBackupUrl(e.target.value)}
-                    placeholder="https://fgcsg.sharepoint.com/:f:/s/FGCSite/..."
-                    className="w-full border border-input rounded-md p-2"
-                    data-testid="input-backup-url"
-                  />
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {language === "jp" 
-                      ? "URLを入力しない場合、ダウンロードフォルダに保存されます" 
-                      : "Leave empty to download to your Downloads folder"}
-                  </p>
-                </div>
-
                 <div className="bg-muted/30 rounded-lg p-4">
                   <h4 className="font-semibold mb-2" data-testid="text-backup-info">
                     {language === "jp" ? "バックアップ情報" : "Backup Information"}
@@ -693,31 +649,28 @@ export default function ManagementPage() {
                   <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
                     <li>{language === "jp" ? "すべてのデータベーステーブルをエクスポート" : "Exports all database tables"}</li>
                     <li>{language === "jp" ? "MS Access互換のExcel形式" : "MS Access compatible Excel format"}</li>
-                    <li>{language === "jp" ? "URL指定でSharePointに直接アップロード可能" : "Upload directly to SharePoint with URL"}</li>
+                    <li>{language === "jp" ? "保存先をブラウザで選択できます" : "Choose save location via browser dialog"}</li>
                   </ul>
                 </div>
 
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setShowBackupDialog(false);
-                      setBackupUrl('');
-                    }}
+                    onClick={() => setShowBackupDialog(false)}
                     disabled={isBackingUp}
                     data-testid="button-cancel-backup"
                   >
                     {language === "jp" ? "キャンセル" : "Cancel"}
                   </Button>
                   <Button
-                    onClick={() => handleDatabaseBackup(backupUrl || undefined)}
+                    onClick={() => handleDatabaseBackup()}
                     disabled={isBackingUp}
                     className="flex-1"
                     data-testid="button-export-backup"
                   >
                     {isBackingUp 
                       ? (language === "jp" ? "エクスポート中..." : "Exporting...") 
-                      : (language === "jp" ? "エクスポート" : "Export Backup")}
+                      : (language === "jp" ? "エクスポートして保存" : "Export & Save")}
                   </Button>
                 </div>
               </div>
