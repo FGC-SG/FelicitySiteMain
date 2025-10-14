@@ -115,14 +115,14 @@ export function CompanyProfiles({ language }: CompanyProfilesProps) {
                 <div className="flex justify-between items-center">
                   <span className="font-medium">{t.profiles.japan.url}</span>
                   <a 
-                    href="https://www.fgcsg.com" 
+                    href="https://felicitycapital.jp" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-primary hover:underline flex items-center gap-1"
                     data-testid="link-japan-url"
                   >
                     <Globe className="h-3 w-3" />
-                    <span>fgcsg.com</span>
+                    <span>https://felicitycapital.jp</span>
                   </a>
                 </div>
               </div>
