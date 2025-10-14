@@ -63,92 +63,129 @@ export async function uploadToSharePoint(
   try {
     const client = await getUncachableSharePointClient();
     
-    // Target specific SharePoint site: fgcsg.sharepoint.com/sites/FGCSite
-    const hostname = 'fgcsg.sharepoint.com';
-    const sitePath = '/sites/FGCSite';
+    // Try using share link approach first (for folders shared via link)
+    // Share link: https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6hxIz9IA2Uc29cajPFYx5w
+    const shareUrl = 'https://fgcsg.sharepoint.com/:f:/s/FGCSite/El1uC3iknfNDi5IltTfgjlEB6hxIz9IA2Uc29cajPFYx5w';
     
-    console.log(`Accessing SharePoint site: ${hostname}${sitePath}`);
+    console.log('Attempting to access SharePoint folder via share link...');
     
-    // Get the site
-    let site;
-    try {
-      site = await client.api(`/sites/${hostname}:${sitePath}`).get();
-      console.log('SharePoint site found:', site.id);
-    } catch (error) {
-      console.error('Error accessing SharePoint site:', error);
-      throw new Error('Unable to access SharePoint site. Please check permissions.');
-    }
-    
-    // Get the default document library (drive)
-    let driveId;
+    let driveId, itemId;
     
     try {
-      // Try to get drives from the site
-      const drives = await client.api(`/sites/${site.id}/drives`).get();
-      console.log('Drives response:', JSON.stringify(drives, null, 2));
+      // Encode the share URL for Graph API
+      const encodedUrl = Buffer.from(shareUrl).toString('base64')
+        .replace(/=/g, '')
+        .replace(/\//g, '_')
+        .replace(/\+/g, '-');
       
-      if (drives.value && drives.value.length > 0) {
-        driveId = drives.value[0].id;
-        console.log('Using drive from drives list:', driveId);
-      } else {
-        // Try to get the default document library directly
-        console.log('No drives found, trying default drive...');
-        const defaultDrive = await client.api(`/sites/${site.id}/drive`).get();
-        driveId = defaultDrive.id;
-        console.log('Using default drive:', driveId);
+      console.log('Accessing shared folder with encoded URL...');
+      
+      // Access the shared item
+      const sharedItem = await client.api(`/shares/u!${encodedUrl}/driveItem`).get();
+      console.log('Shared item accessed:', sharedItem.id);
+      
+      driveId = sharedItem.parentReference?.driveId;
+      itemId = sharedItem.id;
+      
+      console.log('Using drive from share link:', driveId);
+      console.log('Using folder ID from share link:', itemId);
+      
+    } catch (shareError) {
+      console.error('Error accessing via share link:', shareError);
+      
+      // Fallback to direct site access
+      console.log('Falling back to direct site access...');
+      
+      const hostname = 'fgcsg.sharepoint.com';
+      const sitePath = '/sites/FGCSite';
+      
+      console.log(`Accessing SharePoint site: ${hostname}${sitePath}`);
+      
+      let site;
+      try {
+        site = await client.api(`/sites/${hostname}:${sitePath}`).get();
+        console.log('SharePoint site found:', site.id);
+      } catch (error) {
+        console.error('Error accessing SharePoint site:', error);
+        throw new Error('Unable to access SharePoint site. Please check permissions.');
       }
-    } catch (driveError) {
-      console.error('Error getting drives:', driveError);
-      throw new Error(`Unable to access document library: ${driveError instanceof Error ? driveError.message : 'Unknown error'}`);
+      
+      // Get the default document library (drive)
+      try {
+        // Try to get drives from the site
+        const drives = await client.api(`/sites/${site.id}/drives`).get();
+        console.log('Drives response:', JSON.stringify(drives, null, 2));
+        
+        if (drives.value && drives.value.length > 0) {
+          driveId = drives.value[0].id;
+          itemId = 'root';
+          console.log('Using drive from drives list:', driveId);
+        } else {
+          // Try to get the default document library directly
+          console.log('No drives found, trying default drive...');
+          const defaultDrive = await client.api(`/sites/${site.id}/drive`).get();
+          driveId = defaultDrive.id;
+          itemId = 'root';
+          console.log('Using default drive:', driveId);
+        }
+      } catch (driveError) {
+        console.error('Error getting drives:', driveError);
+        throw new Error(`Unable to access document library: ${driveError instanceof Error ? driveError.message : 'Unknown error'}`);
+      }
     }
     
     if (!driveId) {
       throw new Error('No document library found in SharePoint site');
     }
     
-    // Create folder path if it doesn't exist
-    const folderParts = folderPath.split('/').filter(p => p);
-    let currentFolderId = 'root';
+    // Use itemId if available from share link, otherwise use 'root'
+    let currentFolderId = itemId || 'root';
     
-    for (const folderName of folderParts) {
-      try {
-        // Try to get the folder
-        const folder = await client
-          .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
-          .filter(`name eq '${folderName}'`)
-          .get();
-        
-        if (folder.value && folder.value.length > 0) {
-          currentFolderId = folder.value[0].id;
-          console.log(`Found existing folder: ${folderName}`);
-        } else {
-          // Create the folder
-          const newFolder = await client
-            .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
-            .post({
-              name: folderName,
-              folder: {},
-              '@microsoft.graph.conflictBehavior': 'rename'
-            });
-          currentFolderId = newFolder.id;
-          console.log(`Created new folder: ${folderName}`);
-        }
-      } catch (error) {
-        console.error(`Error with folder ${folderName}:`, error);
-        // Try to create it anyway
+    // Create folder path if it doesn't exist (skip if we already have the target folder from share link)
+    const folderParts = folderPath.split('/').filter(p => p);
+    
+    // If we got itemId from share link, we're already in the target folder, so skip folder creation
+    if (!itemId && folderParts.length > 0) {
+      for (const folderName of folderParts) {
         try {
-          const newFolder = await client
-            .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}/children`)
-            .post({
-              name: folderName,
-              folder: {},
-              '@microsoft.graph.conflictBehavior': 'rename'
-            });
-          currentFolderId = newFolder.id;
-          console.log(`Created new folder: ${folderName}`);
-        } catch (createError) {
-          console.error('Failed to create folder:', createError);
-          throw createError;
+          // Try to get the folder
+          const folder = await client
+            .api(`/drives/${driveId}/items/${currentFolderId}/children`)
+            .filter(`name eq '${folderName}'`)
+            .get();
+          
+          if (folder.value && folder.value.length > 0) {
+            currentFolderId = folder.value[0].id;
+            console.log(`Found existing folder: ${folderName}`);
+          } else {
+            // Create the folder
+            const newFolder = await client
+              .api(`/drives/${driveId}/items/${currentFolderId}/children`)
+              .post({
+                name: folderName,
+                folder: {},
+                '@microsoft.graph.conflictBehavior': 'rename'
+              });
+            currentFolderId = newFolder.id;
+            console.log(`Created new folder: ${folderName}`);
+          }
+        } catch (error) {
+          console.error(`Error with folder ${folderName}:`, error);
+          // Try to create it anyway
+          try {
+            const newFolder = await client
+              .api(`/drives/${driveId}/items/${currentFolderId}/children`)
+              .post({
+                name: folderName,
+                folder: {},
+                '@microsoft.graph.conflictBehavior': 'rename'
+              });
+            currentFolderId = newFolder.id;
+            console.log(`Created new folder: ${folderName}`);
+          } catch (createError) {
+            console.error('Failed to create folder:', createError);
+            throw createError;
+          }
         }
       }
     }
@@ -156,7 +193,7 @@ export async function uploadToSharePoint(
     // Upload the file
     console.log(`Uploading file ${fileName} to folder ${currentFolderId}`);
     const response = await client
-      .api(`/sites/${site.id}/drives/${driveId}/items/${currentFolderId}:/${fileName}:/content`)
+      .api(`/drives/${driveId}/items/${currentFolderId}:/${fileName}:/content`)
       .put(fileBuffer);
     
     console.log('File uploaded to SharePoint successfully:', response.webUrl);
