@@ -227,14 +227,10 @@ function PortfolioPage() {
           <p className="text-xl md:text-2xl text-blue-100 mb-8" data-testid="text-portfolio-subtitle">
             Our investment portfolio across various sectors and regions
           </p>
-          <div className="grid md:grid-cols-3 gap-6 mt-12">
+          <div className="grid md:grid-cols-2 gap-6 mt-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
               <div className="text-3xl font-bold">{portfolios?.length || 0}</div>
               <div className="text-blue-200">Portfolio Companies</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <div className="text-3xl font-bold">{countries.length}</div>
-              <div className="text-blue-200">Countries</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
               <div className="text-3xl font-bold">{investmentTypes.length}</div>
