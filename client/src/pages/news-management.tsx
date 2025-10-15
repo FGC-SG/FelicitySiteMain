@@ -427,6 +427,17 @@ export default function NewsManagementPage() {
                         <Button variant="outline" size="sm" data-testid={`button-edit-article-${article.id}`}>
                           {language === "en" ? "Edit" : "編集"}
                         </Button>
+                        {article.attachmentUrl && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => window.open(article.attachmentUrl, '_blank')}
+                            data-testid={`button-attachment-${article.id}`}
+                          >
+                            <FileText className="h-4 w-4 mr-1" />
+                            {language === "en" ? "Attachment" : "添付"}
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
