@@ -131,6 +131,7 @@ export const newsArticles = pgTable("news_articles", {
   content: varchar("content").notNull(),
   titleJa: varchar("title_ja"),
   contentJa: varchar("content_ja"),
+  attachmentUrl: varchar("attachment_url"), // OneDrive or other file URL
   language: varchar("language").notNull(),
   category: varchar("category").notNull(),
   felicityCompany: varchar("felicity_company").notNull().default("felicity-singapore"), // felicity-singapore, felicity-japan
