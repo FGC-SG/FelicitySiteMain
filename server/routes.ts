@@ -2473,218 +2473,233 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Import Users (merge/upsert by email)
       if (shouldRestoreTable('users')) {
-      for (const row of usersData as any[]) {
-        try {
-          await storage.upsertUser({
-            id: row['ID'],
-            email: row['Email'],
-            firstName: row['First Name'] || '',
-            lastName: row['Last Name'] || '',
-            role: row['Role'] || 'user',
-            isActive: parseBoolean(row['Is Active'])
-          });
-          importedCounts.users++;
-        } catch (error) {
-          console.error('Error importing user:', error);
-          result.warnings.push(`User ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+        for (const row of usersData as any[]) {
+          try {
+            await storage.upsertUser({
+              id: row['ID'],
+              email: row['Email'],
+              firstName: row['First Name'] || '',
+              lastName: row['Last Name'] || '',
+              role: row['Role'] || 'user',
+              isActive: parseBoolean(row['Is Active'])
+            });
+            importedCounts.users++;
+          } catch (error) {
+            console.error('Error importing user:', error);
+            result.warnings.push(`User ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+          }
         }
       }
 
       // Import Funds
-      for (const row of fundsData as any[]) {
-        try {
-          const fundData: any = {
-            id: row['ID'],
-            name: row['Name'],
-            description: row['Description'] || '',
-            descriptionJa: row['Description (Japanese)'] || '',
-            vintage: row['Vintage'] || '',
-            status: row['Status'] || '',
-            felicityCompany: row['Felicity Company'] || '',
-            isVisible: parseBoolean(row['Visible'])
-          };
-          
-          // Try to get existing fund
-          const existing = await storage.getFund(row['ID']);
-          if (existing) {
-            await storage.updateFund(row['ID'], fundData);
-          } else {
-            await storage.createFund(fundData);
+      if (shouldRestoreTable('funds')) {
+        for (const row of fundsData as any[]) {
+          try {
+            const fundData: any = {
+              id: row['ID'],
+              name: row['Name'],
+              description: row['Description'] || '',
+              descriptionJa: row['Description (Japanese)'] || '',
+              vintage: row['Vintage'] || '',
+              status: row['Status'] || '',
+              felicityCompany: row['Felicity Company'] || '',
+              isVisible: parseBoolean(row['Visible'])
+            };
+            
+            // Try to get existing fund
+            const existing = await storage.getFund(row['ID']);
+            if (existing) {
+              await storage.updateFund(row['ID'], fundData);
+            } else {
+              await storage.createFund(fundData);
+            }
+            importedCounts.funds++;
+          } catch (error) {
+            console.error('Error importing fund:', error);
+            result.warnings.push(`Fund ${row['Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
-          importedCounts.funds++;
-        } catch (error) {
-          console.error('Error importing fund:', error);
-          result.warnings.push(`Fund ${row['Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
         }
       }
 
       // Import Portfolios
-      for (const row of portfoliosData as any[]) {
-        try {
-          const portfolioData: any = {
-            id: row['ID'],
-            companyName: row['Company Name'],
-            companyNameJa: row['Company Name (Japanese)'] || '',
-            felicityCompany: row['Felicity Company'],
-            fundName: row['Fund Name'] || '',
-            industry: row['Industry'],
-            investmentType: row['Investment Type'],
-            country: row['Country'],
-            investmentYear: row['Investment Year'] || '',
-            status: row['Status'] || 'ongoing',
-            website: row['Website'] || '',
-            logoUrl: row['Logo URL'] || '',
-            logoDisplayMode: row['Logo Display Mode'] || 'auto',
-            description: row['Description'] || '',
-            descriptionJa: row['Description (Japanese)'] || '',
-            isVisible: parseBoolean(row['Visible'])
-          };
-          
+      if (shouldRestoreTable('portfolios')) {
+        for (const row of portfoliosData as any[]) {
           try {
-            await storage.createPortfolio(portfolioData);
-          } catch {
-            // If create fails (ID already exists), try update
-            await storage.updatePortfolio(row['ID'], portfolioData);
+            const portfolioData: any = {
+              id: row['ID'],
+              companyName: row['Company Name'],
+              companyNameJa: row['Company Name (Japanese)'] || '',
+              felicityCompany: row['Felicity Company'],
+              fundName: row['Fund Name'] || '',
+              industry: row['Industry'],
+              investmentType: row['Investment Type'],
+              country: row['Country'],
+              investmentYear: row['Investment Year'] || '',
+              status: row['Status'] || 'ongoing',
+              website: row['Website'] || '',
+              logoUrl: row['Logo URL'] || '',
+              logoDisplayMode: row['Logo Display Mode'] || 'auto',
+              description: row['Description'] || '',
+              descriptionJa: row['Description (Japanese)'] || '',
+              isVisible: parseBoolean(row['Visible'])
+            };
+            
+            try {
+              await storage.createPortfolio(portfolioData);
+            } catch {
+              // If create fails (ID already exists), try update
+              await storage.updatePortfolio(row['ID'], portfolioData);
+            }
+            importedCounts.portfolios++;
+          } catch (error) {
+            console.error('Error importing portfolio:', error);
+            result.warnings.push(`Portfolio ${row['Company Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
-          importedCounts.portfolios++;
-        } catch (error) {
-          console.error('Error importing portfolio:', error);
-          result.warnings.push(`Portfolio ${row['Company Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
         }
       }
 
       // Import Members
-      for (const row of membersData as any[]) {
-        try {
-          const memberData: any = {
-            id: row['ID'],
-            name: row['Name'],
-            title: row['Title'],
-            company: row['Company'],
-            bio: row['Bio'] || '',
-            photoUrl: row['Photo URL'] || '',
-            displayOrder: parseInt(row['Display Order']) || 0,
-            isVisible: parseBoolean(row['Visible'])
-          };
-          
+      if (shouldRestoreTable('members')) {
+        for (const row of membersData as any[]) {
           try {
-            await storage.createMember(memberData);
-          } catch {
-            await storage.updateMember(row['ID'], memberData);
+            const memberData: any = {
+              id: row['ID'],
+              name: row['Name'],
+              title: row['Title'],
+              company: row['Company'],
+              bio: row['Bio'] || '',
+              photoUrl: row['Photo URL'] || '',
+              displayOrder: parseInt(row['Display Order']) || 0,
+              isVisible: parseBoolean(row['Visible'])
+            };
+            
+            try {
+              await storage.createMember(memberData);
+            } catch {
+              await storage.updateMember(row['ID'], memberData);
+            }
+            importedCounts.members++;
+          } catch (error) {
+            console.error('Error importing member:', error);
+            result.warnings.push(`Member ${row['Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
-          importedCounts.members++;
-        } catch (error) {
-          console.error('Error importing member:', error);
-          result.warnings.push(`Member ${row['Name']}: ${error instanceof Error ? error.message : 'Import failed'}`);
         }
       }
 
       // Import News Articles
-      for (const row of newsData as any[]) {
-        try {
-          const newsData: any = {
-            id: row['ID'],
-            title: row['Title'],
-            titleJa: row['Title (Japanese)'] || '',
-            content: row['Content'],
-            contentJa: row['Content (Japanese)'] || '',
-            attachmentUrl: row['Attachment URL'] || '',
-            authorId: row['Author ID'] || null,
-            language: row['Language'],
-            category: row['Category'],
-            felicityCompany: row['Felicity Company'],
-            publishedAt: row['Published At'] ? new Date(row['Published At']) : new Date(),
-            isVisible: parseBoolean(row['Visible'])
-          };
-          
+      if (shouldRestoreTable('newsArticles')) {
+        for (const row of newsData as any[]) {
           try {
-            await storage.createNewsArticle(newsData);
-          } catch {
-            await storage.updateNewsArticle(row['ID'], newsData);
+            const newsData: any = {
+              id: row['ID'],
+              title: row['Title'],
+              titleJa: row['Title (Japanese)'] || '',
+              content: row['Content'],
+              contentJa: row['Content (Japanese)'] || '',
+              attachmentUrl: row['Attachment URL'] || '',
+              authorId: row['Author ID'] || null,
+              language: row['Language'],
+              category: row['Category'],
+              felicityCompany: row['Felicity Company'],
+              publishedAt: row['Published At'] ? new Date(row['Published At']) : new Date(),
+              isVisible: parseBoolean(row['Visible'])
+            };
+            
+            try {
+              await storage.createNewsArticle(newsData);
+            } catch {
+              await storage.updateNewsArticle(row['ID'], newsData);
+            }
+            importedCounts.newsArticles++;
+          } catch (error) {
+            console.error('Error importing news article:', error);
+            result.warnings.push(`News ${row['Title']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
-          importedCounts.newsArticles++;
-        } catch (error) {
-          console.error('Error importing news article:', error);
-          result.warnings.push(`News ${row['Title']}: ${error instanceof Error ? error.message : 'Import failed'}`);
         }
       }
 
       // Import Fund Disclosures
-      for (const row of disclosuresData as any[]) {
-        try {
-          const disclosureData: any = {
-            id: row['ID'],
-            fundId: row['Fund ID'],
-            fundName: row['Fund Name'] || '',
-            title: row['Title'] || row['Title (Japanese)'] || '',
-            titleJa: row['Title (Japanese)'] || '',
-            pdfUrl: row['PDF URL'] || '',
-            disclosureDate: row['Disclosure Date'] ? new Date(row['Disclosure Date']) : new Date()
-          };
-          
+      if (shouldRestoreTable('fundDisclosures')) {
+        for (const row of disclosuresData as any[]) {
           try {
-            await storage.createFundDisclosure(disclosureData);
-          } catch {
-            await storage.updateFundDisclosure(row['ID'], disclosureData);
+            const disclosureData: any = {
+              id: row['ID'],
+              fundId: row['Fund ID'],
+              fundName: row['Fund Name'] || '',
+              title: row['Title'] || row['Title (Japanese)'] || '',
+              titleJa: row['Title (Japanese)'] || '',
+              pdfUrl: row['PDF URL'] || '',
+              disclosureDate: row['Disclosure Date'] ? new Date(row['Disclosure Date']) : new Date()
+            };
+            
+            try {
+              await storage.createFundDisclosure(disclosureData);
+            } catch {
+              await storage.updateFundDisclosure(row['ID'], disclosureData);
+            }
+            importedCounts.fundDisclosures++;
+          } catch (error) {
+            console.error('Error importing fund disclosure:', error);
+            result.warnings.push(`Fund Disclosure ${row['Title']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
-          importedCounts.fundDisclosures++;
-        } catch (error) {
-          console.error('Error importing fund disclosure:', error);
-          result.warnings.push(`Fund Disclosure ${row['Title']}: ${error instanceof Error ? error.message : 'Import failed'}`);
         }
       }
 
       // Import Contact Submissions
-      for (const row of contactsData as any[]) {
-        try {
-          const contactData: any = {
-            id: row['ID'],
-            firstName: row['First Name'],
-            lastName: row['Last Name'],
-            email: row['Email'],
-            company: row['Company'] || '',
-            message: row['Message']
-          };
-          
+      if (shouldRestoreTable('contactSubmissions')) {
+        for (const row of contactsData as any[]) {
           try {
-            await storage.createContactSubmission(contactData);
-          } catch {
-            // Contact submissions typically don't need updates, skip on duplicate
-            result.warnings.push(`Contact ${row['Email']}: Skipped (duplicate ID)`);
+            const contactData: any = {
+              id: row['ID'],
+              firstName: row['First Name'],
+              lastName: row['Last Name'],
+              email: row['Email'],
+              company: row['Company'] || '',
+              message: row['Message']
+            };
+            
+            try {
+              await storage.createContactSubmission(contactData);
+            } catch {
+              // Contact submissions typically don't need updates, skip on duplicate
+              result.warnings.push(`Contact ${row['Email']}: Skipped (duplicate ID)`);
+            }
+            importedCounts.contactSubmissions++;
+          } catch (error) {
+            console.error('Error importing contact submission:', error);
+            result.warnings.push(`Contact ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
-          importedCounts.contactSubmissions++;
-        } catch (error) {
-          console.error('Error importing contact submission:', error);
-          result.warnings.push(`Contact ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
         }
       }
 
       // Import User Invitations
-      for (const row of invitationsData as any[]) {
-        try {
-          const invitationData: any = {
-            id: row['ID'],
-            email: row['Email'],
-            firstName: row['First Name'] || '',
-            lastName: row['Last Name'] || '',
-            role: row['Role'] || 'user',
-            invitedById: row['Invited By ID'],
-            invitationToken: row['Invitation Token'],
-            status: row['Status'],
-            expiresAt: row['Expires At'] ? new Date(row['Expires At']) : null,
-            acceptedAt: row['Accepted At'] ? new Date(row['Accepted At']) : null
-          };
-          
+      if (shouldRestoreTable('userInvitations')) {
+        for (const row of invitationsData as any[]) {
           try {
-            await storage.createInvitation(invitationData);
-          } catch {
-            // Invitations typically don't need updates, skip on duplicate
-            result.warnings.push(`Invitation ${row['Email']}: Skipped (duplicate ID)`);
+            const invitationData: any = {
+              id: row['ID'],
+              email: row['Email'],
+              firstName: row['First Name'] || '',
+              lastName: row['Last Name'] || '',
+              role: row['Role'] || 'user',
+              invitedById: row['Invited By ID'],
+              invitationToken: row['Invitation Token'],
+              status: row['Status'],
+              expiresAt: row['Expires At'] ? new Date(row['Expires At']) : null,
+              acceptedAt: row['Accepted At'] ? new Date(row['Accepted At']) : null
+            };
+            
+            try {
+              await storage.createInvitation(invitationData);
+            } catch {
+              // Invitations typically don't need updates, skip on duplicate
+              result.warnings.push(`Invitation ${row['Email']}: Skipped (duplicate ID)`);
+            }
+            importedCounts.userInvitations++;
+          } catch (error) {
+            console.error('Error importing user invitation:', error);
+            result.warnings.push(`Invitation ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
-          importedCounts.userInvitations++;
-        } catch (error) {
-          console.error('Error importing user invitation:', error);
-          result.warnings.push(`Invitation ${row['Email']}: ${error instanceof Error ? error.message : 'Import failed'}`);
         }
       }
 
