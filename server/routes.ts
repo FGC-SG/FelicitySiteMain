@@ -2118,6 +2118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // 2. Export News Articles
       const news = await storage.getNewsArticles();
+      console.log('Sample news article from DB:', news.length > 0 ? JSON.stringify(news[0], null, 2) : 'No articles');
       const newsData = news.map(n => ({
         'ID': n.id,
         'Title': n.title,
@@ -2134,6 +2135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Created At': n.createdAt ? new Date(n.createdAt).toISOString() : '',
         'Updated At': n.updatedAt ? new Date(n.updatedAt).toISOString() : ''
       }));
+      console.log('Sample newsData for export:', newsData.length > 0 ? JSON.stringify(newsData[0], null, 2) : 'No data');
       if (newsData.length > 0) {
         const ws2 = XLSX.utils.json_to_sheet(newsData);
         XLSX.utils.book_append_sheet(wb, ws2, 'News Articles');
