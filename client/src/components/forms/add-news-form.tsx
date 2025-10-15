@@ -19,6 +19,7 @@ const addNewsSchema = z.object({
   content: z.string().min(1, "Content is required"),
   titleJa: z.string().optional(),
   contentJa: z.string().optional(),
+  attachmentUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   language: z.enum(["en", "jp"]),
   category: z.string().min(1, "Category is required"),
   felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
@@ -120,6 +121,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       content: "",
       titleJa: "",
       contentJa: "",
+      attachmentUrl: "",
       language: language,
       category: "",
       felicityCompany: "felicity-singapore",
@@ -344,6 +346,26 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               />
             </div>
 
+            <FormField
+              control={form.control}
+              name="attachmentUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel data-testid="label-news-attachment">
+                    {language === "en" ? "File Attachment (OneDrive URL)" : "ファイル添付（OneDrive URL）"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="url"
+                      placeholder={language === "en" ? "https://onedrive.live.com/..." : "https://onedrive.live.com/..."}
+                      {...field}
+                      data-testid="input-news-attachment"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
