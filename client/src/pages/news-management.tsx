@@ -389,7 +389,7 @@ export default function NewsManagementPage() {
                       </CardTitle>
                       
                       <CardDescription className="line-clamp-3" data-testid={`article-description-${article.id}`}>
-                        {article.description}
+                        {article.content.substring(0, 150)}{article.content.length > 150 ? '...' : ''}
                       </CardDescription>
                     </CardHeader>
                     

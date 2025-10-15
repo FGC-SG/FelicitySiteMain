@@ -128,10 +128,8 @@ export type InsertFund = typeof funds.$inferInsert;
 export const newsArticles = pgTable("news_articles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
-  description: varchar("description"),
   content: varchar("content").notNull(),
   titleJa: varchar("title_ja"),
-  descriptionJa: varchar("description_ja"),
   contentJa: varchar("content_ja"),
   language: varchar("language").notNull(),
   category: varchar("category").notNull(),
