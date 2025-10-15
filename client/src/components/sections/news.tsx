@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Newspaper, Calendar, User, Eye, ArrowRight, X } from "lucide-react";
+import { Newspaper, Calendar, User, Eye, ArrowRight, X, FileText } from "lucide-react";
 
 interface NewsProps {
   language: Language;
@@ -14,11 +14,10 @@ interface NewsProps {
 interface NewsArticle {
   id: string;
   title: string;
-  description: string;
   content: string;
   titleJa?: string;
-  descriptionJa?: string;
   contentJa?: string;
+  attachmentUrl?: string;
   language: string;
   category: string;
   authorId: string;
@@ -146,7 +145,8 @@ export function News({ language }: NewsProps) {
               .map((article: NewsArticle) => {
                 // Use appropriate language content based on availability
                 const displayTitle = language === "jp" && article.titleJa ? article.titleJa : article.title;
-                const displayDescription = language === "jp" && article.descriptionJa ? article.descriptionJa : article.description;
+                const displayContent = language === "jp" && article.contentJa ? article.contentJa : article.content;
+                const displayDescription = displayContent.substring(0, 150) + (displayContent.length > 150 ? '...' : '');
                 
                 return (
                 <Card key={article.id} className="hover:shadow-lg transition-shadow" data-testid={`news-card-${article.id}`}>
@@ -198,16 +198,29 @@ export function News({ language }: NewsProps) {
                           </span>
                         </div>
                         
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          data-testid={`button-read-more-${article.id}`}
-                          onClick={() => handleReadMore(article)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          {language === "en" ? "Read More" : "続きを読む"}
-                          <ArrowRight className="h-4 w-4 ml-1" />
-                        </Button>
+                        <div className="flex gap-2">
+                          {(article as any).attachmentUrl && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => window.open((article as any).attachmentUrl, '_blank')}
+                              data-testid={`button-attachment-${article.id}`}
+                            >
+                              <FileText className="h-4 w-4 mr-1" />
+                              {language === "en" ? "File" : "ファイル"}
+                            </Button>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            data-testid={`button-read-more-${article.id}`}
+                            onClick={() => handleReadMore(article)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            {language === "en" ? "Read More" : "続きを読む"}
+                            <ArrowRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -239,7 +252,6 @@ export function News({ language }: NewsProps) {
           {selectedArticle && (() => {
             // Use appropriate language content for the modal
             const modalTitle = language === "jp" && selectedArticle.titleJa ? selectedArticle.titleJa : selectedArticle.title;
-            const modalDescription = language === "jp" && selectedArticle.descriptionJa ? selectedArticle.descriptionJa : selectedArticle.description;
             const modalContent = language === "jp" && selectedArticle.contentJa ? selectedArticle.contentJa : selectedArticle.content;
 
             return (
@@ -271,11 +283,17 @@ export function News({ language }: NewsProps) {
                     {selectedArticle.category && (
                       <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
                     )}
-                  </div>
-
-                  {/* Article Description */}
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    {modalDescription}
+                    {selectedArticle.attachmentUrl && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => window.open(selectedArticle.attachmentUrl, '_blank')}
+                        data-testid="button-modal-attachment"
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        {language === "en" ? "View Attachment" : "添付ファイルを表示"}
+                      </Button>
+                    )}
                   </div>
 
                   {/* Article Content */}
