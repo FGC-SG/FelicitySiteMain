@@ -43,6 +43,7 @@ The website is structured as a multi-page application.
 - **Content Management Systems**: Dedicated modules for News, Members, and Portfolio data.
 - **Responsive Design**: Optimized for various devices using TailwindCSS and shadcn/ui.
 - **Administrative Portals**: Streamlined management interfaces for Team Management and Content Management.
+- **Cross-company Navigation**: Hero section includes a prominent button linking to Felicity Capital Inc. (Japan) website at https://felicitycapital.jp/ for seamless navigation between related entities.
 
 ## External Dependencies
 - **Database**: PostgreSQL

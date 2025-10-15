@@ -64,6 +64,14 @@ export function Hero({ language }: HeroProps) {
             >
               {t.hero.investmentApproach}
             </Button>
+            <Button
+              onClick={() => window.open('https://felicitycapital.jp/', '_blank')}
+              className="border-2 border-white text-white bg-black/20 backdrop-blur-sm px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors shadow-lg"
+              size="lg"
+              data-testid="button-felicity-japan"
+            >
+              {language === 'jp' ? 'フェリシティキャピタル株式会社はこちら' : 'For Felicity Capital Inc., please click here'}
+            </Button>
           </div>
         </div>
       </div>
