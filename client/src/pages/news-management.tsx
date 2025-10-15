@@ -14,8 +14,8 @@ import { Link } from "wouter";
 interface NewsArticle {
   id: string;
   title: string;
-  description: string;
   content: string;
+  attachmentUrl?: string;
   language: string;
   category: string;
   tags?: string;
