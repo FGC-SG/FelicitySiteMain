@@ -24,6 +24,7 @@ export default function ManagementPage() {
   const [restoreFile, setRestoreFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any>(null);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [selectedTables, setSelectedTables] = useState<Set<string>>(new Set());
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -116,6 +117,11 @@ export default function ManagementPage() {
       formData.append('file', restoreFile);
       formData.append('mode', restoreMode);
       formData.append('dryRun', dryRun.toString());
+      
+      // Include selected tables if not in dry run mode
+      if (!dryRun && selectedTables.size > 0) {
+        formData.append('selectedTables', JSON.stringify(Array.from(selectedTables)));
+      }
 
       const response = await fetch('/api/import/database-restore', {
         method: 'POST',
@@ -141,6 +147,9 @@ export default function ManagementPage() {
       if (dryRun) {
         // Show preview dialog
         setPreviewData(result);
+        // Initialize with all tables selected
+        const allTables = Object.keys(result.tables || {});
+        setSelectedTables(new Set(allTables));
         toast({
           title: language === "jp" ? "プレビュー完了" : "Preview Complete",
           description: language === "jp" ? "復元内容を確認してください。" : "Review the restore preview below.",
@@ -150,6 +159,7 @@ export default function ManagementPage() {
         setShowRestoreDialog(false);
         setPreviewData(null);
         setRestoreFile(null);
+        setSelectedTables(new Set());
         
         // Invalidate all queries to refresh data
         queryClient.invalidateQueries();
@@ -740,6 +750,7 @@ export default function ManagementPage() {
                     setShowRestoreDialog(false);
                     setPreviewData(null);
                     setRestoreFile(null);
+                    setSelectedTables(new Set());
                   }}
                   data-testid="button-close-restore"
                 >
@@ -826,19 +837,55 @@ export default function ManagementPage() {
               ) : (
                 <div className="space-y-4">
                   <div className="bg-muted/30 rounded-lg p-4">
-                    <h4 className="font-semibold mb-2" data-testid="text-preview-summary">
-                      {language === "jp" ? "復元プレビュー" : "Restore Preview"}
-                    </h4>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold" data-testid="text-preview-summary">
+                        {language === "jp" ? "復元プレビュー" : "Restore Preview"}
+                      </h4>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const allTables = Object.keys(previewData.tables || {});
+                          if (selectedTables.size === allTables.length) {
+                            setSelectedTables(new Set());
+                          } else {
+                            setSelectedTables(new Set(allTables));
+                          }
+                        }}
+                        data-testid="button-toggle-all-tables"
+                      >
+                        {selectedTables.size === Object.keys(previewData.tables || {}).length
+                          ? (language === "jp" ? "すべて解除" : "Deselect All")
+                          : (language === "jp" ? "すべて選択" : "Select All")}
+                      </Button>
+                    </div>
                     <p className="text-sm text-muted-foreground mb-4">
                       {language === "jp" ? `モード: ${restoreMode === 'merge' ? 'マージ' : '置換'}` : `Mode: ${restoreMode === 'merge' ? 'Merge' : 'Replace'}`}
                     </p>
 
                     <div className="space-y-2">
                       {Object.entries(previewData.tables).map(([table, data]: [string, any]) => (
-                        <div key={table} className="flex justify-between text-sm" data-testid={`preview-table-${table}`}>
-                          <span className="font-medium">{table}:</span>
+                        <label key={table} className="flex items-center justify-between text-sm cursor-pointer hover:bg-muted/50 p-2 rounded" data-testid={`preview-table-${table}`}>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedTables.has(table)}
+                              onChange={(e) => {
+                                const newSelected = new Set(selectedTables);
+                                if (e.target.checked) {
+                                  newSelected.add(table);
+                                } else {
+                                  newSelected.delete(table);
+                                }
+                                setSelectedTables(newSelected);
+                              }}
+                              className="w-4 h-4"
+                              data-testid={`checkbox-table-${table}`}
+                            />
+                            <span className="font-medium">{table}</span>
+                          </div>
                           <span className="text-muted-foreground">{data.total} {language === "jp" ? "件" : "records"} ({data.action})</span>
-                        </div>
+                        </label>
                       ))}
                     </div>
 
@@ -885,14 +932,18 @@ export default function ManagementPage() {
                     </Button>
                     <Button
                       onClick={() => handleDatabaseRestore(false)}
-                      disabled={isRestoring || (previewData.errors && previewData.errors.length > 0)}
+                      disabled={isRestoring || selectedTables.size === 0 || (previewData.errors && previewData.errors.length > 0)}
                       className="flex-1"
                       variant={restoreMode === 'replace' ? 'destructive' : 'default'}
                       data-testid="button-confirm-restore"
                     >
                       {isRestoring 
                         ? (language === "jp" ? "復元中..." : "Restoring...") 
-                        : (language === "jp" ? "復元を実行" : "Confirm Restore")}
+                        : selectedTables.size === 0
+                          ? (language === "jp" ? "テーブルを選択してください" : "Select Tables")
+                          : (language === "jp" 
+                              ? `復元を実行 (${selectedTables.size}テーブル)` 
+                              : `Confirm Restore (${selectedTables.size} tables)`)}
                     </Button>
                   </div>
                 </div>
