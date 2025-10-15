@@ -2297,8 +2297,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
-      const { mode = 'merge', dryRun = 'true' } = req.body;
+      const { mode = 'merge', dryRun = 'true', selectedTables } = req.body;
       const isDryRun = dryRun === 'true' || dryRun === true;
+      
+      // Parse selected tables if provided
+      let tablesToRestore: Set<string> | null = null;
+      if (selectedTables) {
+        try {
+          const tables = JSON.parse(selectedTables);
+          tablesToRestore = new Set(tables);
+          console.log(`Selected tables for restore:`, Array.from(tablesToRestore));
+        } catch (error) {
+          console.error('Error parsing selectedTables:', error);
+        }
+      }
 
       console.log(`Database restore initiated - Mode: ${mode}, Dry Run: ${isDryRun}`);
 
@@ -2450,8 +2462,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         return false;
       };
+      
+      // Helper to check if table should be restored
+      const shouldRestoreTable = (tableName: string) => {
+        // If no tables selected (dry run or initial), restore all
+        if (!tablesToRestore || tablesToRestore.size === 0) return true;
+        // Otherwise, only restore selected tables
+        return tablesToRestore.has(tableName);
+      };
 
       // Import Users (merge/upsert by email)
+      if (shouldRestoreTable('users')) {
       for (const row of usersData as any[]) {
         try {
           await storage.upsertUser({
