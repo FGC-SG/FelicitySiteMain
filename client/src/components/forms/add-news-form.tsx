@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -352,16 +352,21 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               render={({ field }) => (
                 <FormItem>
                   <FormLabel data-testid="label-news-attachment">
-                    {language === "en" ? "Embed Code (Optional)" : "埋め込みコード（オプション）"}
+                    {language === "en" ? "SharePoint File URL (Optional)" : "SharePointファイルURL（オプション）"}
                   </FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder={language === "en" ? "Paste embed code (e.g., iframe, video embed, etc.)" : "埋め込みコードを貼り付け（例：iframe、動画埋め込みなど）"}
-                      className="min-h-[100px] font-mono text-sm"
+                    <Input 
+                      type="url"
+                      placeholder={language === "en" ? "https://yourcompany.sharepoint.com/..." : "https://yourcompany.sharepoint.com/..."}
                       {...field}
                       data-testid="input-news-attachment"
                     />
                   </FormControl>
+                  <FormDescription>
+                    {language === "en" 
+                      ? "Enter SharePoint file URL. A shortened link will be generated for easy sharing." 
+                      : "SharePointファイルURLを入力してください。共有しやすい短縮リンクが自動生成されます。"}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
