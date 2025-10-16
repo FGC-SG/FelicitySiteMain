@@ -39,7 +39,7 @@ export function Hero({ language }: HeroProps) {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="block" data-testid="text-hero-title">
+            <span className="block text-[67px]" data-testid="text-hero-title">
               {language === 'jp' ? (
                 <>
                   フェリシティ
