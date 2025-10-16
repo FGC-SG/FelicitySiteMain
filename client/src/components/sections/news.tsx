@@ -191,29 +191,16 @@ export function News({ language }: NewsProps) {
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex justify-end items-center pt-2">
-                        <div className="flex gap-2">
-                          {(article as any).attachmentUrl && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => window.open((article as any).attachmentUrl, '_blank')}
-                              data-testid={`button-attachment-${article.id}`}
-                            >
-                              <FileText className="h-4 w-4 mr-1" />
-                              {language === "en" ? "File" : "ファイル"}
-                            </Button>
-                          )}
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            data-testid={`button-read-more-${article.id}`}
-                            onClick={() => handleReadMore(article)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            {language === "en" ? "Read More" : "続きを読む"}
-                            <ArrowRight className="h-4 w-4 ml-1" />
-                          </Button>
-                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          data-testid={`button-read-more-${article.id}`}
+                          onClick={() => handleReadMore(article)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          {language === "en" ? "Read More" : "続きを読む"}
+                          <ArrowRight className="h-4 w-4 ml-1" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -272,17 +259,6 @@ export function News({ language }: NewsProps) {
                     {selectedArticle.category && (
                       <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
                     )}
-                    {selectedArticle.attachmentUrl && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => window.open(selectedArticle.attachmentUrl, '_blank')}
-                        data-testid="button-modal-attachment"
-                      >
-                        <FileText className="h-4 w-4 mr-1" />
-                        {language === "en" ? "View Attachment" : "添付ファイルを表示"}
-                      </Button>
-                    )}
                   </div>
 
                   {/* Article Content */}
@@ -294,6 +270,19 @@ export function News({ language }: NewsProps) {
                       {modalContent}
                     </div>
                   </div>
+
+                  {/* Embedded Content */}
+                  {selectedArticle.attachmentUrl && (
+                    <div className="mt-6 border-t pt-6">
+                      <h4 className="text-sm font-semibold mb-3 text-muted-foreground">
+                        {language === "en" ? "Embedded Content" : "埋め込みコンテンツ"}
+                      </h4>
+                      <div 
+                        className="embed-container"
+                        dangerouslySetInnerHTML={{ __html: selectedArticle.attachmentUrl }}
+                      />
+                    </div>
+                  )}
 
                 </div>
               </>

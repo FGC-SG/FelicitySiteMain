@@ -431,11 +431,12 @@ export default function NewsManagementPage() {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            onClick={() => window.open(article.attachmentUrl, '_blank')}
-                            data-testid={`button-attachment-${article.id}`}
+                            disabled
+                            data-testid={`button-has-embed-${article.id}`}
+                            className="opacity-70"
                           >
                             <FileText className="h-4 w-4 mr-1" />
-                            {language === "en" ? "Attachment" : "添付"}
+                            {language === "en" ? "Has Embed" : "埋め込みあり"}
                           </Button>
                         )}
                       </div>
