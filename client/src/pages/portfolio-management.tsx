@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, Upload, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search, Filter, Download, Upload, ArrowLeft, Eye, EyeOff, Languages, ArrowRight } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -451,6 +451,67 @@ export default function PortfolioManagementPage() {
       return;
     }
     extractLogoMutation.mutate(websiteUrl);
+  };
+
+  // Translation mutation for description
+  const translateDescriptionMutation = useMutation({
+    mutationFn: async ({ text, sourceLanguage, targetLanguage }: { text: string; sourceLanguage: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, sourceLanguage, targetLanguage });
+      return response.json();
+    },
+    onSuccess: (data: { translatedText: string }, { targetLanguage }) => {
+      if (targetLanguage === 'jp') {
+        form.setValue('descriptionJa', data.translatedText);
+      } else {
+        form.setValue('description', data.translatedText);
+      }
+      toast({
+        title: language === 'jp' ? "翻訳完了" : "Translation Complete",
+        description: language === 'jp' ? "説明が翻訳されました。" : "Description has been translated.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = error.message || (language === 'jp' ? "翻訳に失敗しました。" : "Failed to translate text.");
+      
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの利用制限に達しました。しばらく時間をおいて再度お試しください。"
+          : "Translation service temporarily unavailable due to quota limits. Please try again later.";
+      } else if (error.message?.includes('configuration') || error.message?.includes('401')) {
+        errorMessage = language === 'jp' 
+          ? "翻訳サービスの設定に問題があります。管理者にお問い合わせください。"
+          : "Translation service configuration issue. Please contact administrator.";
+      }
+
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error", 
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleTranslateDescription = () => {
+    const englishDescription = form.getValues('description');
+    const japaneseDescription = form.getValues('descriptionJa');
+    
+    if (englishDescription && !japaneseDescription) {
+      translateDescriptionMutation.mutate({ text: englishDescription, sourceLanguage: 'en', targetLanguage: 'jp' });
+    } else if (japaneseDescription && !englishDescription) {
+      translateDescriptionMutation.mutate({ text: japaneseDescription, sourceLanguage: 'jp', targetLanguage: 'en' });
+    } else if (!englishDescription && !japaneseDescription) {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "翻訳するにはどちらかの説明フィールドに入力してください。" : "Please enter text in one of the description fields to translate.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: language === 'jp' ? "翻訳エラー" : "Translation Error",
+        description: language === 'jp' ? "両方のフィールドに入力がある場合、翻訳できません。一方を空にしてください。" : "Cannot translate when both fields have content. Please clear one field.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Filter and sort portfolios
@@ -2098,41 +2159,67 @@ export default function PortfolioManagementPage() {
                             )}
                           />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>{language === "en" ? "Description" : "説明"}</FormLabel>
-                                <FormControl>
-                                  <Textarea 
-                                    {...field} 
-                                    rows={3}
-                                    data-testid="textarea-description"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="descriptionJa"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>{language === "en" ? "Description (Japanese)" : "説明（日本語）"}</FormLabel>
-                                <FormControl>
-                                  <Textarea 
-                                    {...field} 
-                                    rows={3}
-                                    data-testid="textarea-description-ja"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{language === "en" ? "Description" : "説明"}</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      {...field} 
+                                      rows={3}
+                                      data-testid="textarea-description"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="descriptionJa"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{language === "en" ? "Description (Japanese)" : "説明（日本語）"}</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      {...field} 
+                                      rows={3}
+                                      data-testid="textarea-description-ja"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="flex justify-center">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleTranslateDescription}
+                              disabled={translateDescriptionMutation.isPending}
+                              data-testid="button-translate-description"
+                              className="gap-2"
+                            >
+                              {translateDescriptionMutation.isPending ? (
+                                <>
+                                  <Languages className="h-4 w-4 animate-spin" />
+                                  {language === 'jp' ? "翻訳中..." : "Translating..."}
+                                </>
+                              ) : (
+                                <>
+                                  <Languages className="h-4 w-4" />
+                                  {language === 'jp' ? "翻訳" : "Translate"}
+                                  <ArrowRight className="h-3 w-3" />
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         </div>
                         <div className="flex justify-end space-x-2">
                           <Button
