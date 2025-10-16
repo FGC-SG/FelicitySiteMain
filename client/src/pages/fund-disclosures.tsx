@@ -6,16 +6,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { FileText, Search, Calendar, Download, Building2, Eye } from "lucide-react";
+import { FileText, Search, Calendar, Download, Building2, Eye, Share2, Copy, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { type FundDisclosure } from "@shared/schema";
+import { shortenUrl, copyToClipboard } from "@/lib/urlShortener";
 
 export default function FundDisclosuresPage() {
   // Japan Only page - force Japanese language
   const [language, setLanguage] = useState<Language>('jp');
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  
+  // State for short URLs - Map<disclosureId, shortUrl>
+  const [shortUrls, setShortUrls] = useState<Map<string, string>>(new Map());
+  const [generatingUrls, setGeneratingUrls] = useState<Set<string>>(new Set());
+  const [copiedUrls, setCopiedUrls] = useState<Set<string>>(new Set());
 
   // Fetch fund disclosures data
   const { data: disclosures, isLoading } = useQuery<FundDisclosure[]>({
@@ -72,6 +78,68 @@ export default function FundDisclosuresPage() {
       return;
     }
     window.open(pdfUrl, '_blank');
+  };
+
+  const handleGenerateShortUrl = async (disclosureId: string, pdfUrl: string) => {
+    if (!pdfUrl || pdfUrl.trim() === '') {
+      toast({
+        title: language === 'jp' ? 'PDFが利用できません' : 'No PDF Available',
+        description: language === 'jp' ? 'この開示資料にはPDFファイルが添付されていません。' : 'This disclosure does not have a PDF file attached.',
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGeneratingUrls(prev => new Set(prev).add(disclosureId));
+    
+    const result = await shortenUrl(pdfUrl);
+    
+    if (result.success) {
+      setShortUrls(prev => new Map(prev).set(disclosureId, result.shortUrl));
+      toast({
+        title: language === 'jp' ? '短縮URLを作成しました' : 'Short URL Created',
+        description: language === 'jp' ? 'このリンクをコピーして共有できます' : 'You can now copy and share this link'
+      });
+    } else {
+      toast({
+        title: language === 'jp' ? 'エラー' : 'Error',
+        description: result.error || (language === 'jp' ? '短縮URLの作成に失敗しました' : 'Failed to create short URL'),
+        variant: "destructive"
+      });
+    }
+    
+    setGeneratingUrls(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(disclosureId);
+      return newSet;
+    });
+  };
+
+  const handleCopyShortUrl = async (disclosureId: string, shortUrl: string) => {
+    const success = await copyToClipboard(shortUrl);
+    
+    if (success) {
+      setCopiedUrls(prev => new Set(prev).add(disclosureId));
+      toast({
+        title: language === 'jp' ? 'コピーしました！' : 'Copied!',
+        description: language === 'jp' ? '短縮URLをクリップボードにコピーしました' : 'Short URL copied to clipboard'
+      });
+      
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedUrls(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(disclosureId);
+          return newSet;
+        });
+      }, 2000);
+    } else {
+      toast({
+        title: language === 'jp' ? 'エラー' : 'Error',
+        description: language === 'jp' ? 'クリップボードへのコピーに失敗しました' : 'Failed to copy to clipboard',
+        variant: "destructive"
+      });
+    }
   };
 
   if (isLoading) {
@@ -254,37 +322,76 @@ export default function FundDisclosuresPage() {
                     )}
                     
                     {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={() => handleView(disclosure.pdfUrl)}
-                        variant="outline"
-                        className="flex-1"
-                        data-testid={`button-view-${disclosure.id}`}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        {disclosure.pdfUrl && disclosure.pdfUrl.trim() !== '' 
-                          ? (language === 'jp' ? '表示' : 'View')
-                          : (language === 'jp' ? 'PDF無し' : 'No PDF')
-                        }
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          if (!disclosure.pdfUrl || disclosure.pdfUrl.trim() === '') {
-                            toast({
-                              title: language === 'jp' ? 'PDFが利用できません' : 'No PDF Available',
-                              description: language === 'jp' ? 'この開示資料にはPDFファイルが添付されていません。' : 'This disclosure does not have a PDF file attached.',
-                              variant: "destructive",
-                            });
-                            return;
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => handleView(disclosure.pdfUrl)}
+                          variant="outline"
+                          className="flex-1"
+                          data-testid={`button-view-${disclosure.id}`}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          {disclosure.pdfUrl && disclosure.pdfUrl.trim() !== '' 
+                            ? (language === 'jp' ? '表示' : 'View')
+                            : (language === 'jp' ? 'PDF無し' : 'No PDF')
                           }
-                          handleDownload(disclosure.pdfUrl, formatDisclosureType(disclosure.disclosureType));
-                        }}
-                        className="flex-1"
-                        data-testid={`button-download-${disclosure.id}`}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        {language === 'jp' ? 'ダウンロード' : 'Download'}
-                      </Button>
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            if (!disclosure.pdfUrl || disclosure.pdfUrl.trim() === '') {
+                              toast({
+                                title: language === 'jp' ? 'PDFが利用できません' : 'No PDF Available',
+                                description: language === 'jp' ? 'この開示資料にはPDFファイルが添付されていません。' : 'This disclosure does not have a PDF file attached.',
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+                            handleDownload(disclosure.pdfUrl, formatDisclosureType(disclosure.disclosureType));
+                          }}
+                          className="flex-1"
+                          data-testid={`button-download-${disclosure.id}`}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          {language === 'jp' ? 'ダウンロード' : 'Download'}
+                        </Button>
+                      </div>
+                      
+                      {/* Short URL Section */}
+                      {!shortUrls.get(disclosure.id) ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => handleGenerateShortUrl(disclosure.id, disclosure.pdfUrl)}
+                          disabled={generatingUrls.has(disclosure.id)}
+                          data-testid={`button-generate-short-url-${disclosure.id}`}
+                        >
+                          <Share2 className="h-3 w-3 mr-1" />
+                          {generatingUrls.has(disclosure.id)
+                            ? (language === 'jp' ? '生成中...' : 'Generating...')
+                            : (language === 'jp' ? '共有用URL作成' : 'Create Share URL')
+                          }
+                        </Button>
+                      ) : (
+                        <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-md">
+                          <span className="text-xs font-mono text-primary flex-1 truncate">
+                            {shortUrls.get(disclosure.id)}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 flex-shrink-0"
+                            onClick={() => handleCopyShortUrl(disclosure.id, shortUrls.get(disclosure.id)!)}
+                            data-testid={`button-copy-short-url-${disclosure.id}`}
+                          >
+                            {copiedUrls.has(disclosure.id) ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
