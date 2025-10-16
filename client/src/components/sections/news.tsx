@@ -44,15 +44,12 @@ export function News({ language }: NewsProps) {
   };
 
   const handleGenerateShortUrl = async () => {
-    if (!selectedArticle) return;
+    if (!selectedArticle || !selectedArticle.attachmentUrl) return;
     
     setIsGeneratingUrl(true);
     
-    // Get current page URL (for now, we'll use the base URL + article ID)
-    const baseUrl = window.location.origin;
-    const articleUrl = `${baseUrl}/#news-${selectedArticle.id}`;
-    
-    const result = await shortenUrl(articleUrl);
+    // Generate short URL from SharePoint file URL
+    const result = await shortenUrl(selectedArticle.attachmentUrl);
     
     if (result.success) {
       setShortUrl(result.shortUrl);
@@ -310,52 +307,14 @@ export function News({ language }: NewsProps) {
                 
                 <div className="space-y-6 mt-6">
                   {/* Article Meta */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground border-b pb-4">
-                    <div className="flex flex-wrap items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      {selectedArticle.category && (
-                        <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
-                      )}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b pb-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
                     </div>
-                    
-                    {/* Share Section */}
-                    <div className="flex items-center gap-2">
-                      {!shortUrl ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleGenerateShortUrl}
-                          disabled={isGeneratingUrl}
-                          data-testid="button-generate-short-url"
-                        >
-                          <Share2 className="h-4 w-4 mr-1" />
-                          {isGeneratingUrl 
-                            ? (language === "en" ? "Generating..." : "生成中...") 
-                            : (language === "en" ? "Share" : "共有")
-                          }
-                        </Button>
-                      ) : (
-                        <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
-                          <span className="text-xs font-mono text-primary">{shortUrl}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            onClick={handleCopyUrl}
-                            data-testid="button-copy-short-url"
-                          >
-                            {isCopied ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+                    {selectedArticle.category && (
+                      <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
+                    )}
                   </div>
 
                   {/* Article Content */}
@@ -372,12 +331,51 @@ export function News({ language }: NewsProps) {
                   {selectedArticle.attachmentUrl && (
                     <div className="mt-6 border-t pt-6">
                       <h4 className="text-sm font-semibold mb-3 text-muted-foreground">
-                        {language === "en" ? "Embedded Content" : "埋め込みコンテンツ"}
+                        {language === "en" ? "Attached File" : "添付ファイル"}
                       </h4>
-                      <div 
-                        className="embed-container"
-                        dangerouslySetInnerHTML={{ __html: selectedArticle.attachmentUrl }}
-                      />
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => window.open(selectedArticle.attachmentUrl, '_blank')}
+                          data-testid="button-view-sharepoint-file"
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          {language === "en" ? "View File" : "ファイルを表示"}
+                        </Button>
+                        
+                        {!shortUrl ? (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleGenerateShortUrl}
+                            disabled={isGeneratingUrl}
+                            data-testid="button-generate-sharepoint-short-url"
+                          >
+                            <Share2 className="h-4 w-4 mr-1" />
+                            {isGeneratingUrl 
+                              ? (language === "en" ? "Generating..." : "生成中...") 
+                              : (language === "en" ? "Get Share Link" : "共有リンクを取得")
+                            }
+                          </Button>
+                        ) : (
+                          <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-md flex-1">
+                            <span className="text-xs font-mono text-primary truncate flex-1">{shortUrl}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 flex-shrink-0"
+                              onClick={handleCopyUrl}
+                              data-testid="button-copy-sharepoint-short-url"
+                            >
+                              {isCopied ? (
+                                <Check className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
