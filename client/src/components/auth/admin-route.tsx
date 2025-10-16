@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { hasAdminPrivileges } from "@/lib/roles";
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -12,12 +13,8 @@ export function AdminRoute({ children, allowPublicAccess = false }: AdminRoutePr
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
 
-  // Check if user is superadmin
-  const isAdmin = isAuthenticated && user && (
-    (user as any)?.role === "superadmin" ||
-    (user as any)?.email === "onuma@fgcsg.com" ||
-    (user as any)?.email === "test@fgcsg.com"
-  );
+  // Check if user has admin privileges (admin or superadmin)
+  const isAdmin = isAuthenticated && hasAdminPrivileges(user as any);
 
   useEffect(() => {
     if (!isLoading && !allowPublicAccess && !isAdmin) {

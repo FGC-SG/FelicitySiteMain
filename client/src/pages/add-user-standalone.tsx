@@ -8,6 +8,7 @@ import { AddUserForm } from "@/components/forms/add-user-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserPlus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { hasAdminPrivileges } from "@/lib/roles";
 
 export default function AddUserStandalonePage() {
   const [language, setLanguage] = useState<Language>('en');
@@ -44,11 +45,10 @@ export default function AddUserStandalonePage() {
     return null; // Will redirect to login
   }
 
-  // Check if current user is superadmin
-  const isSuperadmin = (currentUser as any)?.role === "superadmin" || 
-                       (currentUser as any)?.email === "onuma@fgcsg.com";
+  // Check if current user has admin privileges (admin or superadmin)
+  const isAdminUser = hasAdminPrivileges(currentUser as any);
 
-  if (!isSuperadmin) {
+  if (!isAdminUser) {
     return (
       <div className="min-h-screen bg-background font-sans flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -58,8 +58,8 @@ export default function AddUserStandalonePage() {
             </CardTitle>
             <CardDescription className="text-center">
               {language === "en" 
-                ? "You need superadmin privileges to add users."
-                : "ユーザーを追加するにはスーパー管理者権限が必要です。"
+                ? "You need admin privileges to add users."
+                : "ユーザーを追加するには管理者権限が必要です。"
               }
             </CardDescription>
           </CardHeader>

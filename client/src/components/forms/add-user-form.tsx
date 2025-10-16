@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { type Language } from "@/lib/i18n";
+import { useAuth } from "@/hooks/useAuth";
+import { canAssignRole } from "@/lib/roles";
 
 const addUserSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -30,6 +32,7 @@ interface AddUserFormProps {
 export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user: currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<AddUserForm>({
@@ -89,10 +92,15 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
     }
   };
 
-  const roles = [
+  // Define all possible roles
+  const allRoles = [
     { value: "superadmin", label: language === "en" ? "Superadmin" : "スーパー管理者" },
+    { value: "admin", label: language === "en" ? "Admin" : "管理者" },
     { value: "user", label: language === "en" ? "User" : "ユーザー" },
   ];
+
+  // Filter roles based on what the current user can assign
+  const roles = allRoles.filter(role => canAssignRole(currentUser as any, role.value));
 
 
 

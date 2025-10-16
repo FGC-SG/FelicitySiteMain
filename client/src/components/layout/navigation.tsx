@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { Grid, User } from "lucide-react";
 import logoPath from "@assets/logo_color_1756362140059.jpg";
+import { hasAdminPrivileges } from "@/lib/roles";
 
 interface NavigationProps {
   language: Language;
@@ -22,12 +23,8 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const t = useTranslation(language);
 
-  // Check if user is superadmin
-  const isAdmin = isAuthenticated && user && (
-    (user as any)?.role === "superadmin" ||
-    (user as any)?.email === "onuma@fgcsg.com" ||
-    (user as any)?.email === "test@fgcsg.com"
-  );
+  // Check if user has admin privileges (admin or superadmin)
+  const isAdmin = isAuthenticated && hasAdminPrivileges(user as any);
 
   const navItems = [
     { href: "/", label: t.nav.home },

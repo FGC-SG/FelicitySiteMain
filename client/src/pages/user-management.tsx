@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AddUserForm } from "@/components/forms/add-user-form";
 import { Users, UserPlus, Shield, Edit, Trash2, Search, Filter, Mail, Send, Key } from "lucide-react";
+import { hasAdminPrivileges, canManageUser, isSuperadmin as checkIsSuperadmin } from "@/lib/roles";
 
 interface User {
   id: string;
@@ -199,9 +200,9 @@ export default function UserManagementPage() {
     return null; // Will redirect to login
   }
 
-  // Check if current user is superadmin
-  const isSuperadmin = (currentUser as any)?.role === "superadmin" || 
-                       (currentUser as any)?.email === "onuma@fgcsg.com";
+  // Check if current user has admin privileges (admin or superadmin)
+  const isAdminUser = hasAdminPrivileges(currentUser as any);
+  const isSuperadmin = checkIsSuperadmin(currentUser as any);
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -289,7 +290,7 @@ export default function UserManagementPage() {
 
               </div>
 
-              {isSuperadmin && (
+              {isAdminUser && (
                 <div className="flex gap-2">
                   <Button 
                     variant="outline"
@@ -336,7 +337,7 @@ export default function UserManagementPage() {
                         <TableHead>{language === "en" ? "User" : "ユーザー"}</TableHead>
                         <TableHead>{language === "en" ? "Role" : "役割"}</TableHead>
                         <TableHead>{language === "en" ? "Joined" : "参加日"}</TableHead>
-                        {isSuperadmin && <TableHead>{language === "en" ? "Actions" : "アクション"}</TableHead>}
+                        {isAdminUser && <TableHead>{language === "en" ? "Actions" : "アクション"}</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -372,26 +373,33 @@ export default function UserManagementPage() {
                               language === "en" ? "en-US" : "ja-JP"
                             )}
                           </TableCell>
-                          {isSuperadmin && (
+                          {isAdminUser && (
                             <TableCell>
                               <div className="flex items-center space-x-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => setEditingUser(user)}
-                                  data-testid={`button-edit-${user.id}`}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                {user.email !== "onuma@fgcsg.com" && (
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={() => deleteUserMutation.mutate(user.id)}
-                                    data-testid={`button-delete-${user.id}`}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
+                                {canManageUser(currentUser as any, user) && (
+                                  <>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => setEditingUser(user)}
+                                      data-testid={`button-edit-${user.id}`}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => deleteUserMutation.mutate(user.id)}
+                                      data-testid={`button-delete-${user.id}`}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
+                                {!canManageUser(currentUser as any, user) && (
+                                  <span className="text-sm text-muted-foreground">
+                                    {language === "en" ? "No access" : "アクセス不可"}
+                                  </span>
                                 )}
                               </div>
                             </TableCell>
