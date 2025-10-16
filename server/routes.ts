@@ -392,10 +392,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required for user creation" });
       }
 
+      console.log("[DEBUG] POST /api/users - Request body:", JSON.stringify(req.body, null, 2));
+
       const userData = {
         ...req.body,
         id: undefined, // Let the database generate the ID
       };
+
+      console.log("[DEBUG] POST /api/users - userData before password hash:", {
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role,
+        hasPassword: !!userData.password,
+        passwordLength: userData.password?.length
+      });
 
       // Check if current user can assign the requested role
       if (userData.role && !canAssignRole(sessionUser, userData.role)) {
@@ -406,9 +417,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (userData.password) {
         const saltRounds = 10;
         userData.password = await bcrypt.hash(userData.password, saltRounds);
+        console.log("[DEBUG] POST /api/users - Password hashed successfully");
+      } else {
+        console.log("[DEBUG] POST /api/users - WARNING: No password provided in request!");
       }
       
       const user = await storage.createUser(userData);
+      console.log("[DEBUG] POST /api/users - User created:", {
+        id: user.id,
+        email: user.email,
+        hasPasswordInDB: !!user.password
+      });
       res.json(user);
     } catch (error) {
       console.error("Error creating user:", error);
