@@ -113,7 +113,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
             {!isLoading && (
               <>
                 {isAuthenticated ? (
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-3">
                     <Link href="/management">
                       <Button
                         variant="outline"
@@ -127,7 +127,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                     </Link>
                     <Button
                       onClick={handleLogout}
-                      className="felicity-bg text-primary-foreground hover:opacity-90"
+                      className="felicity-bg text-white hover:opacity-90 shadow-md"
                       size="sm"
                       data-testid="button-logout"
                     >
