@@ -237,7 +237,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                           handleLogout();
                           handleNavClick();
                         }}
-                        className="w-full felicity-bg text-primary-foreground hover:opacity-90"
+                        className="w-full felicity-bg text-white hover:opacity-90 shadow-md"
                         size="sm"
                         data-testid="mobile-button-logout"
                       >

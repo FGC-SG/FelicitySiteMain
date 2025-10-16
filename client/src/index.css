@@ -34,9 +34,9 @@
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --radius: 0.75rem;
-  --felicity-primary: hsl(239 65% 35%);
-  --felicity-bg: hsl(239 65% 35%);
-  --felicity-border: hsl(239 65% 35%);
+  --felicity-primary: 239 65% 35%;
+  --felicity-bg: 239 65% 35%;
+  --felicity-border: 239 65% 35%;
   
   /* Portfolio investment type colors */
   --portfolio-equity: hsl(217 91% 60%);
@@ -85,9 +85,9 @@
   --sidebar-accent-foreground: hsl(203.7736 87.6033% 52.5490%);
   --sidebar-border: hsl(205.7143 15.7895% 26.0784%);
   --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --felicity-primary: hsl(239 65% 35%);
-  --felicity-bg: hsl(239 65% 35%);
-  --felicity-border: hsl(239 65% 35%);
+  --felicity-primary: 239 65% 35%;
+  --felicity-bg: 239 65% 35%;
+  --felicity-border: 239 65% 35%;
   
   /* Portfolio investment type colors - dark mode */
   --portfolio-equity: hsl(217 91% 70%);
