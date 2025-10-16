@@ -194,7 +194,7 @@ export function News({ language }: NewsProps) {
                         <div className="flex items-center text-sm text-muted-foreground">
                           <User className="h-4 w-4 mr-1" />
                           <span data-testid={`news-author-${article.id}`}>
-                            {language === "en" ? "Author" : "著者"}: {article.authorId.slice(0, 8)}
+                            {language === "en" ? "Author" : "著者"}: {article.authorId ? article.authorId.slice(0, 8) : (language === "en" ? "Unknown" : "不明")}
                           </span>
                         </div>
                         
