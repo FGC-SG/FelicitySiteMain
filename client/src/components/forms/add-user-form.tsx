@@ -18,6 +18,7 @@ const addUserSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   firstName: z.string().min(1, "First name is required").max(50, "First name must be less than 50 characters"),
   lastName: z.string().min(1, "Last name is required").max(50, "Last name must be less than 50 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters").max(100, "Password must be less than 100 characters"),
   role: z.string().min(1, "Role is required"),
 });
 
@@ -41,6 +42,7 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
       email: "",
       firstName: "",
       lastName: "",
+      password: "",
       role: "user",
     },
   });
@@ -176,6 +178,27 @@ export function AddUserForm({ language, onSuccess, onCancel }: AddUserFormProps)
                       placeholder={language === "en" ? "Enter email address" : "メールアドレスを入力"}
                       {...field}
                       data-testid="input-user-email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel data-testid="label-user-password">
+                    {language === "en" ? "Password" : "パスワード"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="password"
+                      placeholder={language === "en" ? "Enter password (min. 6 characters)" : "パスワードを入力（6文字以上）"}
+                      {...field}
+                      data-testid="input-user-password"
                     />
                   </FormControl>
                   <FormMessage />
