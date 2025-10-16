@@ -36,6 +36,17 @@ export function News({ language }: NewsProps) {
   const [isGeneratingUrl, setIsGeneratingUrl] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
+  // Helper function to check if attachmentUrl is a valid URL
+  const isValidUrl = (urlString: string | null | undefined): boolean => {
+    if (!urlString) return false;
+    try {
+      new URL(urlString);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleReadMore = (article: NewsArticle) => {
     setSelectedArticle(article);
     setIsModalOpen(true);
@@ -327,8 +338,8 @@ export function News({ language }: NewsProps) {
                     </div>
                   </div>
 
-                  {/* Embedded Content */}
-                  {selectedArticle.attachmentUrl && (
+                  {/* SharePoint File Attachment */}
+                  {selectedArticle.attachmentUrl && isValidUrl(selectedArticle.attachmentUrl) && (
                     <div className="mt-6 border-t pt-6">
                       <h4 className="text-sm font-semibold mb-3 text-muted-foreground">
                         {language === "en" ? "Attached File" : "添付ファイル"}
