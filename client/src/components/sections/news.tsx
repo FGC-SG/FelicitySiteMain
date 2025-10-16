@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Newspaper, Calendar, Eye, ArrowRight, X, FileText } from "lucide-react";
+import { Newspaper, Calendar, Eye, ArrowRight, X, FileText, Share2, Copy, Check } from "lucide-react";
+import { shortenUrl, copyToClipboard } from "@/lib/urlShortener";
+import { useToast } from "@/hooks/use-toast";
 
 interface NewsProps {
   language: Language;
@@ -27,12 +29,69 @@ interface NewsArticle {
 
 export function News({ language }: NewsProps) {
   const t = useTranslation(language);
+  const { toast } = useToast();
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [shortUrl, setShortUrl] = useState<string>("");
+  const [isGeneratingUrl, setIsGeneratingUrl] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleReadMore = (article: NewsArticle) => {
     setSelectedArticle(article);
     setIsModalOpen(true);
+    setShortUrl(""); // Reset short URL when opening new article
+    setIsCopied(false);
+  };
+
+  const handleGenerateShortUrl = async () => {
+    if (!selectedArticle) return;
+    
+    setIsGeneratingUrl(true);
+    
+    // Get current page URL (for now, we'll use the base URL + article ID)
+    const baseUrl = window.location.origin;
+    const articleUrl = `${baseUrl}/#news-${selectedArticle.id}`;
+    
+    const result = await shortenUrl(articleUrl);
+    
+    if (result.success) {
+      setShortUrl(result.shortUrl);
+      toast({
+        title: language === "en" ? "Short URL Created" : "短縮URLを作成しました",
+        description: language === "en" ? "You can now copy and share this link" : "このリンクをコピーして共有できます"
+      });
+    } else {
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: result.error || (language === "en" ? "Failed to create short URL" : "短縮URLの作成に失敗しました"),
+        variant: "destructive"
+      });
+    }
+    
+    setIsGeneratingUrl(false);
+  };
+
+  const handleCopyUrl = async () => {
+    if (!shortUrl) return;
+    
+    const success = await copyToClipboard(shortUrl);
+    
+    if (success) {
+      setIsCopied(true);
+      toast({
+        title: language === "en" ? "Copied!" : "コピーしました！",
+        description: language === "en" ? "Short URL copied to clipboard" : "短縮URLをクリップボードにコピーしました"
+      });
+      
+      // Reset copied state after 2 seconds
+      setTimeout(() => setIsCopied(false), 2000);
+    } else {
+      toast({
+        title: language === "en" ? "Error" : "エラー",
+        description: language === "en" ? "Failed to copy to clipboard" : "クリップボードへのコピーに失敗しました",
+        variant: "destructive"
+      });
+    }
   };
 
   const { data: newsArticles, isLoading, error } = useQuery({
@@ -251,14 +310,52 @@ export function News({ language }: NewsProps) {
                 
                 <div className="space-y-6 mt-6">
                   {/* Article Meta */}
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b pb-4">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground border-b pb-4">
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      {selectedArticle.category && (
+                        <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
+                      )}
                     </div>
-                    {selectedArticle.category && (
-                      <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
-                    )}
+                    
+                    {/* Share Section */}
+                    <div className="flex items-center gap-2">
+                      {!shortUrl ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleGenerateShortUrl}
+                          disabled={isGeneratingUrl}
+                          data-testid="button-generate-short-url"
+                        >
+                          <Share2 className="h-4 w-4 mr-1" />
+                          {isGeneratingUrl 
+                            ? (language === "en" ? "Generating..." : "生成中...") 
+                            : (language === "en" ? "Share" : "共有")
+                          }
+                        </Button>
+                      ) : (
+                        <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
+                          <span className="text-xs font-mono text-primary">{shortUrl}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={handleCopyUrl}
+                            data-testid="button-copy-short-url"
+                          >
+                            {isCopied ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Article Content */}
