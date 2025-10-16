@@ -41,15 +41,15 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
 
   // Translation mutations for title and content
   const translateTitleMutation = useMutation({
-    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
-      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+    mutationFn: async ({ text, sourceLanguage, targetLanguage }: { text: string; sourceLanguage: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, sourceLanguage, targetLanguage });
       return response.json();
     },
-    onSuccess: (data: { translation: string }, { targetLanguage }) => {
-      if (targetLanguage === 'Japanese') {
-        form.setValue('titleJa', data.translation);
+    onSuccess: (data: { translatedText: string }, { targetLanguage }) => {
+      if (targetLanguage === 'jp') {
+        form.setValue('titleJa', data.translatedText);
       } else {
-        form.setValue('title', data.translation);
+        form.setValue('title', data.translatedText);
       }
       toast({
         title: language === 'jp' ? "翻訳完了" : "Translation Complete",
@@ -78,15 +78,15 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
   });
 
   const translateContentMutation = useMutation({
-    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
-      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+    mutationFn: async ({ text, sourceLanguage, targetLanguage }: { text: string; sourceLanguage: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, sourceLanguage, targetLanguage });
       return response.json();
     },
-    onSuccess: (data: { translation: string }, { targetLanguage }) => {
-      if (targetLanguage === 'Japanese') {
-        form.setValue('contentJa', data.translation);
+    onSuccess: (data: { translatedText: string }, { targetLanguage }) => {
+      if (targetLanguage === 'jp') {
+        form.setValue('contentJa', data.translatedText);
       } else {
-        form.setValue('content', data.translation);
+        form.setValue('content', data.translatedText);
       }
       toast({
         title: language === 'jp' ? "翻訳完了" : "Translation Complete",
@@ -186,10 +186,10 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
     // Determine which direction to translate based on which field is empty
     if (englishTitle && !japaneseTitle) {
       // Translate English to Japanese
-      translateTitleMutation.mutate({ text: englishTitle, targetLanguage: 'Japanese' });
+      translateTitleMutation.mutate({ text: englishTitle, sourceLanguage: 'en', targetLanguage: 'jp' });
     } else if (japaneseTitle && !englishTitle) {
       // Translate Japanese to English
-      translateTitleMutation.mutate({ text: japaneseTitle, targetLanguage: 'English' });
+      translateTitleMutation.mutate({ text: japaneseTitle, sourceLanguage: 'jp', targetLanguage: 'en' });
     } else if (!englishTitle && !japaneseTitle) {
       toast({
         title: language === 'jp' ? "翻訳エラー" : "Translation Error",
@@ -212,10 +212,10 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
     // Determine which direction to translate based on which field is empty
     if (englishContent && !japaneseContent) {
       // Translate English to Japanese
-      translateContentMutation.mutate({ text: englishContent, targetLanguage: 'Japanese' });
+      translateContentMutation.mutate({ text: englishContent, sourceLanguage: 'en', targetLanguage: 'jp' });
     } else if (japaneseContent && !englishContent) {
       // Translate Japanese to English
-      translateContentMutation.mutate({ text: japaneseContent, targetLanguage: 'English' });
+      translateContentMutation.mutate({ text: japaneseContent, sourceLanguage: 'jp', targetLanguage: 'en' });
     } else if (!englishContent && !japaneseContent) {
       toast({
         title: language === 'jp' ? "翻訳エラー" : "Translation Error",

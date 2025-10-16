@@ -54,15 +54,15 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
 
   // Translation mutations
   const translateTitleMutation = useMutation({
-    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
-      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+    mutationFn: async ({ text, sourceLanguage, targetLanguage }: { text: string; sourceLanguage: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, sourceLanguage, targetLanguage });
       return response.json();
     },
-    onSuccess: (data: { translation: string }, { targetLanguage }) => {
-      if (targetLanguage === 'Japanese') {
-        form.setValue('titleJa', data.translation);
+    onSuccess: (data: { translatedText: string }, { targetLanguage }) => {
+      if (targetLanguage === 'jp') {
+        form.setValue('titleJa', data.translatedText);
       } else {
-        form.setValue('title', data.translation);
+        form.setValue('title', data.translatedText);
       }
       toast({
         title: language === 'jp' ? "翻訳完了" : "Translation Complete",
@@ -91,15 +91,15 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
   });
 
   const translateContentMutation = useMutation({
-    mutationFn: async ({ text, targetLanguage }: { text: string; targetLanguage: string }) => {
-      const response = await apiRequest('POST', '/api/translate', { text, targetLanguage });
+    mutationFn: async ({ text, sourceLanguage, targetLanguage }: { text: string; sourceLanguage: string; targetLanguage: string }) => {
+      const response = await apiRequest('POST', '/api/translate', { text, sourceLanguage, targetLanguage });
       return response.json();
     },
-    onSuccess: (data: { translation: string }, { targetLanguage }) => {
-      if (targetLanguage === 'Japanese') {
-        form.setValue('contentJa', data.translation);
+    onSuccess: (data: { translatedText: string }, { targetLanguage }) => {
+      if (targetLanguage === 'jp') {
+        form.setValue('contentJa', data.translatedText);
       } else {
-        form.setValue('content', data.translation);
+        form.setValue('content', data.translatedText);
       }
       toast({
         title: language === 'jp' ? "翻訳完了" : "Translation Complete",
@@ -132,9 +132,9 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
     const japaneseTitle = form.getValues('titleJa');
     
     if (englishTitle && !japaneseTitle) {
-      translateTitleMutation.mutate({ text: englishTitle, targetLanguage: 'Japanese' });
+      translateTitleMutation.mutate({ text: englishTitle, sourceLanguage: 'en', targetLanguage: 'jp' });
     } else if (japaneseTitle && !englishTitle) {
-      translateTitleMutation.mutate({ text: japaneseTitle, targetLanguage: 'English' });
+      translateTitleMutation.mutate({ text: japaneseTitle, sourceLanguage: 'jp', targetLanguage: 'en' });
     } else if (!englishTitle && !japaneseTitle) {
       toast({
         title: language === 'jp' ? "翻訳エラー" : "Translation Error",
@@ -155,9 +155,9 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
     const japaneseContent = form.getValues('contentJa');
     
     if (englishContent && !japaneseContent) {
-      translateContentMutation.mutate({ text: englishContent, targetLanguage: 'Japanese' });
+      translateContentMutation.mutate({ text: englishContent, sourceLanguage: 'en', targetLanguage: 'jp' });
     } else if (japaneseContent && !englishContent) {
-      translateContentMutation.mutate({ text: japaneseContent, targetLanguage: 'English' });
+      translateContentMutation.mutate({ text: japaneseContent, sourceLanguage: 'jp', targetLanguage: 'en' });
     } else if (!englishContent && !japaneseContent) {
       toast({
         title: language === 'jp' ? "翻訳エラー" : "Translation Error",
