@@ -338,55 +338,64 @@ export function News({ language }: NewsProps) {
                     </div>
                   </div>
 
-                  {/* SharePoint File Attachment */}
+                  {/* SharePoint Embedded File */}
                   {selectedArticle.attachmentUrl && isValidUrl(selectedArticle.attachmentUrl) && (
                     <div className="mt-6 border-t pt-6">
-                      <h4 className="text-sm font-semibold mb-3 text-muted-foreground">
-                        {language === "en" ? "Attached File" : "添付ファイル"}
-                      </h4>
-                      <div className="flex items-center gap-3">
-                        <Button
-                          variant="outline"
-                          onClick={() => window.open(selectedArticle.attachmentUrl, '_blank')}
-                          data-testid="button-view-sharepoint-file"
-                        >
-                          <FileText className="h-4 w-4 mr-2" />
-                          {language === "en" ? "View File" : "ファイルを表示"}
-                        </Button>
-                        
-                        {!shortUrl ? (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={handleGenerateShortUrl}
-                            disabled={isGeneratingUrl}
-                            data-testid="button-generate-sharepoint-short-url"
-                          >
-                            <Share2 className="h-4 w-4 mr-1" />
-                            {isGeneratingUrl 
-                              ? (language === "en" ? "Generating..." : "生成中...") 
-                              : (language === "en" ? "Get Share Link" : "共有リンクを取得")
-                            }
-                          </Button>
-                        ) : (
-                          <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-md flex-1">
-                            <span className="text-xs font-mono text-primary truncate flex-1">{shortUrl}</span>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-muted-foreground">
+                          {language === "en" ? "Attached Document" : "添付ドキュメント"}
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          {!shortUrl ? (
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
-                              className="h-6 w-6 p-0 flex-shrink-0"
-                              onClick={handleCopyUrl}
-                              data-testid="button-copy-sharepoint-short-url"
+                              onClick={handleGenerateShortUrl}
+                              disabled={isGeneratingUrl}
+                              data-testid="button-generate-sharepoint-short-url"
                             >
-                              {isCopied ? (
-                                <Check className="h-3 w-3 text-green-600" />
-                              ) : (
-                                <Copy className="h-3 w-3" />
-                              )}
+                              <Share2 className="h-4 w-4 mr-1" />
+                              {isGeneratingUrl 
+                                ? (language === "en" ? "Generating..." : "生成中...") 
+                                : (language === "en" ? "Share Link" : "共有リンク")
+                              }
                             </Button>
-                          </div>
-                        )}
+                          ) : (
+                            <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
+                              <span className="text-xs font-mono text-primary">{shortUrl}</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={handleCopyUrl}
+                                data-testid="button-copy-sharepoint-short-url"
+                              >
+                                {isCopied ? (
+                                  <Check className="h-3 w-3 text-green-600" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
+                      
+                      {/* SharePoint Embedded Viewer - Hides actual URL */}
+                      <div className="w-full rounded-lg overflow-hidden border bg-muted/50">
+                        <iframe
+                          src={selectedArticle.attachmentUrl}
+                          className="w-full h-[500px]"
+                          frameBorder="0"
+                          title={language === "en" ? "Document Viewer" : "ドキュメントビューアー"}
+                          data-testid="iframe-sharepoint-viewer"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {language === "en" 
+                          ? "Document viewer - your SharePoint URL is not exposed to visitors" 
+                          : "ドキュメントビューアー - SharePoint URLは訪問者に公開されません"}
+                      </p>
                     </div>
                   )}
 

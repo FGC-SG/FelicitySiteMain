@@ -352,20 +352,22 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               render={({ field }) => (
                 <FormItem>
                   <FormLabel data-testid="label-news-attachment">
-                    {language === "en" ? "SharePoint File URL (Optional)" : "SharePointファイルURL（オプション）"}
+                    {language === "en" ? "SharePoint Embed URL (Optional)" : "SharePoint埋め込みURL（オプション）"}
                   </FormLabel>
                   <FormControl>
-                    <Input 
-                      type="url"
-                      placeholder={language === "en" ? "https://yourcompany.sharepoint.com/..." : "https://yourcompany.sharepoint.com/..."}
+                    <Textarea
+                      placeholder={language === "en" 
+                        ? "Paste SharePoint embed URL here (right-click file in SharePoint → Embed → Copy embed code, then paste the src URL from the iframe)" 
+                        : "SharePoint埋め込みURLをここに貼り付けてください（SharePointでファイルを右クリック→埋め込み→埋め込みコードをコピーし、iframeのsrc URLを貼り付け）"}
+                      className="min-h-[80px] font-mono text-sm"
                       {...field}
                       data-testid="input-news-attachment"
                     />
                   </FormControl>
                   <FormDescription>
                     {language === "en" 
-                      ? "Enter SharePoint file URL. A shortened link will be generated for easy sharing." 
-                      : "SharePointファイルURLを入力してください。共有しやすい短縮リンクが自動生成されます。"}
+                      ? "Use SharePoint's embed URL to display files without exposing your SharePoint path. In SharePoint: right-click file → Embed → Copy the URL from the iframe code." 
+                      : "SharePointの埋め込みURLを使用すると、SharePointパスを公開せずにファイルを表示できます。SharePointで：ファイルを右クリック→埋め込み→iframeコードからURLをコピー。"}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
