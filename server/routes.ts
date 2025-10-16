@@ -11,6 +11,7 @@ import {
 } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { translateNewsArticle } from "./translation";
+import { translateText } from "./translate";
 import * as XLSX from "xlsx";
 import multer from "multer";
 import { Readable } from "stream";
@@ -336,6 +337,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting news article:", error);
       res.status(500).json({ message: "Failed to delete news article" });
+    }
+  });
+
+  // Translation API endpoint
+  app.post('/api/translate', async (req, res) => {
+    try {
+      const { text, sourceLanguage, targetLanguage } = req.body;
+
+      if (!text || !sourceLanguage || !targetLanguage) {
+        return res.status(400).json({ message: "Text, source language, and target language are required" });
+      }
+
+      if (!['en', 'jp'].includes(sourceLanguage) || !['en', 'jp'].includes(targetLanguage)) {
+        return res.status(400).json({ message: "Language must be 'en' or 'jp'" });
+      }
+
+      if (sourceLanguage === targetLanguage) {
+        return res.json({ translatedText: text });
+      }
+
+      const translatedText = await translateText({
+        text,
+        sourceLanguage: sourceLanguage as 'en' | 'jp',
+        targetLanguage: targetLanguage as 'en' | 'jp'
+      });
+
+      res.json({ translatedText });
+    } catch (error) {
+      console.error("Translation error:", error);
+      res.status(500).json({ message: "Failed to translate text" });
     }
   });
 
