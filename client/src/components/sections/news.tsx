@@ -278,7 +278,7 @@ export function News({ language }: NewsProps) {
                     </div>
                     <div className="flex items-center gap-1">
                       <User className="h-4 w-4" />
-                      <span>{language === "en" ? "Author" : "著者"}: {selectedArticle.authorId.slice(0, 8)}</span>
+                      <span>{language === "en" ? "Author" : "著者"}: {selectedArticle.authorId ? selectedArticle.authorId.slice(0, 8) : (language === "en" ? "Unknown" : "不明")}</span>
                     </div>
                     {selectedArticle.category && (
                       <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
