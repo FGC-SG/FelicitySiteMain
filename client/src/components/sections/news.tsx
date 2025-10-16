@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Newspaper, Calendar, User, Eye, ArrowRight, X, FileText } from "lucide-react";
+import { Newspaper, Calendar, Eye, ArrowRight, X, FileText } from "lucide-react";
 
 interface NewsProps {
   language: Language;
@@ -190,14 +190,7 @@ export function News({ language }: NewsProps) {
                   
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex justify-between items-center pt-2">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <User className="h-4 w-4 mr-1" />
-                          <span data-testid={`news-author-${article.id}`}>
-                            {language === "en" ? "Author" : "著者"}: {article.authorId ? article.authorId.slice(0, 8) : (language === "en" ? "Unknown" : "不明")}
-                          </span>
-                        </div>
-                        
+                      <div className="flex justify-end items-center pt-2">
                         <div className="flex gap-2">
                           {(article as any).attachmentUrl && (
                             <Button 
@@ -275,10 +268,6 @@ export function News({ language }: NewsProps) {
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      <span>{language === "en" ? "Author" : "著者"}: {selectedArticle.authorId ? selectedArticle.authorId.slice(0, 8) : (language === "en" ? "Unknown" : "不明")}</span>
                     </div>
                     {selectedArticle.category && (
                       <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
