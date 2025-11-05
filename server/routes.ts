@@ -123,6 +123,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Temporary admin creation endpoint - REMOVE AFTER USE
+  app.post('/api/admin/create-superadmin', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName, secretKey } = req.body;
+      
+      // Simple secret key check
+      if (secretKey !== 'fgcsg2025') {
+        return res.status(403).json({ message: "Invalid secret key" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+      
+      // Create new superadmin
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newAdmin = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName: firstName || 'Admin',
+        lastName: lastName || 'User',
+        role: 'superadmin',
+        isActive: true
+      });
+      
+      console.log(`New superadmin created: ${email}`);
+      res.json({ 
+        message: "Superadmin created successfully",
+        email: newAdmin.email 
+      });
+    } catch (error) {
+      console.error("Error creating superadmin:", error);
+      res.status(500).json({ message: "Failed to create superadmin" });
+    }
+  });
+
   // Email/Password Auth routes
   app.post('/api/auth/login', async (req, res) => {
     try {
