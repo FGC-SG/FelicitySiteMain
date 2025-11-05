@@ -9,6 +9,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Redirect www to non-www for consistent domain
+app.use((req, res, next) => {
+  const host = req.headers.host || "";
+  if (host.startsWith("www.")) {
+    const protocol = req.secure || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+    return res.redirect(301, `${protocol}://fgcsg.com${req.url}`);
+  }
+  next();
+});
+
 // PostgreSQL session store for production
 const PgStore = connectPgSimple(session);
 
