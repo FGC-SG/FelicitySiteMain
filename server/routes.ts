@@ -123,6 +123,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin password reset endpoint (protected by secret key)
+  app.post('/api/admin/reset-password', async (req, res) => {
+    try {
+      const { email, newPassword, secretKey } = req.body;
+      
+      // Verify secret key (use environment variable in production)
+      const validSecretKey = process.env.ADMIN_RESET_KEY || 'fgcsg-reset-2025';
+      if (secretKey !== validSecretKey) {
+        console.log('Invalid secret key attempt');
+        return res.status(403).json({ message: "Invalid secret key" });
+      }
+      
+      // Find user
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // Update password
+      await storage.updateUser(user.id, { password: hashedPassword });
+      
+      console.log(`Password reset successful for: ${email}`);
+      res.json({ message: "Password reset successfully" });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
   // Email/Password Auth routes
   app.post('/api/auth/login', async (req, res) => {
     try {
