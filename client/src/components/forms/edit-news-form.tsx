@@ -336,40 +336,10 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="attachmentUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel data-testid="label-news-attachment">
-                  {language === "en" ? "File Embed URL (Optional)" : "ファイル埋め込みURL（オプション）"}
-                </FormLabel>
-                <FormControl>
-                  <Input 
-                    type="url"
-                    placeholder={language === "en" ? "https://example.com/embed/..." : "https://example.com/embed/..."}
-                    {...field}
-                    data-testid="input-news-attachment"
-                    disabled={!!uploadedFile}
-                  />
-                </FormControl>
-                <FormDescription>
-                  {language === "en" 
-                    ? "Enter iframe embed URL (not a regular sharing link). For SharePoint files, upload to Object Storage instead for reliable embedding." 
-                    : "iframe埋め込みURL（通常の共有リンクではありません）を入力してください。SharePointファイルの場合は、信頼性の高い埋め込みのためにオブジェクトストレージにアップロードしてください。"}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-muted-foreground">
-                {language === "en" ? "OR" : "または"}
-              </div>
-              <div className="flex-1 border-t"></div>
-            </div>
+            <FormLabel data-testid="label-news-attachment">
+              {language === "en" ? "PDF Attachment (Optional)" : "PDF添付ファイル（オプション）"}
+            </FormLabel>
             
             <div className="space-y-2">
               {uploadedFile ? (
@@ -405,7 +375,7 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                     type="button"
                     variant="outline"
                     onClick={() => document.getElementById('pdf-upload-edit')?.click()}
-                    disabled={isUploading || !!form.getValues('attachmentUrl')}
+                    disabled={isUploading}
                     className="w-full"
                     data-testid="button-upload-pdf"
                   >
