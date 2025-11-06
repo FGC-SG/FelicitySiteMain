@@ -1797,6 +1797,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Configure multer for PDF uploads
+  const uploadPDF = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+      files: 1,
+    },
+    fileFilter: (req, file, cb) => {
+      const allowedMimeTypes = ['application/pdf'];
+      const allowedExtensions = ['.pdf'];
+      const fileExtension = '.' + file.originalname.split('.').pop()?.toLowerCase();
+      
+      if (allowedMimeTypes.includes(file.mimetype) && allowedExtensions.includes(fileExtension)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid file type. Only PDF files are allowed.'));
+      }
+    }
+  });
+
+  // PDF upload endpoint for news attachments
+  app.post('/api/news/upload-pdf', uploadPDF.single('file'), async (req, res) => {
+    try {
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (!hasAdminPrivileges(sessionUser.role)) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      
+      // Generate unique filename with timestamp
+      const timestamp = Date.now();
+      const sanitizedFilename = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `news-${timestamp}-${sanitizedFilename}`;
+      const objectPath = `/public/news-attachments/${filename}`;
+
+      // Upload to object storage
+      await objectStorageService.uploadObject(
+        objectPath,
+        req.file.buffer,
+        req.file.mimetype,
+        ObjectPermission.PUBLIC
+      );
+
+      // Return the public URL
+      const publicUrl = `/public/news-attachments/${filename}`;
+      
+      res.json({
+        url: publicUrl,
+        filename: req.file.originalname,
+        size: req.file.size
+      });
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      res.status(500).json({ message: 'Failed to upload PDF' });
+    }
+  });
+
   // Portfolio bulk import route
   app.post('/api/portfolios/import', upload.single('file'), async (req, res) => {
     try {
