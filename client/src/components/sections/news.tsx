@@ -354,30 +354,63 @@ export function News({ language }: NewsProps) {
                             <h4 className="text-sm font-semibold text-muted-foreground">
                               {language === "en" ? "Attached PDF Document" : "添付PDFドキュメント"}
                             </h4>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => window.open(`/public-objects${selectedArticle.attachmentUrl}`, '_blank')}
-                              data-testid="button-open-pdf"
-                            >
-                              <FileText className="h-4 w-4 mr-1" />
-                              {language === "en" ? "Open PDF" : "PDFを開く"}
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const link = document.createElement('a');
+                                  link.href = `/public-objects${selectedArticle.attachmentUrl}`;
+                                  link.download = selectedArticle.attachmentUrl.split('/').pop() || 'document.pdf';
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                }}
+                                data-testid="button-download-pdf"
+                              >
+                                <FileText className="h-4 w-4 mr-1" />
+                                {language === "en" ? "Download PDF" : "PDFダウンロード"}
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => window.open(`/public-objects${selectedArticle.attachmentUrl}`, '_blank')}
+                                data-testid="button-open-pdf"
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                {language === "en" ? "View PDF" : "PDFを表示"}
+                              </Button>
+                            </div>
                           </div>
                           
                           <div className="w-full rounded-lg overflow-hidden border bg-muted/50">
-                            <iframe
-                              src={`/public-objects${selectedArticle.attachmentUrl}`}
+                            <object
+                              data={`/public-objects${selectedArticle.attachmentUrl}`}
+                              type="application/pdf"
                               className="w-full h-[600px]"
-                              frameBorder="0"
-                              title={language === "en" ? "PDF Viewer" : "PDFビューアー"}
-                              data-testid="iframe-pdf-viewer"
-                            />
+                              data-testid="object-pdf-viewer"
+                            >
+                              <div className="flex flex-col items-center justify-center h-[600px] p-8 text-center">
+                                <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+                                <p className="text-sm text-muted-foreground mb-4">
+                                  {language === "en" 
+                                    ? "Your browser cannot display this PDF. Please use the buttons above to view or download the file." 
+                                    : "お使いのブラウザではこのPDFを表示できません。上のボタンを使用してファイルを表示またはダウンロードしてください。"}
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => window.open(`/public-objects${selectedArticle.attachmentUrl}`, '_blank')}
+                                >
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  {language === "en" ? "Open in New Tab" : "新しいタブで開く"}
+                                </Button>
+                              </div>
+                            </object>
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
                             {language === "en" 
-                              ? "PDF document viewer - Click 'Open PDF' to download or view in a new tab" 
-                              : "PDFドキュメントビューアー - 「PDFを開く」をクリックしてダウンロードまたは新しいタブで表示"}
+                              ? "PDF document viewer - Use 'View PDF' to open in a new tab or 'Download PDF' to save the file" 
+                              : "PDFドキュメントビューアー - 「PDFを表示」で新しいタブで開くか、「PDFダウンロード」でファイルを保存します"}
                           </p>
                         </>
                       ) : isValidUrl(selectedArticle.attachmentUrl) ? (
