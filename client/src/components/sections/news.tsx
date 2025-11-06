@@ -350,7 +350,7 @@ export function News({ language }: NewsProps) {
                       {isPdfFile(selectedArticle.attachmentUrl) ? (
                         // PDF File Viewer
                         <>
-                          <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center justify-between">
                             <h4 className="text-sm font-semibold text-muted-foreground">
                               {language === "en" ? "Attached PDF Document" : "添付PDFドキュメント"}
                             </h4>
@@ -382,36 +382,6 @@ export function News({ language }: NewsProps) {
                               </Button>
                             </div>
                           </div>
-                          
-                          <div className="w-full rounded-lg overflow-hidden border bg-muted/50">
-                            <object
-                              data={`/public-objects${selectedArticle.attachmentUrl}`}
-                              type="application/pdf"
-                              className="w-full h-[600px]"
-                              data-testid="object-pdf-viewer"
-                            >
-                              <div className="flex flex-col items-center justify-center h-[600px] p-8 text-center">
-                                <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-                                <p className="text-sm text-muted-foreground mb-4">
-                                  {language === "en" 
-                                    ? "Your browser cannot display this PDF. Please use the buttons above to view or download the file." 
-                                    : "お使いのブラウザではこのPDFを表示できません。上のボタンを使用してファイルを表示またはダウンロードしてください。"}
-                                </p>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => window.open(`/public-objects${selectedArticle.attachmentUrl}`, '_blank')}
-                                >
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  {language === "en" ? "Open in New Tab" : "新しいタブで開く"}
-                                </Button>
-                              </div>
-                            </object>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {language === "en" 
-                              ? "PDF document viewer - Use 'View PDF' to open in a new tab or 'Download PDF' to save the file" 
-                              : "PDFドキュメントビューアー - 「PDFを表示」で新しいタブで開くか、「PDFダウンロード」でファイルを保存します"}
-                          </p>
                         </>
                       ) : isValidUrl(selectedArticle.attachmentUrl) ? (
                         // Embed URL Viewer (SharePoint, etc.)
