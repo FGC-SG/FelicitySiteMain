@@ -352,20 +352,20 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               render={({ field }) => (
                 <FormItem>
                   <FormLabel data-testid="label-news-attachment">
-                    {language === "en" ? "SharePoint URL (Optional)" : "SharePoint URL（オプション）"}
+                    {language === "en" ? "File Embed URL (Optional)" : "ファイル埋め込みURL（オプション）"}
                   </FormLabel>
                   <FormControl>
                     <Input 
                       type="url"
-                      placeholder={language === "en" ? "https://yourcompany.sharepoint.com/..." : "https://yourcompany.sharepoint.com/..."}
+                      placeholder={language === "en" ? "https://example.com/embed/..." : "https://example.com/embed/..."}
                       {...field}
                       data-testid="input-news-attachment"
                     />
                   </FormControl>
                   <FormDescription>
                     {language === "en" 
-                      ? "Enter SharePoint file URL. File will be displayed in embedded viewer." 
-                      : "SharePointファイルURLを入力してください。ファイルは埋め込みビューアーで表示されます。"}
+                      ? "Enter iframe embed URL (not a regular sharing link). For SharePoint files, upload to Object Storage instead for reliable embedding." 
+                      : "iframe埋め込みURL（通常の共有リンクではありません）を入力してください。SharePointファイルの場合は、信頼性の高い埋め込みのためにオブジェクトストレージにアップロードしてください。"}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
