@@ -8,8 +8,9 @@ import { z } from "zod";
 import {
   ObjectStorageService,
   ObjectNotFoundError,
+  objectStorageClient,
 } from "./objectStorage";
-import { ObjectPermission } from "./objectAcl";
+import { ObjectPermission, setObjectAclPolicy } from "./objectAcl";
 import { translateNewsArticle } from "./translation";
 import { translateText } from "./translate";
 import * as XLSX from "xlsx";
@@ -1834,23 +1835,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const objectStorageService = new ObjectStorageService();
+      const publicPaths = objectStorageService.getPublicObjectSearchPaths();
+      
+      if (publicPaths.length === 0) {
+        return res.status(500).json({ message: "Object storage not configured" });
+      }
+
+      // Use the first public path as the base
+      const basePath = publicPaths[0];
       
       // Generate unique filename with timestamp
       const timestamp = Date.now();
       const sanitizedFilename = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
       const filename = `news-${timestamp}-${sanitizedFilename}`;
-      const objectPath = `/public/news-attachments/${filename}`;
+      const fullPath = `${basePath}/news-attachments/${filename}`;
 
-      // Upload to object storage
-      await objectStorageService.uploadObject(
-        objectPath,
-        req.file.buffer,
-        req.file.mimetype,
-        ObjectPermission.PUBLIC
-      );
+      // Parse the path to get bucket and object name
+      const pathParts = fullPath.split('/');
+      const bucketName = pathParts[1];
+      const objectName = pathParts.slice(2).join('/');
+
+      // Upload to object storage using Google Cloud Storage client
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file = bucket.file(objectName);
+      
+      await file.save(req.file.buffer, {
+        metadata: {
+          contentType: req.file.mimetype,
+        },
+      });
+
+      // Set ACL policy to make it public
+      await setObjectAclPolicy(file, {
+        owner: sessionUser.id.toString(),
+        visibility: "public",
+      });
 
       // Return the public URL
-      const publicUrl = `/public/news-attachments/${filename}`;
+      const publicUrl = `/news-attachments/${filename}`;
       
       res.json({
         url: publicUrl,

@@ -12,7 +12,7 @@ import { type NewsArticle } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Languages, ArrowUp, ArrowDown } from "lucide-react";
+import { Languages, ArrowUp, ArrowDown, Upload, FileText, X } from "lucide-react";
 
 const editNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -37,6 +37,8 @@ interface EditNewsFormProps {
 
 export function EditNewsForm({ article, language, onSave, onCancel, isLoading }: EditNewsFormProps) {
   const { toast } = useToast();
+  const [uploadedFile, setUploadedFile] = useState<{ url: string; filename: string; size: number } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   const form = useForm<EditNewsFormData>({
     resolver: zodResolver(editNewsSchema),
@@ -173,6 +175,68 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "PDFファイルのみアップロードできます。" : "Only PDF files are allowed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "ファイルサイズは10MB以下にしてください。" : "File size must be less than 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/news/upload-pdf', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setUploadedFile(data);
+      form.setValue('attachmentUrl', data.url);
+      
+      toast({
+        title: language === 'jp' ? "成功" : "Success",
+        description: language === 'jp' ? "ファイルがアップロードされました。" : "File uploaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "ファイルのアップロードに失敗しました。" : "Failed to upload file.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleRemoveUpload = () => {
+    setUploadedFile(null);
+    form.setValue('attachmentUrl', '');
+  };
+
   const handleSubmit = (data: EditNewsFormData) => {
     onSave(data);
   };
@@ -286,6 +350,7 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                     placeholder={language === "en" ? "https://example.com/embed/..." : "https://example.com/embed/..."}
                     {...field}
                     data-testid="input-news-attachment"
+                    disabled={!!uploadedFile}
                   />
                 </FormControl>
                 <FormDescription>
@@ -297,6 +362,68 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
               </FormItem>
             )}
           />
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-muted-foreground">
+                {language === "en" ? "OR" : "または"}
+              </div>
+              <div className="flex-1 border-t"></div>
+            </div>
+            
+            <div className="space-y-2">
+              {uploadedFile ? (
+                <div className="flex items-center gap-2 p-3 border rounded-lg bg-slate-50" data-testid="uploaded-file-info">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">{uploadedFile.filename}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {(uploadedFile.size / 1024).toFixed(1)} KB
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRemoveUpload}
+                    data-testid="button-remove-upload"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    id="pdf-upload-edit"
+                    accept="application/pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    data-testid="input-pdf-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('pdf-upload-edit')?.click()}
+                    disabled={isUploading || !!form.getValues('attachmentUrl')}
+                    className="w-full"
+                    data-testid="button-upload-pdf"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {isUploading 
+                      ? (language === "en" ? "Uploading..." : "アップロード中...") 
+                      : (language === "en" ? "Upload PDF File" : "PDFファイルをアップロード")
+                    }
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === "en" 
+                      ? "Max file size: 10MB. PDF files only." 
+                      : "最大ファイルサイズ：10MB。PDFファイルのみ。"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Language section title - fixed as English */}
           <div className="border-b pb-2 mb-4">
