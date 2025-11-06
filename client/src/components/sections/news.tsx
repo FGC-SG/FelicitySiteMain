@@ -316,10 +316,6 @@ export function News({ language }: NewsProps) {
                   <DialogDescription className="text-sm text-muted-foreground mb-4">
                     {language === "en" ? "Full article content" : "完全な記事内容"}
                   </DialogDescription>
-                  <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Close</span>
-                  </DialogClose>
                 </DialogHeader>
                 
                 <div className="space-y-6 mt-6">
@@ -359,6 +355,7 @@ export function News({ language }: NewsProps) {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
+                                  if (!selectedArticle.attachmentUrl) return;
                                   const link = document.createElement('a');
                                   link.href = `/public-objects${selectedArticle.attachmentUrl}`;
                                   link.download = selectedArticle.attachmentUrl.split('/').pop() || 'document.pdf';
