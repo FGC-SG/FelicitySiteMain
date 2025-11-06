@@ -47,6 +47,12 @@ export function News({ language }: NewsProps) {
     }
   };
 
+  // Helper function to check if attachment is a PDF file
+  const isPdfFile = (urlString: string | null | undefined): boolean => {
+    if (!urlString) return false;
+    return urlString.endsWith('.pdf') || urlString.startsWith('/news-attachments/');
+  };
+
   const handleReadMore = (article: NewsArticle) => {
     setSelectedArticle(article);
     setIsModalOpen(true);
@@ -338,64 +344,101 @@ export function News({ language }: NewsProps) {
                     </div>
                   </div>
 
-                  {/* SharePoint Embedded File */}
-                  {selectedArticle.attachmentUrl && isValidUrl(selectedArticle.attachmentUrl) && (
+                  {/* Attached File - PDF or Embed URL */}
+                  {selectedArticle.attachmentUrl && (
                     <div className="mt-6 border-t pt-6">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground">
-                          {language === "en" ? "Attached Document" : "添付ドキュメント"}
-                        </h4>
-                        <div className="flex items-center gap-2">
-                          {!shortUrl ? (
+                      {isPdfFile(selectedArticle.attachmentUrl) ? (
+                        // PDF File Viewer
+                        <>
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-sm font-semibold text-muted-foreground">
+                              {language === "en" ? "Attached PDF Document" : "添付PDFドキュメント"}
+                            </h4>
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={handleGenerateShortUrl}
-                              disabled={isGeneratingUrl}
-                              data-testid="button-generate-sharepoint-short-url"
+                              onClick={() => window.open(`/public-objects${selectedArticle.attachmentUrl}`, '_blank')}
+                              data-testid="button-open-pdf"
                             >
-                              <Share2 className="h-4 w-4 mr-1" />
-                              {isGeneratingUrl 
-                                ? (language === "en" ? "Generating..." : "生成中...") 
-                                : (language === "en" ? "Share Link" : "共有リンク")
-                              }
+                              <FileText className="h-4 w-4 mr-1" />
+                              {language === "en" ? "Open PDF" : "PDFを開く"}
                             </Button>
-                          ) : (
-                            <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
-                              <span className="text-xs font-mono text-primary">{shortUrl}</span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={handleCopyUrl}
-                                data-testid="button-copy-sharepoint-short-url"
-                              >
-                                {isCopied ? (
-                                  <Check className="h-3 w-3 text-green-600" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </Button>
+                          </div>
+                          
+                          <div className="w-full rounded-lg overflow-hidden border bg-muted/50">
+                            <iframe
+                              src={`/public-objects${selectedArticle.attachmentUrl}`}
+                              className="w-full h-[600px]"
+                              frameBorder="0"
+                              title={language === "en" ? "PDF Viewer" : "PDFビューアー"}
+                              data-testid="iframe-pdf-viewer"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {language === "en" 
+                              ? "PDF document viewer - Click 'Open PDF' to download or view in a new tab" 
+                              : "PDFドキュメントビューアー - 「PDFを開く」をクリックしてダウンロードまたは新しいタブで表示"}
+                          </p>
+                        </>
+                      ) : isValidUrl(selectedArticle.attachmentUrl) ? (
+                        // Embed URL Viewer (SharePoint, etc.)
+                        <>
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-sm font-semibold text-muted-foreground">
+                              {language === "en" ? "Attached Document" : "添付ドキュメント"}
+                            </h4>
+                            <div className="flex items-center gap-2">
+                              {!shortUrl ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={handleGenerateShortUrl}
+                                  disabled={isGeneratingUrl}
+                                  data-testid="button-generate-sharepoint-short-url"
+                                >
+                                  <Share2 className="h-4 w-4 mr-1" />
+                                  {isGeneratingUrl 
+                                    ? (language === "en" ? "Generating..." : "生成中...") 
+                                    : (language === "en" ? "Share Link" : "共有リンク")
+                                  }
+                                </Button>
+                              ) : (
+                                <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
+                                  <span className="text-xs font-mono text-primary">{shortUrl}</span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={handleCopyUrl}
+                                    data-testid="button-copy-sharepoint-short-url"
+                                  >
+                                    {isCopied ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* SharePoint Embedded Viewer - Hides actual URL */}
-                      <div className="w-full rounded-lg overflow-hidden border bg-muted/50">
-                        <iframe
-                          src={selectedArticle.attachmentUrl}
-                          className="w-full h-[500px]"
-                          frameBorder="0"
-                          title={language === "en" ? "Document Viewer" : "ドキュメントビューアー"}
-                          data-testid="iframe-sharepoint-viewer"
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {language === "en" 
-                          ? "Document viewer - your SharePoint URL is not exposed to visitors" 
-                          : "ドキュメントビューアー - SharePoint URLは訪問者に公開されません"}
-                      </p>
+                          </div>
+                          
+                          <div className="w-full rounded-lg overflow-hidden border bg-muted/50">
+                            <iframe
+                              src={selectedArticle.attachmentUrl}
+                              className="w-full h-[500px]"
+                              frameBorder="0"
+                              title={language === "en" ? "Document Viewer" : "ドキュメントビューアー"}
+                              data-testid="iframe-sharepoint-viewer"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {language === "en" 
+                              ? "Document viewer - your SharePoint URL is not exposed to visitors" 
+                              : "ドキュメントビューアー - SharePoint URLは訪問者に公開されません"}
+                          </p>
+                        </>
+                      ) : null}
                     </div>
                   )}
 

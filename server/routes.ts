@@ -1826,7 +1826,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      if (!hasAdminPrivileges(sessionUser.role)) {
+      if (!hasAdminPrivileges(sessionUser)) {
         return res.status(403).json({ message: "Admin access required" });
       }
 
