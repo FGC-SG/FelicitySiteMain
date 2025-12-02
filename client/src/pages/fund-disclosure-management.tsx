@@ -750,7 +750,7 @@ export default function FundDisclosureManagementPage() {
                 )}
               />
 
-              {/* PDF URL - Read only for edit */}
+              {/* PDF URL */}
               <FormField
                 control={form.control}
                 name="pdfUrl"
@@ -758,10 +758,10 @@ export default function FundDisclosureManagementPage() {
                   <FormItem>
                     <FormLabel>PDF URL</FormLabel>
                     <FormControl>
-                      <Input {...field} readOnly className="bg-gray-50" data-testid="input-edit-pdf-url" />
+                      <Input {...field} placeholder="https://example.com/document.pdf" data-testid="input-edit-pdf-url" />
                     </FormControl>
                     <div className="text-sm text-gray-500">
-                      To change the PDF file, please create a new disclosure.
+                      Enter the URL to the PDF document
                     </div>
                     <FormMessage />
                   </FormItem>
