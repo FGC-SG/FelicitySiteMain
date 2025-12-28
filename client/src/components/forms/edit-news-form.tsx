@@ -242,12 +242,12 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
   };
 
   const categories = [
-    "NEWS AT PORTFOLIO",
-    "CORPORATE", 
-    "INVESTMENTS",
-    "FUND-FORMATION",
-    "GENERAL",
-    "ANNOUNCEMENT"
+    { value: "NEWS AT PORTFOLIO", label: language === "en" ? "News at Portfolio" : "ポートフォリオニュース" },
+    { value: "CORPORATE", label: language === "en" ? "Corporate" : "コーポレート" },
+    { value: "INVESTMENTS", label: language === "en" ? "Investments" : "投資" },
+    { value: "FUND-FORMATION", label: language === "en" ? "Fund Formation" : "ファンド組成" },
+    { value: "GENERAL", label: language === "en" ? "General" : "一般" },
+    { value: "ANNOUNCEMENT", label: language === "en" ? "Announcement" : "お知らせ" },
   ];
 
   return (
@@ -304,8 +304,8 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                     </FormControl>
                     <SelectContent>
                       {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat} data-testid={`option-${cat.toLowerCase().replace(/\s+/g, '-')}`}>
-                          {cat}
+                        <SelectItem key={cat.value} value={cat.value} data-testid={`option-${cat.value.toLowerCase().replace(/\s+/g, '-')}`}>
+                          {cat.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

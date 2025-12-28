@@ -175,10 +175,12 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
   };
 
   const categories = [
-    { value: "company", label: language === "en" ? "Company News" : "会社ニュース" },
-    { value: "investment", label: language === "en" ? "Investment Updates" : "投資アップデート" },
-    { value: "market", label: language === "en" ? "Market Analysis" : "市場分析" },
-    { value: "announcement", label: language === "en" ? "Announcements" : "お知らせ" },
+    { value: "NEWS AT PORTFOLIO", label: language === "en" ? "News at Portfolio" : "ポートフォリオニュース" },
+    { value: "CORPORATE", label: language === "en" ? "Corporate" : "コーポレート" },
+    { value: "INVESTMENTS", label: language === "en" ? "Investments" : "投資" },
+    { value: "FUND-FORMATION", label: language === "en" ? "Fund Formation" : "ファンド組成" },
+    { value: "GENERAL", label: language === "en" ? "General" : "一般" },
+    { value: "ANNOUNCEMENT", label: language === "en" ? "Announcement" : "お知らせ" },
   ];
 
   const handleTranslateTitle = () => {

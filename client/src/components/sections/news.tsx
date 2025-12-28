@@ -122,17 +122,29 @@ export function News({ language }: NewsProps) {
   });
 
   const getCategoryLabel = (category: string) => {
-    const labels = {
+    const labels: Record<string, string> = {
+      "NEWS AT PORTFOLIO": language === "en" ? "News at Portfolio" : "ポートフォリオニュース",
+      "CORPORATE": language === "en" ? "Corporate" : "コーポレート",
+      "INVESTMENTS": language === "en" ? "Investments" : "投資",
+      "FUND-FORMATION": language === "en" ? "Fund Formation" : "ファンド組成",
+      "GENERAL": language === "en" ? "General" : "一般",
+      "ANNOUNCEMENT": language === "en" ? "Announcement" : "お知らせ",
       company: language === "en" ? "Company News" : "会社ニュース",
       investment: language === "en" ? "Investment Updates" : "投資アップデート",
       market: language === "en" ? "Market Analysis" : "市場分析",
       announcement: language === "en" ? "Announcements" : "お知らせ",
     };
-    return labels[category as keyof typeof labels] || category;
+    return labels[category] || category;
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
+      case "NEWS AT PORTFOLIO": return "bg-indigo-100 text-indigo-800";
+      case "CORPORATE": return "bg-blue-100 text-blue-800";
+      case "INVESTMENTS": return "bg-green-100 text-green-800";
+      case "FUND-FORMATION": return "bg-purple-100 text-purple-800";
+      case "GENERAL": return "bg-gray-100 text-gray-800";
+      case "ANNOUNCEMENT": return "bg-orange-100 text-orange-800";
       case "company": return "bg-blue-100 text-blue-800";
       case "investment": return "bg-green-100 text-green-800";
       case "market": return "bg-purple-100 text-purple-800";
