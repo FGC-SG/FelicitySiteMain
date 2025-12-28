@@ -210,7 +210,7 @@ export default function FundDisclosuresPage() {
                       </Badge>
                     </div>
                     <CardTitle className="text-xl">
-                      {language === 'jp' ? '事業報告書' : 'Business Reports'}
+                      {language === 'jp' ? '運用報告書（半期報告）' : 'Management Report (Semi-annual Report)'}
                     </CardTitle>
                     <CardDescription>
                       {language === 'jp' 
