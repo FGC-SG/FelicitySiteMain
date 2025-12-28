@@ -10,6 +10,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
@@ -21,7 +23,9 @@ import {
   Calendar as CalendarIcon,
   Building2,
   Eye,
-  EyeOff
+  EyeOff,
+  Settings,
+  ChevronDown
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -53,6 +57,40 @@ export default function FundDisclosureManagementPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingDisclosure, setEditingDisclosure] = useState<FundDisclosure | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Fetch site settings for category visibility
+  const { data: settings } = useQuery<Record<string, string>>({
+    queryKey: ['/api/settings']
+  });
+
+  // Mutation to update category visibility settings
+  const updateSettingMutation = useMutation({
+    mutationFn: ({ key, value }: { key: string; value: string }) =>
+      apiRequest('PUT', `/api/settings/${key}`, { value }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/settings'] });
+      toast({ title: "Success", description: "Visibility setting updated" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to update setting",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const isCategoryVisible = (category: string) => {
+    const key = `disclosure_category_visible_${category}`;
+    return settings?.[key] !== 'false';
+  };
+
+  const toggleCategoryVisibility = (category: string) => {
+    const key = `disclosure_category_visible_${category}`;
+    const currentValue = settings?.[key] !== 'false';
+    updateSettingMutation.mutate({ key, value: currentValue ? 'false' : 'true' });
+  };
 
   // Fetch fund disclosures
   const { data: disclosures, isLoading } = useQuery<FundDisclosure[]>({
@@ -253,7 +291,16 @@ export default function FundDisclosureManagementPage() {
             </p>
           </div>
           
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              data-testid="button-toggle-settings"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Category Settings
+            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button data-testid="button-add-disclosure">
                 <Plus className="h-4 w-4 mr-2" />
@@ -550,7 +597,53 @@ export default function FundDisclosureManagementPage() {
               </Form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
+
+        {/* Category Visibility Settings */}
+        <Collapsible open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+          <CollapsibleContent className="mb-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Category Visibility Settings
+                </CardTitle>
+                <CardDescription>
+                  Control which disclosure categories are visible to the public
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div>
+                      <Label className="font-medium">事業報告書 (Business Report)</Label>
+                      <p className="text-sm text-muted-foreground">Annual business and operation reports</p>
+                    </div>
+                    <Switch
+                      checked={isCategoryVisible('business-report')}
+                      onCheckedChange={() => toggleCategoryVisibility('business-report')}
+                      disabled={updateSettingMutation.isPending}
+                      data-testid="switch-business-report-visibility"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div>
+                      <Label className="font-medium">半期運用報告書 (Semi-annual Management Report)</Label>
+                      <p className="text-sm text-muted-foreground">Semi-annual fund management reports</p>
+                    </div>
+                    <Switch
+                      checked={isCategoryVisible('semi-annual-report')}
+                      onCheckedChange={() => toggleCategoryVisibility('semi-annual-report')}
+                      disabled={updateSettingMutation.isPending}
+                      data-testid="switch-semi-annual-report-visibility"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Disclosures List */}
         <div className="grid gap-6">

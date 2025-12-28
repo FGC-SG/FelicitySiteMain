@@ -28,9 +28,21 @@ export default function FundDisclosuresPage() {
     queryKey: ['/api/fund-disclosures']
   });
 
-  // Filter visible disclosures and apply search
+  // Fetch site settings for category visibility
+  const { data: settings } = useQuery<Record<string, string>>({
+    queryKey: ['/api/settings']
+  });
+
+  // Helper to check if a category is visible
+  const isCategoryVisible = (category: string) => {
+    const key = `disclosure_category_visible_${category}`;
+    return settings?.[key] !== 'false';
+  };
+
+  // Filter visible disclosures and apply search (also filter by category visibility)
   const filteredDisclosures = disclosures?.filter(disclosure => 
     disclosure.isVisible && 
+    isCategoryVisible(disclosure.disclosureType) &&
     (searchTerm === "" || 
      (disclosure.descriptionJa && disclosure.descriptionJa.toLowerCase().includes(searchTerm.toLowerCase())) ||
      disclosure.disclosureType.toLowerCase().includes(searchTerm.toLowerCase()))
