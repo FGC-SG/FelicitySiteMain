@@ -279,7 +279,6 @@ export default function FundDisclosureManagementPage() {
         language={language}
         onLanguageChange={setLanguage}
       />
-
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -617,7 +616,7 @@ export default function FundDisclosureManagementPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                     <div>
-                      <Label className="font-medium">事業報告書 (Business Report)</Label>
+                      <Label className="font-medium">運用報告書（半期報告）</Label>
                       <p className="text-sm text-muted-foreground">Annual business and operation reports</p>
                     </div>
                     <Switch
@@ -741,7 +740,6 @@ export default function FundDisclosureManagementPage() {
           )}
         </div>
       </div>
-
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -923,7 +921,6 @@ export default function FundDisclosureManagementPage() {
           </Form>
         </DialogContent>
       </Dialog>
-
       <Footer language={language} />
     </div>
   );
