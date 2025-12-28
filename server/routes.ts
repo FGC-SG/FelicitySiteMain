@@ -16,7 +16,45 @@ import { translateText } from "./translate";
 import * as XLSX from "xlsx";
 import multer from "multer";
 import { Readable } from "stream";
-import sgMail from "@sendgrid/mail";
+// SMTP2GO email sending helper
+async function sendEmailViaSMTP2GO(to: string, subject: string, html: string): Promise<boolean> {
+  const apiKey = process.env.SMTP2GO_API_KEY;
+  const fromEmail = process.env.SMTP2GO_FROM_EMAIL || 'noreply@fgcsg.com';
+  
+  if (!apiKey) {
+    console.log("SMTP2GO_API_KEY not configured");
+    return false;
+  }
+
+  try {
+    const response = await fetch('https://api.smtp2go.com/v3/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        api_key: apiKey,
+        to: [to],
+        sender: fromEmail,
+        subject: subject,
+        html_body: html,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (response.ok && data.data?.succeeded > 0) {
+      console.log(`Email sent successfully to ${to}`);
+      return true;
+    } else {
+      console.error("SMTP2GO error:", data);
+      return false;
+    }
+  } catch (error) {
+    console.error("SMTP2GO fetch error:", error);
+    return false;
+  }
+}
 import {
   hasAdminPrivileges,
   canManageUser,
@@ -1421,47 +1459,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const passwordReset = await storage.createPasswordReset(user.id);
       const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${passwordReset.resetToken}`;
 
-      // Try to send email via SendGrid if configured
-      const sendgridApiKey = process.env.SENDGRID_API_KEY;
-      if (sendgridApiKey) {
-        try {
-          sgMail.setApiKey(sendgridApiKey);
-          
-          const msg = {
-            to: email,
-            from: process.env.SENDGRID_FROM_EMAIL || 'noreply@fgcsg.com',
-            subject: 'Password Reset Request - Felicity Global Capital',
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #1a365d;">Password Reset Request</h2>
-                <p>Hello ${user.firstName || 'User'},</p>
-                <p>You have requested to reset your password for your Felicity Global Capital account.</p>
-                <p>Click the link below to reset your password:</p>
-                <p><a href="${resetLink}" style="background-color: #3182ce; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
-                <p style="color: #666; font-size: 14px;">This link will expire in 2 hours.</p>
-                <p style="color: #666; font-size: 14px;">If you did not request this password reset, please ignore this email.</p>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="color: #999; font-size: 12px;">Felicity Global Capital Pte. Ltd.</p>
-              </div>
-            `,
-          };
-          
-          await sgMail.send(msg);
-          console.log(`Password reset email sent to ${email}`);
-        } catch (emailError) {
-          console.error("SendGrid email error:", emailError);
-          // Continue without email - will return success message anyway
-        }
-      } else {
+      // Try to send email via SMTP2GO
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1a365d;">Password Reset Request</h2>
+          <p>Hello ${user.firstName || 'User'},</p>
+          <p>You have requested to reset your password for your Felicity Global Capital account.</p>
+          <p>Click the link below to reset your password:</p>
+          <p><a href="${resetLink}" style="background-color: #3182ce; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
+          <p style="color: #666; font-size: 14px;">This link will expire in 2 hours.</p>
+          <p style="color: #666; font-size: 14px;">If you did not request this password reset, please ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="color: #999; font-size: 12px;">Felicity Global Capital Pte. Ltd.</p>
+        </div>
+      `;
+      
+      const emailSent = await sendEmailViaSMTP2GO(
+        email,
+        'Password Reset Request - Felicity Global Capital',
+        emailHtml
+      );
+      
+      if (!emailSent) {
         console.log(`Password reset link generated for ${email}: ${resetLink}`);
       }
 
       res.json({ 
-        message: sendgridApiKey 
+        message: emailSent 
           ? "If an account with that email exists, a password reset link has been sent."
           : "Password reset request processed. Please contact an administrator if you do not receive an email.",
         success: true,
-        emailSent: !!sendgridApiKey
+        emailSent
       });
     } catch (error) {
       console.error("Error processing forgot password:", error);
