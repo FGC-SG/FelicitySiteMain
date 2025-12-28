@@ -1214,6 +1214,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Site settings routes
+  app.get('/api/settings', async (req, res) => {
+    try {
+      const settings = await storage.getAllSettings();
+      // Convert to object format for easier access
+      const settingsObj: Record<string, string> = {};
+      settings.forEach(s => {
+        settingsObj[s.key] = s.value;
+      });
+      res.json(settingsObj);
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+      res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  app.get('/api/settings/:key', async (req, res) => {
+    try {
+      const { key } = req.params;
+      const value = await storage.getSetting(key);
+      res.json({ key, value });
+    } catch (error) {
+      console.error("Error fetching setting:", error);
+      res.status(500).json({ message: "Failed to fetch setting" });
+    }
+  });
+
+  app.put('/api/settings/:key', async (req: any, res) => {
+    try {
+      // Check if user is authenticated
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if user has admin privileges (admin or superadmin)
+      if (!hasAdminPrivileges(sessionUser)) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { key } = req.params;
+      const { value, description } = req.body;
+      
+      if (typeof value !== 'string') {
+        return res.status(400).json({ message: "Value must be a string" });
+      }
+
+      const setting = await storage.setSetting(key, value, description);
+      res.json(setting);
+    } catch (error) {
+      console.error("Error updating setting:", error);
+      res.status(500).json({ message: "Failed to update setting" });
+    }
+  });
+
   // User invitation routes
   app.post('/api/invitations', async (req: any, res) => {
     try {

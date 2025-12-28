@@ -8,6 +8,7 @@ import {
   fundDisclosures,
   userInvitations,
   passwordResets,
+  siteSettings,
   type User,
   type UpsertUser,
   type ContactSubmission,
@@ -26,6 +27,7 @@ import {
   type InsertUserInvitation,
   type PasswordReset,
   type InsertPasswordReset,
+  type SiteSetting,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -93,6 +95,11 @@ export interface IStorage {
   getPasswordResetByToken(token: string): Promise<PasswordReset | undefined>;
   resetPassword(token: string, newPassword: string): Promise<User>;
   deletePasswordReset(id: string): Promise<void>;
+  
+  // Site settings operations
+  getSetting(key: string): Promise<string | null>;
+  setSetting(key: string, value: string, description?: string): Promise<SiteSetting>;
+  getAllSettings(): Promise<SiteSetting[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -499,6 +506,38 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error initializing default users:', error);
     }
+  }
+  
+  // Site settings operations
+  async getSetting(key: string): Promise<string | null> {
+    const [setting] = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    return setting?.value ?? null;
+  }
+  
+  async setSetting(key: string, value: string, description?: string): Promise<SiteSetting> {
+    // Try to update existing setting first
+    const existing = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    
+    if (existing.length > 0) {
+      const [updated] = await db
+        .update(siteSettings)
+        .set({ value, description, updatedAt: new Date() })
+        .where(eq(siteSettings.key, key))
+        .returning();
+      return updated;
+    }
+    
+    // Create new setting
+    const [created] = await db.insert(siteSettings).values({
+      key,
+      value,
+      description
+    }).returning();
+    return created;
+  }
+  
+  async getAllSettings(): Promise<SiteSetting[]> {
+    return await db.select().from(siteSettings);
   }
 }
 

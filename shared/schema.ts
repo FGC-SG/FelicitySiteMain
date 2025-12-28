@@ -202,3 +202,15 @@ export const fundDisclosures = pgTable("fund_disclosures", {
 
 export type FundDisclosure = typeof fundDisclosures.$inferSelect;
 export type InsertFundDisclosure = typeof fundDisclosures.$inferInsert;
+
+// Site settings table for global configuration
+export const siteSettings = pgTable("site_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  key: varchar("key").notNull().unique(),
+  value: text("value").notNull(),
+  description: text("description"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type SiteSetting = typeof siteSettings.$inferSelect;
+export type InsertSiteSetting = typeof siteSettings.$inferInsert;
