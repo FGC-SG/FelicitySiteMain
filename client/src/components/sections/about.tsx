@@ -1,5 +1,5 @@
 import { useTranslation, type Language } from "@/lib/i18n";
-import modernBoardroomImage from "@assets/generated_images/modern_empty_singapore_boardroom.png";
+import modernBoardroomImage from "@assets/generated_images/danish_design_white_chairs_boardroom.png";
 
 interface AboutProps {
   language: Language;
