@@ -2432,12 +2432,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const disclosures = await storage.getAllFundDisclosures();
       const disclosureData = disclosures.map(d => ({
         'ID': d.id,
-        'Fund ID': d.fundId,
+        'Fund ID': d.fundId || '',
         'Fund Name': d.fundName || '',
-        'Title': d.title,
-        'Title (Japanese)': d.titleJa || '',
+        'Description (Japanese)': d.descriptionJa || '',
         'PDF URL': d.pdfUrl || '',
-        'Disclosure Date': d.disclosureDate ? new Date(d.disclosureDate).toISOString() : '',
+        'Published At': d.publishedAt ? new Date(d.publishedAt).toISOString() : '',
+        'Disclosure Type': d.disclosureType || 'business-report',
+        'Visible': d.isVisible !== false ? 'TRUE' : 'FALSE',
         'Created At': d.createdAt ? new Date(d.createdAt).toISOString() : '',
         'Updated At': d.updatedAt ? new Date(d.updatedAt).toISOString() : ''
       }));
@@ -2873,12 +2874,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const disclosureData: any = {
               id: row['ID'],
-              fundId: row['Fund ID'],
-              fundName: row['Fund Name'] || '',
-              title: row['Title'] || row['Title (Japanese)'] || '',
-              titleJa: row['Title (Japanese)'] || '',
+              fundId: row['Fund ID'] || null,
+              descriptionJa: row['Description (Japanese)'] || row['Title (Japanese)'] || '',
               pdfUrl: row['PDF URL'] || '',
-              disclosureDate: row['Disclosure Date'] ? new Date(row['Disclosure Date']) : new Date()
+              publishedAt: row['Published At'] || row['Disclosure Date'] ? new Date(row['Published At'] || row['Disclosure Date']) : new Date(),
+              disclosureType: row['Disclosure Type'] || 'business-report',
+              isVisible: parseBoolean(row['Visible'] ?? 'TRUE')
             };
             
             try {
@@ -2889,7 +2890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             importedCounts.fundDisclosures++;
           } catch (error) {
             console.error('Error importing fund disclosure:', error);
-            result.warnings.push(`Fund Disclosure ${row['Title']}: ${error instanceof Error ? error.message : 'Import failed'}`);
+            result.warnings.push(`Fund Disclosure ${row['ID']}: ${error instanceof Error ? error.message : 'Import failed'}`);
           }
         }
       }
