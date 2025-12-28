@@ -271,10 +271,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // News routes - temporarily remove auth for development
   app.post('/api/news', async (req: any, res) => {
     try {
-      const userId = "38362161"; // Use existing user ID
+      const sessionUser = (req as any).session?.user;
+      if (!sessionUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
       const newsData = {
         ...req.body,
-        authorId: userId,
+        authorId: sessionUser.id,
         publishedAt: req.body.publishedAt ? new Date(req.body.publishedAt) : new Date()
       };
       const news = await storage.createNewsArticle(newsData);
