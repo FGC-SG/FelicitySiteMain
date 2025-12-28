@@ -1,5 +1,5 @@
 import { useTranslation, type Language } from "@/lib/i18n";
-import asianFinanceTeamImage from "@assets/generated_images/Asian_finance_team_Singapore_office_6d0cf141.png";
+import modernBoardroomImage from "@assets/generated_images/modern_empty_singapore_boardroom.png";
 
 interface AboutProps {
   language: Language;
@@ -13,12 +13,12 @@ export function About({ language }: AboutProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            {/* Professional Asian finance team in modern Singapore office environment */}
+            {/* Modern corporate boardroom in Singapore */}
             <img
-              src={asianFinanceTeamImage}
-              alt="Professional Asian finance team in Singapore office"
+              src={modernBoardroomImage}
+              alt="Modern corporate boardroom in Singapore"
               className="rounded-xl shadow-2xl"
-              data-testid="img-finance-team"
+              data-testid="img-boardroom"
             />
           </div>
           <div>
