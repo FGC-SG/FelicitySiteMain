@@ -16,6 +16,7 @@ import { translateText } from "./translate";
 import * as XLSX from "xlsx";
 import multer from "multer";
 import { Readable } from "stream";
+import sgMail from "@sendgrid/mail";
 import {
   hasAdminPrivileges,
   canManageUser,
@@ -1393,6 +1394,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error accepting invitation:", error);
       res.status(400).json({ message: (error as Error).message || "Failed to accept invitation" });
+    }
+  });
+
+  // Self-service password reset request (forgot password)
+  app.post('/api/forgot-password', async (req: any, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      
+      // Always return success to prevent email enumeration attacks
+      if (!user) {
+        return res.json({ 
+          message: "If an account with that email exists, a password reset link has been sent.",
+          success: true
+        });
+      }
+
+      // Create password reset token
+      const passwordReset = await storage.createPasswordReset(user.id);
+      const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${passwordReset.resetToken}`;
+
+      // Try to send email via SendGrid if configured
+      const sendgridApiKey = process.env.SENDGRID_API_KEY;
+      if (sendgridApiKey) {
+        try {
+          sgMail.setApiKey(sendgridApiKey);
+          
+          const msg = {
+            to: email,
+            from: process.env.SENDGRID_FROM_EMAIL || 'noreply@fgcsg.com',
+            subject: 'Password Reset Request - Felicity Global Capital',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #1a365d;">Password Reset Request</h2>
+                <p>Hello ${user.firstName || 'User'},</p>
+                <p>You have requested to reset your password for your Felicity Global Capital account.</p>
+                <p>Click the link below to reset your password:</p>
+                <p><a href="${resetLink}" style="background-color: #3182ce; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
+                <p style="color: #666; font-size: 14px;">This link will expire in 2 hours.</p>
+                <p style="color: #666; font-size: 14px;">If you did not request this password reset, please ignore this email.</p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="color: #999; font-size: 12px;">Felicity Global Capital Pte. Ltd.</p>
+              </div>
+            `,
+          };
+          
+          await sgMail.send(msg);
+          console.log(`Password reset email sent to ${email}`);
+        } catch (emailError) {
+          console.error("SendGrid email error:", emailError);
+          // Continue without email - will return success message anyway
+        }
+      } else {
+        console.log(`Password reset link generated for ${email}: ${resetLink}`);
+      }
+
+      res.json({ 
+        message: sendgridApiKey 
+          ? "If an account with that email exists, a password reset link has been sent."
+          : "Password reset request processed. Please contact an administrator if you do not receive an email.",
+        success: true,
+        emailSent: !!sendgridApiKey
+      });
+    } catch (error) {
+      console.error("Error processing forgot password:", error);
+      res.status(500).json({ message: "Failed to process password reset request" });
     }
   });
 
