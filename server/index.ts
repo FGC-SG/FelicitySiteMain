@@ -20,7 +20,7 @@ app.use(
   session({
     store: new PgStore({
       pool: pool,
-      createTableIfMissing: true,
+      createTableIfMissing: false,
     }),
     secret:
       process.env.SESSION_SECRET || "felicity-global-capital-secret-key-2025",
