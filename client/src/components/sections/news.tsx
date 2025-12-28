@@ -198,86 +198,46 @@ export function News({ language }: NewsProps) {
             </CardHeader>
           </Card>
         ) : newsArticles && newsArticles.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2">
             {newsArticles
               .filter((article: NewsArticle) => {
-                // First, filter by visibility (only show visible articles)
                 if ((article as any).isVisible === false) {
                   return false;
                 }
-                
-                // Then filter by language content availability
                 if (language === "jp") {
-                  // Show articles that have Japanese content or can fallback to English
                   return article.titleJa || article.title;
                 } else {
-                  // For English: show all articles (they all have English content)
                   return true;
                 }
               })
+              .sort((a: NewsArticle, b: NewsArticle) => {
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+              })
               .map((article: NewsArticle) => {
-                // Use appropriate language content based on availability
                 const displayTitle = language === "jp" && article.titleJa ? article.titleJa : article.title;
-                const displayContent = language === "jp" && article.contentJa ? article.contentJa : article.content;
-                const displayDescription = displayContent.substring(0, 150) + (displayContent.length > 150 ? '...' : '');
                 
                 return (
-                <Card key={article.id} className="hover:shadow-lg transition-shadow" data-testid={`news-card-${article.id}`}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex gap-2">
-                        <Badge className={getCategoryColor(article.category)} data-testid={`news-category-${article.id}`}>
-                          {getCategoryLabel(article.category)}
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className={
-                            (article as any).felicityCompany === "felicity-japan" 
-                              ? "bg-red-50 text-red-700 border-red-200" 
-                              : "bg-blue-50 text-blue-700 border-blue-200"
-                          }
-                          data-testid={`news-felicity-company-${article.id}`}
-                        >
-                          {(article as any).felicityCompany === "felicity-japan" 
-                            ? (language === "jp" ? "フェリシティ・ジャパン" : "Felicity Japan")
-                            : (language === "jp" ? "フェリシティ・シンガポール" : "Felicity Singapore")
-                          }
-                        </Badge>
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span data-testid={`news-date-${article.id}`}>
-                          {formatDate(article.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <CardTitle className="line-clamp-2" data-testid={`news-title-${article.id}`}>
+                <div 
+                  key={article.id} 
+                  className="flex items-center gap-4 p-3 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer border-b last:border-b-0"
+                  onClick={() => handleReadMore(article)}
+                  data-testid={`news-row-${article.id}`}
+                >
+                  <div className="flex-shrink-0 w-28 text-sm text-muted-foreground" data-testid={`news-date-${article.id}`}>
+                    {formatDate(article.createdAt)}
+                  </div>
+                  <div className="flex-shrink-0">
+                    <Badge className={getCategoryColor(article.category)} data-testid={`news-category-${article.id}`}>
+                      {getCategoryLabel(article.category)}
+                    </Badge>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-foreground hover:text-primary transition-colors line-clamp-1" data-testid={`news-title-${article.id}`}>
                       {displayTitle}
-                    </CardTitle>
-                    
-                    <CardDescription className="line-clamp-3" data-testid={`news-description-${article.id}`}>
-                      {displayDescription}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-end items-center pt-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          data-testid={`button-read-more-${article.id}`}
-                          onClick={() => handleReadMore(article)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          {language === "en" ? "Read More" : "続きを読む"}
-                          <ArrowRight className="h-4 w-4 ml-1" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                </div>
                 );
               })}
           </div>
