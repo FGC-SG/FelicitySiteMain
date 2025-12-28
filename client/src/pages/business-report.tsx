@@ -25,7 +25,7 @@ export default function BusinessReportPage() {
     queryKey: ['/api/fund-disclosures']
   });
 
-  // Filter for business report disclosures and apply search and year filter
+  // Filter for business report disclosures and apply search and year filter, then sort alphabetically by fund name
   const filteredDisclosures = disclosures?.filter(disclosure => {
     const disclosureYear = new Date(disclosure.publishedAt).getFullYear();
     return disclosure.disclosureType === 'business-report' &&
@@ -33,6 +33,10 @@ export default function BusinessReportPage() {
       disclosureYear === selectedYear &&
       (searchTerm === "" || 
        (disclosure.descriptionJa && disclosure.descriptionJa.toLowerCase().includes(searchTerm.toLowerCase())))
+  }).sort((a, b) => {
+    const nameA = (a.fundName || '').toLowerCase();
+    const nameB = (b.fundName || '').toLowerCase();
+    return nameA.localeCompare(nameB, 'ja');
   }) || [];
 
   // Get available years from disclosures
