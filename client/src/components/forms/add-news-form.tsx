@@ -412,62 +412,95 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <FormLabel data-testid="label-news-attachment">
-                {language === "en" ? "PDF Attachment (Optional)" : "PDF添付ファイル（オプション）"}
+                {language === "en" ? "Attachment (Optional)" : "添付ファイル（オプション）"}
               </FormLabel>
               
-              <div className="space-y-2">
-                {uploadedFile ? (
-                  <div className="flex items-center gap-2 p-3 border rounded-lg bg-slate-50" data-testid="uploaded-file-info">
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    <div className="flex-1">
-                      <div className="text-sm font-medium">{uploadedFile.filename}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {(uploadedFile.size / 1024).toFixed(1)} KB
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 p-4 border rounded-lg">
+                  <div className="text-sm font-medium mb-2">
+                    {language === "en" ? "Upload PDF File" : "PDFファイルをアップロード"}
+                  </div>
+                  {uploadedFile ? (
+                    <div className="flex items-center gap-2 p-3 border rounded-lg bg-slate-50" data-testid="uploaded-file-info">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">{uploadedFile.filename}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {(uploadedFile.size / 1024).toFixed(1)} KB
+                        </div>
                       </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveUpload}
+                        data-testid="button-remove-upload"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveUpload}
-                      data-testid="button-remove-upload"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
+                  ) : (
+                    <div>
+                      <input
+                        type="file"
+                        id="pdf-upload"
+                        accept="application/pdf"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        data-testid="input-pdf-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('pdf-upload')?.click()}
+                        disabled={isUploading || !!form.watch('attachmentUrl')}
+                        className="w-full"
+                        data-testid="button-upload-pdf"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        {isUploading 
+                          ? (language === "en" ? "Uploading..." : "アップロード中...") 
+                          : (language === "en" ? "Upload PDF" : "PDFアップロード")
+                        }
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {language === "en" 
+                          ? "Max: 10MB, PDF only" 
+                          : "最大10MB、PDFのみ"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2 p-4 border rounded-lg">
+                  <div className="text-sm font-medium mb-2">
+                    {language === "en" ? "Or Enter URL" : "またはURLを入力"}
                   </div>
-                ) : (
-                  <div>
-                    <input
-                      type="file"
-                      id="pdf-upload"
-                      accept="application/pdf"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      data-testid="input-pdf-upload"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById('pdf-upload')?.click()}
-                      disabled={isUploading}
-                      className="w-full"
-                      data-testid="button-upload-pdf"
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      {isUploading 
-                        ? (language === "en" ? "Uploading..." : "アップロード中...") 
-                        : (language === "en" ? "Upload PDF File" : "PDFファイルをアップロード")
-                      }
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {language === "en" 
-                        ? "Max file size: 10MB. PDF files only." 
-                        : "最大ファイルサイズ：10MB。PDFファイルのみ。"}
-                    </p>
-                  </div>
-                )}
+                  <FormField
+                    control={form.control}
+                    name="attachmentUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder={language === "en" ? "https://..." : "https://..."}
+                            {...field}
+                            disabled={!!uploadedFile}
+                            data-testid="input-attachment-url"
+                          />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          {language === "en" 
+                            ? "SharePoint or external document URL" 
+                            : "SharePointまたは外部ドキュメントURL"}
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </div>
 
