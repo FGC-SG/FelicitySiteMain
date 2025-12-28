@@ -11,6 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { type FundDisclosure } from "@shared/schema";
 
+type FundDisclosureWithFundName = FundDisclosure & { fundName?: string };
+
 export default function BusinessReportPage() {
   // Japan Only page - force Japanese language
   const [language, setLanguage] = useState<Language>('jp');
@@ -19,7 +21,7 @@ export default function BusinessReportPage() {
   const { toast } = useToast();
 
   // Fetch fund disclosures data filtered for business reports
-  const { data: disclosures, isLoading } = useQuery<FundDisclosure[]>({
+  const { data: disclosures, isLoading } = useQuery<FundDisclosureWithFundName[]>({
     queryKey: ['/api/fund-disclosures']
   });
 
@@ -163,7 +165,7 @@ export default function BusinessReportPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
                       <CardTitle className="text-lg leading-6" data-testid={`text-report-title-${disclosure.id}`}>
-                        {language === 'jp' ? '事業報告書' : 'Business Report'}
+                        {disclosure.fundName || (language === 'jp' ? '事業報告書' : 'Business Report')}
                       </CardTitle>
                       <FileText className="h-6 w-6 text-green-600 flex-shrink-0" />
                     </div>
