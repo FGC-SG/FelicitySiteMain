@@ -32,7 +32,6 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
     { href: "/news", label: t.nav.news },
     { href: "/portfolio", label: t.nav.portfolio },
     { href: "/fund", label: t.nav.fund },
-    { href: "/fund-disclosures", label: t.nav.fundDisclosure },
     { href: "/contact", label: t.nav.contact },
   ];
 
@@ -86,14 +85,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   }`}
                   data-testid={`nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
-                  {item.href === '/fund-disclosures' ? (
-                    <div className="flex flex-col items-center leading-tight whitespace-nowrap">
-                      <span>{item.label}</span>
-                      <span className="text-xs opacity-75 whitespace-nowrap">金商法63条開示</span>
-                    </div>
-                  ) : (
-                    item.label
-                  )}
+                  {item.label}
                 </Link>
               ))}
             </div>
@@ -177,14 +169,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                   }`}
                   data-testid={`mobile-nav-${item.href === '/' ? 'home' : item.href.slice(1)}`}
                 >
-                  {item.href === '/fund-disclosures' ? (
-                    <div className="flex flex-col">
-                      <span>{item.label}</span>
-                      <span className="text-sm opacity-75">金商法63条開示</span>
-                    </div>
-                  ) : (
-                    item.label
-                  )}
+                  {item.label}
                 </Link>
               ))}
               
