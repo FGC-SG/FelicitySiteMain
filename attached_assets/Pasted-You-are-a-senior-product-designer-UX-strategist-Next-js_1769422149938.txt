@@ -1,0 +1,228 @@
+You are a senior product designer + UX strategist + Next.js engineer specializing in institutional financial services websites.
+
+Target site: fgcsg.com (Felicity Global Capital). Objective is to implement:
+
+I. Strategic Positioning & Value Communication
+II. UX & Site Structure Optimization
+
+Non-negotiable constraints
+
+Do not invent facts: no regulatory status, AUM, performance, awards, client logos, or licenses unless already present on the current site. If unknown, use explicit placeholders like:
+{{MAS_STATUS_PLACEHOLDER}}, {{AUM_PLACEHOLDER}}, {{CUSTODIAN_PLACEHOLDER}}, {{TEAM_CREDENTIALS_PLACEHOLDER}}
+
+Tone: professional, institutional, compliant.
+
+Mobile-first, accessible.
+
+Use Next.js best practices: App Router if available; otherwise Pages Router is acceptable. Prefer App Router unless repository indicates otherwise.
+
+Output must be implementable: actual files, components, and content model.
+
+Step 0 — Confirm repo structure
+
+Inspect the repository:
+
+Determine whether it uses App Router (/app) or Pages Router (/pages)
+
+Determine styling approach (Tailwind, CSS modules, styled-components, etc.)
+Do not change the stack unnecessarily. If Tailwind is not installed, use CSS Modules.
+
+Step 1 — Rapid audit mapped to changes
+
+Review existing pages/components and identify the top 10 blockers impacting:
+
+Above-the-fold clarity (what we do, for whom, why us)
+
+Credibility/trust signals
+
+Navigation/information architecture
+
+Conversion (CTAs + contact flow)
+Return a prioritized list (High/Med/Low) and map each to a concrete change and target file.
+
+Step 2 — Define IA + routes (GOAL II)
+
+Implement a simplified, finance-grade sitemap and navigation for 3 user types:
+
+Institutional/professional investors
+
+Private wealth/HNW
+
+Talent
+
+Deliver:
+
+A proposed sitemap and route list
+
+Implement those routes in Next.js
+
+Global header + footer navigation
+
+Use this default sitemap unless existing site strongly indicates otherwise:
+
+/ Home
+
+/about About
+
+/team Team (optional if team content exists; otherwise merge into About)
+
+/approach Investment Approach (philosophy + process + risk)
+
+/strategies Strategies (index)
+
+/strategies/[slug] Strategy detail template (2–4 examples with placeholders if needed)
+
+/insights Insights (index)
+
+/insights/[slug] Post template (MD/MDX or JSON content)
+
+/contact Contact
+
+/disclosures Disclosures
+
+/privacy Privacy Policy
+
+/careers Careers (optional; can be simple)
+
+If the current site already has legally required pages or different naming, align but improve clarity.
+
+Step 3 — Positioning Pack and content model (GOAL I)
+
+Create a content layer to centralize copy:
+
+src/content/site.ts for brand-wide copy (hero headline, subhead, proof points, CTAs)
+
+src/content/navigation.ts for nav items
+
+src/content/strategies.ts for strategy cards + detail content (placeholders allowed)
+
+src/content/insights.ts (or MDX folder) for sample insights
+
+Generate:
+A) One-sentence internal positioning statement
+B) Homepage hero copy:
+
+Headline (max 12 words)
+
+Subheadline (max 30 words)
+
+Two primary CTAs
+
+Three proof points (use placeholders where facts are unknown)
+C) Differentiators section: 4–6 items (title + 1–2 lines)
+D) Trust module:
+
+Where it appears (Home + About)
+
+Microcopy with placeholders (regulatory status, governance, risk process, etc.)
+E) Strategy page template copy structure:
+
+Who it’s for
+
+Objective
+
+Approach
+
+Risk management
+
+Engagement process
+
+CTA
+
+Step 4 — UX conversion flows (GOAL II)
+
+Implement two user journeys with explicit CTAs:
+
+Prospect → credibility → contact
+
+Prospect → insights → subscribe/contact
+
+Requirements:
+
+Consistent CTA naming rules: only 2–3 CTA labels across the site
+
+Contact page: a form with minimal fields + optional segmentation
+
+Required: name, email, message
+
+Optional: investor type (Institutional / Private Wealth / Other)
+
+Implement form front-end with validation; backend can be:
+
+If no API exists: create /api/contact (Pages Router) or app/api/contact/route.ts (App Router) that logs payload server-side and returns success. Do not integrate external email services unless already configured.
+
+Step 5 — Homepage wireframe (text → code)
+
+Implement the homepage with this section order:
+
+Hero (positioning + CTAs)
+
+Proof points bar (3 items)
+
+What we do (2–3 cards)
+
+Differentiators (4–6)
+
+Approach preview (process + risk discipline)
+
+Insights preview (3 latest)
+
+Trust & governance module (compliance-friendly)
+
+Final CTA band
+
+Footer
+
+Step 6 — Accessibility + performance basics
+
+Semantic headings (one H1, structured H2/H3)
+
+Keyboard navigable menus
+
+Focus states visible
+
+Reasonable color contrast (do not over-engineer; just ensure basics)
+
+Image optimization via next/image where appropriate
+
+Avoid layout shift in hero
+
+Step 7 — Deliverables (must output)
+
+Updated/created file tree
+
+Full code for each new/changed file
+
+Content files (src/content/*) with ready-to-paste copy
+
+A short “How to extend” note: adding a new strategy and a new insight
+
+“Inputs Needed” list for placeholders to replace with real facts
+
+Component requirements
+
+Create reusable components (or adapt existing):
+
+Header, Footer
+
+Hero
+
+Section
+
+Card
+
+CTAButton
+
+TrustModule
+
+ProofPoints
+
+InsightsPreview
+
+ContactForm
+
+Styling:
+
+Use the existing styling system. If none, create CSS Modules per component or a global styles setup consistent with the repo.
+
+Now implement the changes end-to-end.
