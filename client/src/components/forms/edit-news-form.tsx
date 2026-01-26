@@ -20,6 +20,7 @@ const editNewsSchema = z.object({
   titleJa: z.string().optional(),
   contentJa: z.string().optional(),
   attachmentUrl: z.string().optional().or(z.literal("")),
+  attachmentUrlJa: z.string().optional().or(z.literal("")),
   category: z.string().min(1, "Category is required"),
   language: z.enum(["en", "ja"]),
   publishedAt: z.string().min(1, "Announcement date is required"),
@@ -38,7 +39,9 @@ interface EditNewsFormProps {
 export function EditNewsForm({ article, language, onSave, onCancel, isLoading }: EditNewsFormProps) {
   const { toast } = useToast();
   const [uploadedFile, setUploadedFile] = useState<{ url: string; filename: string; size: number } | null>(null);
+  const [uploadedFileJa, setUploadedFileJa] = useState<{ url: string; filename: string; size: number } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingJa, setIsUploadingJa] = useState(false);
   
   const form = useForm<EditNewsFormData>({
     resolver: zodResolver(editNewsSchema),
@@ -48,6 +51,7 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
       titleJa: article.titleJa || "",
       contentJa: article.contentJa || "",
       attachmentUrl: article.attachmentUrl || "",
+      attachmentUrlJa: (article as any).attachmentUrlJa || "",
       category: article.category,
       language: article.language as "en" | "ja",
       publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -237,6 +241,68 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
     form.setValue('attachmentUrl', '');
   };
 
+  const handleFileUploadJa = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "PDFファイルのみアップロードできます。" : "Only PDF files are allowed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "ファイルサイズは10MB以下にしてください。" : "File size must be less than 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingJa(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/news/upload-pdf', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setUploadedFileJa(data);
+      form.setValue('attachmentUrlJa', data.url);
+      
+      toast({
+        title: language === 'jp' ? "成功" : "Success",
+        description: language === 'jp' ? "ファイルがアップロードされました。" : "File uploaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "ファイルのアップロードに失敗しました。" : "Failed to upload file.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingJa(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleRemoveUploadJa = () => {
+    setUploadedFileJa(null);
+    form.setValue('attachmentUrlJa', '');
+  };
+
   const handleSubmit = (data: EditNewsFormData) => {
     onSave(data);
   };
@@ -336,13 +402,19 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
             />
           </div>
 
-          <div className="space-y-2">
-            <FormLabel data-testid="label-news-attachment">
-              {language === "en" ? "Attachment (Optional)" : "添付ファイル（オプション）"}
-            </FormLabel>
+          {/* Language section title - fixed as English */}
+          <div className="border-b pb-2 mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">English</h3>
+          </div>
+
+          {/* English Attachment Section */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <div className="text-sm font-semibold text-gray-700">
+              {language === "en" ? "English Attachment (Optional)" : "英語添付ファイル（オプション）"}
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2 p-4 border rounded-lg">
+              <div className="space-y-2">
                 <div className="text-sm font-medium mb-2">
                   {language === "en" ? "Enter URL" : "URLを入力"}
                 </div>
@@ -370,7 +442,7 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                 />
               </div>
 
-              <div className="space-y-2 p-4 border rounded-lg">
+              <div className="space-y-2">
                 <div className="text-sm font-medium mb-2">
                   {language === "en" ? "Or Upload PDF File" : "またはPDFファイルをアップロード"}
                 </div>
@@ -426,11 +498,6 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Language section title - fixed as English */}
-          <div className="border-b pb-2 mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">English</h3>
           </div>
 
           <FormField
@@ -527,6 +594,99 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                   </FormItem>
                 )}
               />
+
+              {/* Japanese Attachment Section */}
+              <div className="space-y-4 p-4 border rounded-lg bg-white mt-4">
+                <div className="text-sm font-semibold text-gray-700">
+                  {language === "en" ? "Japanese Attachment (Optional)" : "日本語添付ファイル（オプション）"}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium mb-2">
+                      {language === "en" ? "Enter URL" : "URLを入力"}
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="attachmentUrlJa"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder={language === "en" ? "https://..." : "https://..."}
+                              {...field}
+                              disabled={!!uploadedFileJa}
+                              data-testid="input-attachment-url-ja"
+                            />
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground">
+                            {language === "en" 
+                              ? "SharePoint or external document URL" 
+                              : "SharePointまたは外部ドキュメントURL"}
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium mb-2">
+                      {language === "en" ? "Or Upload PDF File" : "またはPDFファイルをアップロード"}
+                    </div>
+                    {uploadedFileJa ? (
+                      <div className="flex items-center gap-2 p-3 border rounded-lg bg-slate-50" data-testid="uploaded-file-info-ja">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">{uploadedFileJa.filename}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {(uploadedFileJa.size / 1024).toFixed(1)} KB
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleRemoveUploadJa}
+                          data-testid="button-remove-upload-ja"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <input
+                          type="file"
+                          id="pdf-upload-edit-ja"
+                          accept="application/pdf"
+                          onChange={handleFileUploadJa}
+                          className="hidden"
+                          data-testid="input-pdf-upload-ja"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('pdf-upload-edit-ja')?.click()}
+                          disabled={isUploadingJa || !!form.watch('attachmentUrlJa')}
+                          className="w-full"
+                          data-testid="button-upload-pdf-ja"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {isUploadingJa 
+                            ? (language === "en" ? "Uploading..." : "アップロード中...") 
+                            : (language === "en" ? "Upload PDF" : "PDFアップロード")
+                          }
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {language === "en" 
+                            ? "Max: 10MB, PDF only" 
+                            : "最大10MB、PDFのみ"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

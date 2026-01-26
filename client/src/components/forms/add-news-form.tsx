@@ -20,6 +20,7 @@ const addNewsSchema = z.object({
   titleJa: z.string().optional(),
   contentJa: z.string().optional(),
   attachmentUrl: z.string().optional().or(z.literal("")),
+  attachmentUrlJa: z.string().optional().or(z.literal("")),
   language: z.enum(["en", "jp"]),
   category: z.string().min(1, "Category is required"),
   felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
@@ -39,7 +40,9 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{ url: string; filename: string; size: number } | null>(null);
+  const [uploadedFileJa, setUploadedFileJa] = useState<{ url: string; filename: string; size: number } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingJa, setIsUploadingJa] = useState(false);
 
   // Translation mutations for title and content
   const translateTitleMutation = useMutation({
@@ -124,6 +127,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       titleJa: "",
       contentJa: "",
       attachmentUrl: "",
+      attachmentUrlJa: "",
       language: language,
       category: "",
       felicityCompany: "felicity-singapore",
@@ -297,6 +301,68 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
     form.setValue('attachmentUrl', '');
   };
 
+  const handleFileUploadJa = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "PDFファイルのみアップロードできます。" : "Only PDF files are allowed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "ファイルサイズは10MB以下にしてください。" : "File size must be less than 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingJa(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/news/upload-pdf', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setUploadedFileJa(data);
+      form.setValue('attachmentUrlJa', data.url);
+      
+      toast({
+        title: language === 'jp' ? "成功" : "Success",
+        description: language === 'jp' ? "ファイルがアップロードされました。" : "File uploaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: language === 'jp' ? "エラー" : "Error",
+        description: language === 'jp' ? "ファイルのアップロードに失敗しました。" : "Failed to upload file.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingJa(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleRemoveUploadJa = () => {
+    setUploadedFileJa(null);
+    form.setValue('attachmentUrlJa', '');
+  };
+
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
@@ -412,13 +478,14 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
               />
             </div>
 
-            <div className="space-y-4">
-              <FormLabel data-testid="label-news-attachment">
-                {language === "en" ? "Attachment (Optional)" : "添付ファイル（オプション）"}
-              </FormLabel>
+            {/* English Attachment Section */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <div className="text-sm font-semibold text-gray-700">
+                {language === "en" ? "English Attachment (Optional)" : "英語添付ファイル（オプション）"}
+              </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 p-4 border rounded-lg">
+                <div className="space-y-2">
                   <div className="text-sm font-medium mb-2">
                     {language === "en" ? "Enter URL" : "URLを入力"}
                   </div>
@@ -446,7 +513,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                   />
                 </div>
 
-                <div className="space-y-2 p-4 border rounded-lg">
+                <div className="space-y-2">
                   <div className="text-sm font-medium mb-2">
                     {language === "en" ? "Or Upload PDF File" : "またはPDFファイルをアップロード"}
                   </div>
@@ -603,6 +670,99 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                   </FormItem>
                 )}
               />
+
+              {/* Japanese Attachment Section */}
+              <div className="space-y-4 p-4 border rounded-lg bg-white mt-4">
+                <div className="text-sm font-semibold text-gray-700">
+                  {language === "en" ? "Japanese Attachment (Optional)" : "日本語添付ファイル（オプション）"}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium mb-2">
+                      {language === "en" ? "Enter URL" : "URLを入力"}
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="attachmentUrlJa"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder={language === "en" ? "https://..." : "https://..."}
+                              {...field}
+                              disabled={!!uploadedFileJa}
+                              data-testid="input-attachment-url-ja"
+                            />
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground">
+                            {language === "en" 
+                              ? "SharePoint or external document URL" 
+                              : "SharePointまたは外部ドキュメントURL"}
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium mb-2">
+                      {language === "en" ? "Or Upload PDF File" : "またはPDFファイルをアップロード"}
+                    </div>
+                    {uploadedFileJa ? (
+                      <div className="flex items-center gap-2 p-3 border rounded-lg bg-slate-50" data-testid="uploaded-file-info-ja">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">{uploadedFileJa.filename}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {(uploadedFileJa.size / 1024).toFixed(1)} KB
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleRemoveUploadJa}
+                          data-testid="button-remove-upload-ja"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <input
+                          type="file"
+                          id="pdf-upload-ja"
+                          accept="application/pdf"
+                          onChange={handleFileUploadJa}
+                          className="hidden"
+                          data-testid="input-pdf-upload-ja"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('pdf-upload-ja')?.click()}
+                          disabled={isUploadingJa || !!form.watch('attachmentUrlJa')}
+                          className="w-full"
+                          data-testid="button-upload-pdf-ja"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {isUploadingJa 
+                            ? (language === "en" ? "Uploading..." : "アップロード中...") 
+                            : (language === "en" ? "Upload PDF" : "PDFアップロード")
+                          }
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {language === "en" 
+                            ? "Max: 10MB, PDF only" 
+                            : "最大10MB、PDFのみ"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
 
