@@ -336,64 +336,30 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
             />
           </div>
 
-          <div className="space-y-2">
-            <FormLabel data-testid="label-news-attachment">
-              {language === "en" ? "PDF Attachment (Optional)" : "PDF添付ファイル（オプション）"}
-            </FormLabel>
-            
-            <div className="space-y-2">
-              {uploadedFile ? (
-                <div className="flex items-center gap-2 p-3 border rounded-lg bg-slate-50" data-testid="uploaded-file-info">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{uploadedFile.filename}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {(uploadedFile.size / 1024).toFixed(1)} KB
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleRemoveUpload}
-                    data-testid="button-remove-upload"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div>
-                  <input
-                    type="file"
-                    id="pdf-upload-edit"
-                    accept="application/pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    data-testid="input-pdf-upload"
+          <FormField
+            control={form.control}
+            name="attachmentUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel data-testid="label-news-attachment">
+                  {language === "en" ? "Attachment URL (Optional)" : "添付リンク（オプション）"}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder={language === "en" ? "https://example.com/document.pdf" : "https://example.com/document.pdf"}
+                    data-testid="input-attachment-url"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('pdf-upload-edit')?.click()}
-                    disabled={isUploading}
-                    className="w-full"
-                    data-testid="button-upload-pdf"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    {isUploading 
-                      ? (language === "en" ? "Uploading..." : "アップロード中...") 
-                      : (language === "en" ? "Upload PDF File" : "PDFファイルをアップロード")
-                    }
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {language === "en" 
-                      ? "Max file size: 10MB. PDF files only." 
-                      : "最大ファイルサイズ：10MB。PDFファイルのみ。"}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+                </FormControl>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === "en" 
+                    ? "Enter a URL link to the document or file" 
+                    : "ドキュメントやファイルへのURLリンクを入力"}
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Language section title - fixed as English */}
           <div className="border-b pb-2 mb-4">
