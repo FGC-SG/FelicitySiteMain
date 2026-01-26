@@ -1,9 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/sections/hero";
+import { ProofPoints } from "@/components/sections/proof-points";
+import { WhatWeDo } from "@/components/sections/what-we-do";
 import { ManagementMessage } from "@/components/sections/management-message";
+import { Differentiators } from "@/components/sections/differentiators";
 import { InvestmentFocus } from "@/components/sections/investment-focus";
+import { InsightsPreview } from "@/components/sections/insights-preview";
+import { TrustModule } from "@/components/sections/trust-module";
+import { CTABand } from "@/components/sections/cta-band";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { type Language } from "@/lib/i18n";
@@ -162,16 +168,24 @@ export default function Home() {
     <div className="min-h-screen bg-background font-sans">
       <Navigation language={language} onLanguageChange={setLanguage} />
       
-      {/* Welcome message for authenticated users */}
       {user && (
         <div className="bg-felicity-primary text-white py-2 px-4 text-center text-sm">
-          Welcome back, {(user as any)?.firstName || (user as any)?.email}! You are logged in to Felicity Global Capital.
+          {language === 'jp' 
+            ? `おかえりなさい、${String((user as any)?.firstName || (user as any)?.email)}様！フェリシティ・グローバル・キャピタルにログイン中です。`
+            : `Welcome back, ${String((user as any)?.firstName || (user as any)?.email)}! You are logged in to Felicity Global Capital.`
+          }
         </div>
       )}
       
       <Hero language={language} />
+      <ProofPoints language={language} />
+      <WhatWeDo language={language} />
+      <Differentiators language={language} />
       <ManagementMessage language={language} />
       <InvestmentFocus language={language} />
+      <InsightsPreview language={language} />
+      <TrustModule language={language} />
+      <CTABand language={language} />
       <Footer language={language} />
     </div>
   );
