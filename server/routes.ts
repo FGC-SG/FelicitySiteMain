@@ -2660,19 +2660,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log available sheets for debugging
       console.log('Available sheets in workbook:', workbook.SheetNames);
       
-      // Required sheets (must have at least one data table)
-      const coreSheets = ['Users', 'Portfolios', 'Funds', 'News Articles'];
-      const missingCoreSheets = coreSheets.filter(sheet => !workbook.SheetNames.includes(sheet));
+      // Required sheets (must have at least Users sheet)
+      const requiredSheets = ['Users'];
+      const missingRequiredSheets = requiredSheets.filter(sheet => !workbook.SheetNames.includes(sheet));
       
-      if (missingCoreSheets.length > 0) {
+      if (missingRequiredSheets.length > 0) {
         return res.status(400).json({ 
           message: 'Invalid backup file format', 
-          errors: [`Missing required core sheets: ${missingCoreSheets.join(', ')}`]
+          errors: [`Missing required sheets: ${missingRequiredSheets.join(', ')}`]
         });
       }
       
       // Optional sheets (may not exist if no data was present during backup)
-      const optionalSheets = ['Fund Disclosures', 'Members', 'Contact Submissions', 'User Invitations'];
+      const optionalSheets = ['Portfolios', 'Funds', 'News Articles', 'Fund Disclosures', 'Members', 'Contact Submissions', 'User Invitations'];
       console.log('Available sheets:', workbook.SheetNames);
 
       // Initialize preview/result object
