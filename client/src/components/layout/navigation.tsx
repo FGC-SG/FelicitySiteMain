@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LayoutToggle } from "@/components/layout-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { Grid, User } from "lucide-react";
+import { LayoutGrid, User } from "lucide-react";
 import logoPath from "@assets/logo_color_1756362140059.jpg";
 import { hasAdminPrivileges } from "@/lib/roles";
 
@@ -147,7 +147,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               data-testid="button-mobile-menu"
             >
-              <Grid className="h-6 w-6" />
+              <LayoutGrid className="h-6 w-6" />
             </Button>
           </div>
         </div>
