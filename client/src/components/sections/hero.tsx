@@ -1,9 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { getSiteContent } from "@/content/site";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Newspaper } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import singaporeSkylineUrl from "@assets/generated_images/Singapore_skyline_from_ocean_dea87d8f.png";
+
+interface NewsArticle {
+  id: number;
+  title: string;
+  titleJa?: string;
+  isVisible?: boolean;
+  publishedAt: string;
+}
 
 interface HeroProps {
   language: Language;
@@ -12,6 +21,20 @@ interface HeroProps {
 export function Hero({ language }: HeroProps) {
   const t = useTranslation(language);
   const content = getSiteContent(language);
+
+  const { data: newsArticles } = useQuery<NewsArticle[]>({
+    queryKey: ["/api/news"],
+    queryFn: async () => {
+      const response = await fetch("/api/news", { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to fetch news");
+      return await response.json();
+    },
+  });
+
+  const latestNews = newsArticles
+    ?.filter(article => article.isVisible !== false)
+    ?.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    ?.slice(0, 3) || [];
 
   const handleScrollToWhatWeDo = () => {
     const element = document.querySelector("#what-we-do");
@@ -59,7 +82,7 @@ export function Hero({ language }: HeroProps) {
           <p className="text-base md:text-lg mb-8 leading-relaxed opacity-80 max-w-2xl mx-auto" data-testid="text-hero-description">
             {content.positioning.hero.description}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Button
               onClick={handleScrollToWhatWeDo}
               className="bg-white text-primary hover:bg-white/90 px-8 py-3 rounded-lg font-semibold shadow-lg gap-2"
@@ -80,6 +103,32 @@ export function Hero({ language }: HeroProps) {
               </Button>
             </Link>
           </div>
+          
+          {/* Latest News Section */}
+          {latestNews.length > 0 && (
+            <div className="mb-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-2xl mx-auto" data-testid="hero-latest-news">
+              <div className="flex items-center gap-2 mb-3 justify-center">
+                <Newspaper className="h-4 w-4 text-white/80" />
+                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">
+                  {language === 'jp' ? '最新ニュース' : 'Latest News'}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {latestNews.map((article) => {
+                  const displayTitle = language === 'jp' && article.titleJa ? article.titleJa : article.title;
+                  return (
+                    <Link key={article.id} href="/news">
+                      <div className="text-sm text-white/90 hover:text-white transition-colors cursor-pointer flex items-start gap-2 text-left">
+                        <span className="text-white/60">•</span>
+                        <span className="line-clamp-1 hover:underline">{displayTitle}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          
           <div className="pt-4 border-t border-white/20">
             <Button
               onClick={() => window.open('https://felicitycapital.jp/', '_blank')}
