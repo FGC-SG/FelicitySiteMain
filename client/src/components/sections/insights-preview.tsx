@@ -99,33 +99,34 @@ export function InsightsPreview({ language }: InsightsPreviewProps) {
           {visibleArticles.map((article) => {
             const displayTitle = language === 'jp' && article.titleJa ? article.titleJa : article.title;
             return (
-              <Card 
-                key={article.id} 
-                className="group hover:shadow-lg transition-all cursor-pointer"
-                data-testid={`insights-card-${article.id}`}
-              >
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {getCategoryLabel(article.category)}
-                    </Badge>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {formatDate(article.publishedAt)}
+              <Link key={article.id} href="/news">
+                <Card 
+                  className="group hover:shadow-lg transition-all cursor-pointer h-full"
+                  data-testid={`insights-card-${article.id}`}
+                >
+                  <CardHeader>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {getCategoryLabel(article.category)}
+                      </Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {formatDate(article.publishedAt)}
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
-                    {displayTitle}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="line-clamp-3">
-                    {language === 'jp' && article.contentJa 
-                      ? article.contentJa.substring(0, 150) + '...'
-                      : article.content?.substring(0, 150) + '...'}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                    <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
+                      {displayTitle}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="line-clamp-3">
+                      {language === 'jp' && article.contentJa 
+                        ? article.contentJa.substring(0, 150) + '...'
+                        : article.content?.substring(0, 150) + '...'}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
