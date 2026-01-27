@@ -237,68 +237,6 @@
     animation: zoom-in 18s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   }
 
-  /* Water ripple animation - starts after zoom completes */
-  @keyframes water-ripple {
-    0% {
-      background-position: 0% 0%, 0% 0%, 0% 0%;
-    }
-    100% {
-      background-position: 200% 0%, -150% 10%, 100% -5%;
-    }
-  }
-
-  @keyframes water-pulse {
-    0%, 100% {
-      opacity: 0.5;
-      transform: scaleY(1);
-    }
-    50% {
-      opacity: 0.7;
-      transform: scaleY(1.02);
-    }
-  }
-
-  @keyframes water-fade-in {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  .water-shimmer {
-    opacity: 0;
-    background: 
-      repeating-linear-gradient(
-        90deg,
-        transparent 0px,
-        rgba(255, 255, 255, 0.08) 40px,
-        rgba(200, 230, 255, 0.12) 80px,
-        rgba(255, 255, 255, 0.08) 120px,
-        transparent 160px
-      ),
-      repeating-linear-gradient(
-        -75deg,
-        transparent 0px,
-        rgba(150, 200, 255, 0.1) 30px,
-        rgba(255, 255, 255, 0.15) 60px,
-        rgba(150, 200, 255, 0.1) 90px,
-        transparent 120px
-      ),
-      linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(100, 180, 255, 0.15) 50%,
-        rgba(50, 150, 255, 0.2) 100%
-      );
-    background-size: 300% 100%, 250% 100%, 100% 100%;
-    animation: 
-      water-fade-in 2s ease-out 18s forwards,
-      water-ripple 6s linear infinite 18s,
-      water-pulse 3s ease-in-out infinite 18s;
-    transform-origin: bottom center;
-  }
   
   /* Force logo to always display in dark mode */
   .logo-dark-mode {

@@ -58,8 +58,6 @@ export function Hero({ language }: HeroProps) {
         }}
       ></div>
       <div className="hero-overlay absolute inset-0"></div>
-      {/* Water shimmer effect - activates after zoom completes */}
-      <div className="water-shimmer absolute inset-x-0 bottom-0 h-2/5 pointer-events-none z-[5]"></div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
