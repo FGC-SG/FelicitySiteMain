@@ -142,9 +142,22 @@ export function Footer({ language }: FooterProps) {
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* MAS Regulatory Notice */}
         <div className="border-t border-slate-700 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center mb-6">
+            <p className="text-slate-400 text-xs leading-relaxed max-w-4xl mx-auto" data-testid="footer-mas-notice">
+              {language === 'jp' 
+                ? 'Felicity Global Capital Pte. Ltd.はシンガポール金融管理局（MAS）により資本市場サービスライセンス（ファンドマネジメント）を付与された事業者であり、免除ファイナンシャルアドバイザーとして登録されています。'
+                : 'Felicity Global Capital Pte. Ltd. is a Capital Markets Services Licensee (Fund Management) and an Exempt Financial Adviser regulated by the Monetary Authority of Singapore (MAS).'
+              }
+            </p>
+            <p className="text-slate-500 text-xs mt-2" data-testid="footer-uen">
+              UEN: 200819439G
+            </p>
+          </div>
+          
+          {/* Bottom Bar */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-800 pt-6">
             <p className="text-slate-500 text-sm" data-testid="footer-copyright">
               &copy; {new Date().getFullYear()} Felicity Global Capital Pte. Ltd. {c.allRightsReserved}
             </p>
