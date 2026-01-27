@@ -57,6 +57,8 @@ export function Hero({ language }: HeroProps) {
           backgroundSize: "cover"
         }}
       ></div>
+      {/* Futuristic ambient glow effect */}
+      <div className="hero-futuristic-glow absolute inset-0 pointer-events-none"></div>
       <div className="hero-overlay absolute inset-0"></div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <div className="max-w-4xl mx-auto">

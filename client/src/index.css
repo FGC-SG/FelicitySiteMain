@@ -237,6 +237,51 @@
     animation: zoom-in 18s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   }
 
+  /* Futuristic ambient glow - subtle tech enhancement */
+  @keyframes ambient-glow-pulse {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .hero-futuristic-glow {
+    background: 
+      /* Subtle cyan accent light from top-right */
+      radial-gradient(
+        ellipse 60% 40% at 85% 15%,
+        rgba(0, 220, 255, 0.12) 0%,
+        transparent 60%
+      ),
+      /* Warm accent from bottom-left */
+      radial-gradient(
+        ellipse 50% 35% at 10% 90%,
+        rgba(255, 180, 100, 0.08) 0%,
+        transparent 55%
+      ),
+      /* Central soft blue ambient */
+      radial-gradient(
+        ellipse 80% 60% at 50% 50%,
+        rgba(100, 150, 255, 0.06) 0%,
+        transparent 70%
+      ),
+      /* Subtle vignette for depth */
+      radial-gradient(
+        ellipse 100% 100% at 50% 50%,
+        transparent 40%,
+        rgba(0, 20, 60, 0.15) 100%
+      );
+    animation: ambient-glow-pulse 8s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+
+  /* Enhanced hero background with futuristic color grading */
+  .hero-background {
+    filter: saturate(1.1) contrast(1.05);
+  }
+
   
   /* Force logo to always display in dark mode */
   .logo-dark-mode {
