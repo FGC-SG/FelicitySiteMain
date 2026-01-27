@@ -31,7 +31,7 @@ export function Footer({ language }: FooterProps) {
       contact: "Contact Us",
       privacyPolicy: "Privacy Policy",
       termsOfUse: "Terms of Use",
-      address: "1 Raffles Place, Tower 2, Singapore 048616",
+      address: "9 Temasek Blvd 29-04 Suntec Tower Four Singapore 038986",
       allRightsReserved: "All rights reserved.",
       adminLogin: "Admin Login"
     },
@@ -42,7 +42,7 @@ export function Footer({ language }: FooterProps) {
       contact: "お問い合わせ",
       privacyPolicy: "プライバシーポリシー",
       termsOfUse: "利用規約",
-      address: "1 Raffles Place, Tower 2, Singapore 048616",
+      address: "9 Temasek Blvd 29-04 Suntec Tower Four Singapore 038986",
       allRightsReserved: "All rights reserved.",
       adminLogin: "管理者ログイン"
     }
