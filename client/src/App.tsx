@@ -28,6 +28,7 @@ import AcceptInvitation from "@/pages/accept-invitation";
 import ResetPassword from "@/pages/reset-password";
 import ResetAdmin from "@/pages/reset-admin";
 import PrivacyPolicy from "@/pages/privacy-policy";
+import Terms from "@/pages/terms";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/reset-admin" component={ResetAdmin} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms" component={Terms} />
       <Route component={NotFound} />
     </Switch>
   );
