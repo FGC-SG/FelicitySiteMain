@@ -57,6 +57,8 @@ export function Hero({ language }: HeroProps) {
           backgroundSize: "cover"
         }}
       ></div>
+      {/* Water shimmer effect - activates after zoom completes */}
+      <div className="water-shimmer absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"></div>
       <div className="hero-overlay absolute inset-0"></div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <div className="max-w-4xl mx-auto">

@@ -236,6 +236,63 @@
   .animate-zoom-in {
     animation: zoom-in 18s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   }
+
+  /* Water shimmer animation - starts after zoom completes */
+  @keyframes water-shimmer {
+    0% {
+      opacity: 0;
+      background-position: 0% 50%, 100% 50%;
+    }
+    10% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 0.4;
+      background-position: 200% 50%, -100% 50%;
+    }
+  }
+
+  @keyframes water-wave {
+    0%, 100% {
+      transform: translateY(0) scaleY(1);
+    }
+    25% {
+      transform: translateY(-2px) scaleY(1.01);
+    }
+    50% {
+      transform: translateY(1px) scaleY(0.99);
+    }
+    75% {
+      transform: translateY(-1px) scaleY(1.005);
+    }
+  }
+
+  .water-shimmer {
+    opacity: 0;
+    background: 
+      linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 20%,
+        rgba(255, 255, 255, 0.08) 40%,
+        rgba(255, 255, 255, 0.03) 60%,
+        transparent 100%
+      ),
+      linear-gradient(
+        -90deg,
+        transparent 0%,
+        rgba(100, 180, 255, 0.04) 30%,
+        rgba(100, 180, 255, 0.08) 50%,
+        rgba(100, 180, 255, 0.04) 70%,
+        transparent 100%
+      );
+    background-size: 50% 100%, 60% 100%;
+    animation: 
+      water-shimmer 8s ease-in-out infinite 18s,
+      water-wave 4s ease-in-out infinite 18s;
+    mask-image: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 100%);
+  }
   
   /* Force logo to always display in dark mode */
   .logo-dark-mode {
