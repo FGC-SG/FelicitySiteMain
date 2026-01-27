@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { useLocation } from "wouter";
-
+import { useLocation, Link } from "wouter";
+import { LoginModal } from "@/components/auth/login-modal";
 
 interface FooterProps {
   language: Language;
@@ -9,39 +10,66 @@ interface FooterProps {
 export function Footer({ language }: FooterProps) {
   const t = useTranslation(language);
   const [, navigate] = useLocation();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleNavClick = (path: string) => {
     if (path.startsWith('#')) {
-      // Handle anchor links for same-page scrolling
       const element = document.querySelector(path);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // Handle route navigation
       navigate(path);
     }
   };
 
+  const content = {
+    en: {
+      companyDescription: "Felicity Global Capital is a Singapore-based investment management firm specializing in cross-border private equity and corporate finance solutions across Asia-Pacific markets.",
+      quickLinks: "Quick Links",
+      legal: "Legal",
+      contact: "Contact Us",
+      privacyPolicy: "Privacy Policy",
+      termsOfUse: "Terms of Use",
+      address: "1 Raffles Place, Tower 2, Singapore 048616",
+      allRightsReserved: "All rights reserved.",
+      adminLogin: "Admin Login"
+    },
+    jp: {
+      companyDescription: "フェリシティ・グローバル・キャピタルは、シンガポールを拠点とする投資運用会社であり、アジア太平洋市場における越境プライベートエクイティおよびコーポレートファイナンスソリューションを専門としています。",
+      quickLinks: "クイックリンク",
+      legal: "法的情報",
+      contact: "お問い合わせ",
+      privacyPolicy: "プライバシーポリシー",
+      termsOfUse: "利用規約",
+      address: "1 Raffles Place, Tower 2, Singapore 048616",
+      allRightsReserved: "All rights reserved.",
+      adminLogin: "管理者ログイン"
+    }
+  };
+
+  const c = content[language];
+
   return (
-    <footer className="bg-card border-t border-border py-12">
+    <footer className="bg-slate-900 text-white py-16" data-testid="footer">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8">
-          <div className="md:col-span-2">
-            <div className="felicity-primary text-2xl font-bold mb-4">FELICITY</div>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              {t.footer.description}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          {/* Company Info */}
+          <div className="lg:col-span-1">
+            <div className="text-2xl font-bold mb-4 text-felicity-gold">FELICITY</div>
+            <p className="text-slate-400 text-sm leading-relaxed mb-6" data-testid="footer-description">
+              {c.companyDescription}
             </p>
-            
           </div>
 
+          {/* Quick Links */}
           <div>
-            <h4 className="font-semibold felicity-primary mb-4">{t.footer.quickLinks}</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="font-semibold text-white mb-4">{c.quickLinks}</h4>
+            <ul className="space-y-3 text-sm">
               <li>
                 <button
                   onClick={() => handleNavClick("/about")}
-                  className="text-muted-foreground hover:felicity-primary transition-colors"
+                  className="text-slate-400 hover:text-felicity-gold transition-colors"
                   data-testid="footer-link-about"
                 >
                   {t.nav.about}
@@ -49,8 +77,17 @@ export function Footer({ language }: FooterProps) {
               </li>
               <li>
                 <button
+                  onClick={() => handleNavClick("/portfolio")}
+                  className="text-slate-400 hover:text-felicity-gold transition-colors"
+                  data-testid="footer-link-portfolio"
+                >
+                  {t.nav.portfolio}
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => handleNavClick("/news")}
-                  className="text-muted-foreground hover:felicity-primary transition-colors"
+                  className="text-slate-400 hover:text-felicity-gold transition-colors"
                   data-testid="footer-link-news"
                 >
                   {t.nav.news}
@@ -58,48 +95,77 @@ export function Footer({ language }: FooterProps) {
               </li>
               <li>
                 <button
-                  onClick={() => handleNavClick("/portfolio")}
-                  className="text-muted-foreground hover:felicity-primary transition-colors"
-                  data-testid="footer-link-portfolio"
-                >
-                  Portfolio
-                </button>
-              </li>
-              <li>
-                <button
                   onClick={() => handleNavClick("/contact")}
-                  className="text-muted-foreground hover:felicity-primary transition-colors"
+                  className="text-slate-400 hover:text-felicity-gold transition-colors"
                   data-testid="footer-link-contact"
                 >
                   {t.nav.contact}
                 </button>
               </li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="font-semibold text-white mb-4">{c.legal}</h4>
+            <ul className="space-y-3 text-sm">
               <li>
                 <button
-                  onClick={() => window.location.href = '/privacy-policy'}
-                  className="text-muted-foreground hover:felicity-primary transition-colors text-left"
+                  onClick={() => handleNavClick("/privacy-policy")}
+                  className="text-slate-400 hover:text-felicity-gold transition-colors"
                   data-testid="footer-link-privacy"
                 >
-                  Privacy Policy
+                  {c.privacyPolicy}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleNavClick("/terms")}
+                  className="text-slate-400 hover:text-felicity-gold transition-colors"
+                  data-testid="footer-link-terms"
+                >
+                  {c.termsOfUse}
                 </button>
               </li>
             </ul>
           </div>
 
+          {/* Contact Details */}
           <div>
-            <h4 className="font-semibold felicity-primary mb-4">{t.footer.contact}</h4>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p data-testid="text-singapore-phone">Singapore: +65-6890-0730</p>
-              <p data-testid="text-tokyo-phone">Tokyo: +81-3-5375-1025</p>
-              <p data-testid="text-email">info@fgcsg.com</p>
+            <h4 className="font-semibold text-white mb-4">{c.contact}</h4>
+            <div className="space-y-3 text-sm text-slate-400">
+              <p data-testid="footer-address">{c.address}</p>
+              <p data-testid="footer-singapore-phone">Singapore: +65-6890-0730</p>
+              <p data-testid="footer-tokyo-phone">Tokyo: +81-3-5375-1025</p>
+              <p data-testid="footer-email">info@fgcsg.com</p>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p data-testid="text-copyright">{t.footer.copyright}</p>
+        {/* Bottom Bar */}
+        <div className="border-t border-slate-700 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 text-sm" data-testid="footer-copyright">
+              &copy; {new Date().getFullYear()} Felicity Global Capital Pte. Ltd. {c.allRightsReserved}
+            </p>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="text-slate-600 hover:text-slate-400 text-xs transition-colors"
+              data-testid="footer-admin-login"
+            >
+              {c.adminLogin}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => window.location.href = "/management"}
+        language={language}
+      />
     </footer>
   );
 }

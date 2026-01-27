@@ -106,26 +106,43 @@ export function Hero({ language }: HeroProps) {
           
           {/* Latest News Section */}
           {latestNews.length > 0 && (
-            <div className="mb-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-2xl mx-auto" data-testid="hero-latest-news">
-              <div className="flex items-center gap-2 mb-3 justify-center">
-                <Newspaper className="h-4 w-4 text-white/80" />
-                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">
+            <div className="mb-6 bg-black/30 backdrop-blur-md rounded-xl p-5 max-w-2xl mx-auto border border-white/10 shadow-lg" data-testid="hero-latest-news">
+              <div className="flex items-center gap-2 mb-4 justify-center">
+                <Newspaper className="h-5 w-5 text-felicity-gold" />
+                <span className="text-sm font-bold text-white uppercase tracking-wider">
                   {language === 'jp' ? '最新ニュース' : 'Latest News'}
                 </span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {latestNews.map((article) => {
                   const displayTitle = language === 'jp' && article.titleJa ? article.titleJa : article.title;
+                  const publishDate = new Date(article.publishedAt);
+                  const formattedDate = publishDate.toLocaleDateString(language === 'jp' ? 'ja-JP' : 'en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  });
                   return (
                     <Link key={article.id} href="/news">
-                      <div className="text-sm text-white/90 hover:text-white transition-colors cursor-pointer flex items-start gap-2 text-left">
-                        <span className="text-white/60">•</span>
-                        <span className="line-clamp-1 hover:underline">{displayTitle}</span>
+                      <div className="group bg-white/5 hover:bg-white/10 rounded-lg px-4 py-3 transition-all cursor-pointer flex items-start gap-3 text-left">
+                        <span className="text-xs font-medium text-felicity-gold bg-felicity-gold/20 px-2 py-1 rounded whitespace-nowrap">
+                          {formattedDate}
+                        </span>
+                        <span className="text-sm text-white/90 group-hover:text-white line-clamp-1 transition-colors">
+                          {displayTitle}
+                        </span>
                       </div>
                     </Link>
                   );
                 })}
               </div>
+              <Link href="/news">
+                <div className="mt-4 text-center">
+                  <span className="text-xs text-white/70 hover:text-felicity-gold transition-colors cursor-pointer">
+                    {language === 'jp' ? 'すべてのニュースを見る →' : 'View all news →'}
+                  </span>
+                </div>
+              </Link>
             </div>
           )}
           

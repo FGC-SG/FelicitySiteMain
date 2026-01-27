@@ -1,0 +1,31 @@
+Prompt:
+
+I need to make several improvements to my website to make it look more professional and complete. Please help me implement the following changes to the codebase.
+
+1. Header & Navigation Updates
+
+Move "Admin Login": Currently, the "Admin Login" link is in the main navigation. Please remove it from the top header and move it to the footer (which we will create). If there is no footer yet, just hide it for now or place it in a very subtle location at the bottom of the page.
+Refine Navigation: Ensure the "Explore" and "Contact" buttons are distinct and aligned correctly.
+2. Expand the Homepage Content The homepage is currently too short. Please add two new distinct sections below the main hero section but above the footer:
+
+"Our Expertise" Section: Create a 3-column grid section. Use placeholders for icons and text like "Strategic Investment," "Global Reach," and "Sustainable Growth." Use a light background color to contrast with the dark hero section.
+"Trusted Partners" Section: Create a section to display logos of partners or portfolio companies. For now, just create a horizontal row of 4-5 placeholder gray circular or rectangular divs where logos would go.
+3. Build a Professional Footer The current footer is too empty. Please build a standard, professional "fat footer" with a dark background that includes:
+
+Company Info: A brief 1-2 line description of the company on the left.
+Quick Links: Columns for links like "About," "Portfolio," "News," and "Contact."
+Legal: Links for "Privacy Policy" and "Terms of Use."
+Contact Details: A placeholder generic address (e.g., "123 Finance Street, Singapore") and email.
+Copyright: "[Year] FGC. All rights reserved."
+Admin Link: Place the "Admin Login" link here, small and discreet.
+4. Improve the "Latest News" Widget
+
+Update the "Latest News" overlay on the hero section.
+Make sure each news item displays a Date (e.g., "Oct 24, 2025") prominently to show the content is fresh.
+Ensure the glassmorphism effect (transparency/blur) is legible.
+General Style
+
+Maintain the current deep blue and gold color scheme.
+Ensure all new sections are fully responsive (stacking vertically on mobile).
+Use modern spacing (padding/margins) so the content breathes.
+Please look at the existing index.html and style.css (or relevant files) and apply these changes.
