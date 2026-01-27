@@ -11,7 +11,6 @@ import { InsightsPreview } from "@/components/sections/insights-preview";
 import { TrustModule } from "@/components/sections/trust-module";
 import { CTABand } from "@/components/sections/cta-band";
 import { OurExpertise } from "@/components/sections/our-expertise";
-import { TrustedPartners } from "@/components/sections/trusted-partners";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { type Language } from "@/lib/i18n";
@@ -186,7 +185,6 @@ export default function Home() {
       <Differentiators language={language} />
       <ManagementMessage language={language} />
       <InvestmentFocus language={language} />
-      <TrustedPartners language={language} />
       <InsightsPreview language={language} />
       <TrustModule language={language} />
       <CTABand language={language} />
