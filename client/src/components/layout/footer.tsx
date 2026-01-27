@@ -20,6 +20,7 @@ export function Footer({ language }: FooterProps) {
       }
     } else {
       navigate(path);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
