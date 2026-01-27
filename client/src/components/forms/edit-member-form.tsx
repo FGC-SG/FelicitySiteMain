@@ -45,11 +45,13 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const translateField = async (text: string, targetLang: 'en' | 'ja'): Promise<string> => {
+  const translateField = async (text: string, targetLang: 'en' | 'jp'): Promise<string> => {
     if (!text.trim()) return "";
+    const sourceLang = targetLang === 'jp' ? 'en' : 'jp';
     const response = await apiRequest("POST", "/api/translate", {
       text,
-      targetLanguage: targetLang === 'ja' ? 'Japanese' : 'English'
+      sourceLanguage: sourceLang,
+      targetLanguage: targetLang
     });
     const data = await response.json();
     return data.translatedText || "";
@@ -75,9 +77,9 @@ export function EditMemberForm({ member, language, onSuccess, onCancel }: EditMe
     setIsTranslating(true);
     try {
       const translations = await Promise.all([
-        name ? translateField(name, 'ja') : "",
-        title ? translateField(title, 'ja') : "",
-        bio ? translateField(bio, 'ja') : "",
+        name ? translateField(name, 'jp') : "",
+        title ? translateField(title, 'jp') : "",
+        bio ? translateField(bio, 'jp') : "",
       ]);
 
       form.setValue("nameJa", translations[0]);
