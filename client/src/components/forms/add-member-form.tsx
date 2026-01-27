@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { apiRequest } from "@/lib/queryClient";
-import { Trash2 } from "lucide-react";
+import { Trash2, Languages, Loader2 } from "lucide-react";
 import type { UploadResult } from "@uppy/core";
 import type { Language } from "@/lib/i18n";
 
@@ -39,8 +39,135 @@ interface AddMemberFormProps {
 export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormProps) {
   const [photoUrl, setPhotoUrl] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const translateField = async (text: string, targetLang: 'en' | 'ja'): Promise<string> => {
+    if (!text.trim()) return "";
+    const response = await apiRequest("POST", "/api/translate", {
+      text,
+      targetLanguage: targetLang === 'ja' ? 'Japanese' : 'English'
+    });
+    const data = await response.json();
+    return data.translatedText || "";
+  };
+
+  const handleAutoTranslateToJapanese = async () => {
+    const name = form.getValues("name");
+    const title = form.getValues("title");
+    const company = form.getValues("company");
+    const bio = form.getValues("bio");
+
+    if (!name && !title && !bio) {
+      toast({
+        title: language === "en" ? "Nothing to translate" : "翻訳するものがありません",
+        description: language === "en" 
+          ? "Please enter English content first" 
+          : "まず英語のコンテンツを入力してください",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const translations = await Promise.all([
+        name ? translateField(name, 'ja') : "",
+        title ? translateField(title, 'ja') : "",
+        bio ? translateField(bio, 'ja') : "",
+      ]);
+
+      form.setValue("nameJa", translations[0]);
+      form.setValue("titleJa", translations[1]);
+      form.setValue("bioJa", translations[2]);
+      
+      // Map company names
+      const companyMap: Record<string, string> = {
+        "Felicity Global Capital Pte. Ltd.": "フェリシティ・グローバル・キャピタル",
+        "Felicity Capital Co., Ltd.": "フェリシティキャピタル株式会社",
+        "Felicity Group": "フェリシティグループ",
+      };
+      if (company && companyMap[company]) {
+        form.setValue("companyJa", companyMap[company]);
+      }
+
+      toast({
+        title: language === "en" ? "Translation Complete" : "翻訳完了",
+        description: language === "en" 
+          ? "Japanese translations have been generated" 
+          : "日本語翻訳が生成されました",
+      });
+    } catch (error) {
+      toast({
+        title: language === "en" ? "Translation Error" : "翻訳エラー",
+        description: language === "en" 
+          ? "Failed to translate content" 
+          : "コンテンツの翻訳に失敗しました",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const handleAutoTranslateToEnglish = async () => {
+    const nameJa = form.getValues("nameJa");
+    const titleJa = form.getValues("titleJa");
+    const companyJa = form.getValues("companyJa");
+    const bioJa = form.getValues("bioJa");
+
+    if (!nameJa && !titleJa && !bioJa) {
+      toast({
+        title: language === "en" ? "Nothing to translate" : "翻訳するものがありません",
+        description: language === "en" 
+          ? "Please enter Japanese content first" 
+          : "まず日本語のコンテンツを入力してください",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const translations = await Promise.all([
+        nameJa ? translateField(nameJa, 'en') : "",
+        titleJa ? translateField(titleJa, 'en') : "",
+        bioJa ? translateField(bioJa, 'en') : "",
+      ]);
+
+      form.setValue("name", translations[0]);
+      form.setValue("title", translations[1]);
+      form.setValue("bio", translations[2]);
+      
+      // Map company names
+      const companyMap: Record<string, string> = {
+        "フェリシティ・グローバル・キャピタル": "Felicity Global Capital Pte. Ltd.",
+        "フェリシティキャピタル株式会社": "Felicity Capital Co., Ltd.",
+        "フェリシティグループ": "Felicity Group",
+      };
+      if (companyJa && companyMap[companyJa]) {
+        form.setValue("company", companyMap[companyJa]);
+      }
+
+      toast({
+        title: language === "en" ? "Translation Complete" : "翻訳完了",
+        description: language === "en" 
+          ? "English translations have been generated" 
+          : "英語翻訳が生成されました",
+      });
+    } catch (error) {
+      toast({
+        title: language === "en" ? "Translation Error" : "翻訳エラー",
+        description: language === "en" 
+          ? "Failed to translate content" 
+          : "コンテンツの翻訳に失敗しました",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   const form = useForm<MemberFormData>({
     resolver: zodResolver(memberSchema),
@@ -189,9 +316,27 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
 
           {/* English Content Section */}
           <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold mb-4 text-blue-600">
-              🇬🇧 English Content
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-blue-600">
+                🇬🇧 English Content
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAutoTranslateToJapanese}
+                disabled={isTranslating}
+                className="text-red-600 border-red-200 hover:bg-red-50"
+                data-testid="button-translate-to-japanese"
+              >
+                {isTranslating ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Languages className="w-4 h-4 mr-2" />
+                )}
+                {language === "en" ? "Auto-translate to Japanese" : "日本語に自動翻訳"}
+              </Button>
+            </div>
             
             {/* Name (EN) */}
             <div className="space-y-2 mb-4">
@@ -268,9 +413,27 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
 
           {/* Japanese Content Section */}
           <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold mb-4 text-red-600">
-              🇯🇵 Japanese Content (日本語)
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-red-600">
+                🇯🇵 Japanese Content (日本語)
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAutoTranslateToEnglish}
+                disabled={isTranslating}
+                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                data-testid="button-translate-to-english"
+              >
+                {isTranslating ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Languages className="w-4 h-4 mr-2" />
+                )}
+                {language === "en" ? "Auto-translate to English" : "英語に自動翻訳"}
+              </Button>
+            </div>
             
             {/* Name (JP) */}
             <div className="space-y-2 mb-4">
