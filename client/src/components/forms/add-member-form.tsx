@@ -18,9 +18,13 @@ import type { Language } from "@/lib/i18n";
 
 const memberSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  nameJa: z.string().optional(),
   title: z.string().min(1, "Title is required"),
+  titleJa: z.string().optional(),
   company: z.string().min(1, "Company is required"),
+  companyJa: z.string().optional(),
   bio: z.string().max(1000, "Biography must be 1000 characters or less").optional(),
+  bioJa: z.string().max(1000, "Biography must be 1000 characters or less").optional(),
   displayOrder: z.number().default(0),
 });
 
@@ -42,9 +46,13 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
     resolver: zodResolver(memberSchema),
     defaultValues: {
       name: "",
+      nameJa: "",
       title: "",
+      titleJa: "",
       company: "",
+      companyJa: "",
       bio: "",
+      bioJa: "",
       displayOrder: 0,
     },
   });
@@ -91,14 +99,13 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
       const uploadedFile = result.successful[0];
       const uploadURL = (uploadedFile as any).uploadURL || "";
       
-      // Normalize the photo URL to use local object serving path
       try {
         const response = await apiRequest("PUT", "/api/member-photos", { photoURL: uploadURL });
         const data = await response.json();
         setPhotoUrl(data.objectPath);
       } catch (error) {
         console.error("Error normalizing photo URL:", error);
-        setPhotoUrl(uploadURL); // Fallback to original URL
+        setPhotoUrl(uploadURL);
       }
       
       setIsUploading(false);
@@ -153,7 +160,7 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
               <div className="flex flex-col gap-2">
                 <ObjectUploader
                   maxNumberOfFiles={1}
-                  maxFileSize={5242880} // 5MB
+                  maxFileSize={5242880}
                   onGetUploadParameters={handleGetUploadParameters}
                   onComplete={handleUploadComplete}
                   buttonClassName="w-fit"
@@ -180,93 +187,157 @@ export function AddMemberForm({ language, onSuccess, onCancel }: AddMemberFormPr
             </div>
           </div>
 
-          {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              {language === "en" ? "Full Name" : "氏名"} *
-            </Label>
-            <Input
-              id="name"
-              {...form.register("name")}
-              placeholder={language === "en" ? "Enter full name" : "氏名を入力"}
-              data-testid="input-member-name"
-            />
-            {form.formState.errors.name && (
-              <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Title */}
-          <div className="space-y-2">
-            <Label htmlFor="title">
-              {language === "en" ? "Job Title" : "役職"} *
-            </Label>
-            <Input
-              id="title"
-              {...form.register("title")}
-              placeholder={language === "en" ? "Enter job title" : "役職を入力"}
-              data-testid="input-member-title"
-            />
-            {form.formState.errors.title && (
-              <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
-            )}
-          </div>
-
-          {/* Company */}
-          <div className="space-y-2">
-            <Label htmlFor="company">
-              {language === "en" ? "Company" : "会社名"} *
-            </Label>
-            <Select
-              value={form.watch("company")}
-              onValueChange={(value) => form.setValue("company", value)}
-            >
-              <SelectTrigger data-testid="select-member-company">
-                <SelectValue placeholder={language === "en" ? "Select company" : "会社を選択"} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Felicity Global Capital Pte. Ltd.">
-                  Felicity Global Capital Pte. Ltd.
-                </SelectItem>
-                <SelectItem value="Felicity Capital Co., Ltd.">
-                  Felicity Capital Co., Ltd.
-                </SelectItem>
-                <SelectItem value="Felicity Group">
-                  Felicity Group
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            {form.formState.errors.company && (
-              <p className="text-sm text-destructive">{form.formState.errors.company.message}</p>
-            )}
-          </div>
-
-          {/* Bio */}
-          <div className="space-y-2">
-            <Label htmlFor="bio">
-              {language === "en" ? "Biography" : "経歴"}
-            </Label>
-            <Textarea
-              id="bio"
-              {...form.register("bio")}
-              placeholder={language === "en" 
-                ? "Enter brief biography and background..." 
-                : "簡単な経歴と背景を入力..."}
-              rows={4}
-              data-testid="textarea-member-bio"
-            />
-            <div className="flex justify-between items-center text-sm">
-              <span className={(form.watch("bio") || "").length > 1000 ? "text-destructive" : "text-muted-foreground"}>
-                {(form.watch("bio") || "").length} / 1000 {language === "en" ? "characters" : "文字"}
-              </span>
-              {form.formState.errors.bio && (
-                <span className="text-destructive">{form.formState.errors.bio.message}</span>
+          {/* English Content Section */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4 text-blue-600">
+              🇬🇧 English Content
+            </h3>
+            
+            {/* Name (EN) */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="name">Full Name (English) *</Label>
+              <Input
+                id="name"
+                {...form.register("name")}
+                placeholder="Enter full name"
+                data-testid="input-member-name"
+              />
+              {form.formState.errors.name && (
+                <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
               )}
+            </div>
+
+            {/* Title (EN) */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="title">Job Title (English) *</Label>
+              <Input
+                id="title"
+                {...form.register("title")}
+                placeholder="Enter job title"
+                data-testid="input-member-title"
+              />
+              {form.formState.errors.title && (
+                <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
+              )}
+            </div>
+
+            {/* Company (EN) */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="company">Company (English) *</Label>
+              <Select
+                value={form.watch("company")}
+                onValueChange={(value) => form.setValue("company", value)}
+              >
+                <SelectTrigger data-testid="select-member-company">
+                  <SelectValue placeholder="Select company" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Felicity Global Capital Pte. Ltd.">
+                    Felicity Global Capital Pte. Ltd.
+                  </SelectItem>
+                  <SelectItem value="Felicity Capital Co., Ltd.">
+                    Felicity Capital Co., Ltd.
+                  </SelectItem>
+                  <SelectItem value="Felicity Group">
+                    Felicity Group
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.company && (
+                <p className="text-sm text-destructive">{form.formState.errors.company.message}</p>
+              )}
+            </div>
+
+            {/* Bio (EN) */}
+            <div className="space-y-2">
+              <Label htmlFor="bio">Biography (English)</Label>
+              <Textarea
+                id="bio"
+                {...form.register("bio")}
+                placeholder="Enter brief biography and background..."
+                rows={4}
+                data-testid="textarea-member-bio"
+              />
+              <div className="flex justify-between items-center text-sm">
+                <span className={(form.watch("bio") || "").length > 1000 ? "text-destructive" : "text-muted-foreground"}>
+                  {(form.watch("bio") || "").length} / 1000 characters
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Japanese Content Section */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4 text-red-600">
+              🇯🇵 Japanese Content (日本語)
+            </h3>
+            
+            {/* Name (JP) */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="nameJa">氏名 (日本語)</Label>
+              <Input
+                id="nameJa"
+                {...form.register("nameJa")}
+                placeholder="氏名を入力"
+                data-testid="input-member-name-ja"
+              />
+            </div>
+
+            {/* Title (JP) */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="titleJa">役職 (日本語)</Label>
+              <Input
+                id="titleJa"
+                {...form.register("titleJa")}
+                placeholder="役職を入力"
+                data-testid="input-member-title-ja"
+              />
+            </div>
+
+            {/* Company (JP) */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="companyJa">会社名 (日本語)</Label>
+              <Select
+                value={form.watch("companyJa") || ""}
+                onValueChange={(value) => form.setValue("companyJa", value)}
+              >
+                <SelectTrigger data-testid="select-member-company-ja">
+                  <SelectValue placeholder="会社を選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="フェリシティ・グローバル・キャピタル">
+                    フェリシティ・グローバル・キャピタル
+                  </SelectItem>
+                  <SelectItem value="フェリシティキャピタル株式会社">
+                    フェリシティキャピタル株式会社
+                  </SelectItem>
+                  <SelectItem value="フェリシティグループ">
+                    フェリシティグループ
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Bio (JP) */}
+            <div className="space-y-2">
+              <Label htmlFor="bioJa">経歴 (日本語)</Label>
+              <Textarea
+                id="bioJa"
+                {...form.register("bioJa")}
+                placeholder="簡単な経歴と背景を入力..."
+                rows={4}
+                data-testid="textarea-member-bio-ja"
+              />
+              <div className="flex justify-between items-center text-sm">
+                <span className={(form.watch("bioJa") || "").length > 1000 ? "text-destructive" : "text-muted-foreground"}>
+                  {(form.watch("bioJa") || "").length} / 1000 文字
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Display Order */}
-          <div className="space-y-2">
+          <div className="space-y-2 border-t pt-6">
             <Label htmlFor="displayOrder">
               {language === "en" ? "Display Order" : "表示順序"}
             </Label>

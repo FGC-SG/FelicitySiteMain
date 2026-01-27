@@ -92,9 +92,13 @@ export type Portfolio = typeof portfolios.$inferSelect;
 export const members = pgTable("members", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
+  nameJa: varchar("name_ja"),
   title: varchar("title").notNull(),
+  titleJa: varchar("title_ja"),
   company: varchar("company").notNull(),
+  companyJa: varchar("company_ja"),
   bio: varchar("bio", { length: 1000 }),
+  bioJa: varchar("bio_ja", { length: 1000 }),
   photoUrl: varchar("photo_url"),
   displayOrder: integer("display_order").default(0),
   isVisible: boolean("is_visible").default(true),

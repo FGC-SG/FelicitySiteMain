@@ -52,7 +52,7 @@ export function Members({ language }: MembersProps) {
                     {member.photoUrl ? (
                       <img
                         src={member.photoUrl}
-                        alt={member.name}
+                        alt={language === 'jp' && member.nameJa ? member.nameJa : member.name}
                         className="w-6 h-6 rounded-full object-cover border border-primary/10"
                         data-testid={`img-member-photo-${member.id}`}
                       />
@@ -63,17 +63,17 @@ export function Members({ language }: MembersProps) {
                     )}
                   </div>
                   <h3 className="text-xl font-bold felicity-primary mb-2" data-testid={`text-member-name-${member.id}`}>
-                    {member.name}
+                    {language === 'jp' && member.nameJa ? member.nameJa : member.name}
                   </h3>
                   <p className="text-sm text-muted-foreground font-medium mb-1" data-testid={`text-member-position-${member.id}`}>
-                    {member.title}
+                    {language === 'jp' && member.titleJa ? member.titleJa : member.title}
                   </p>
                   <p className="text-xs text-muted-foreground mb-4" data-testid={`text-member-company-${member.id}`}>
-                    {member.company}
+                    {language === 'jp' && member.companyJa ? member.companyJa : member.company}
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed text-left" data-testid={`text-member-bio-${member.id}`}>
-                  {member.bio}
+                  {language === 'jp' && member.bioJa ? member.bioJa : member.bio}
                 </p>
               </div>
             ))}
