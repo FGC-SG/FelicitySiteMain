@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useTranslation, type Language } from "@/lib/i18n";
 import { useLocation } from "wouter";
+import { LoginModal } from "@/components/auth/login-modal";
 
 interface FooterProps {
   language: Language;
@@ -8,6 +10,7 @@ interface FooterProps {
 export function Footer({ language }: FooterProps) {
   const t = useTranslation(language);
   const [, navigate] = useLocation();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleNavClick = (path: string) => {
     if (path.startsWith('#')) {
@@ -175,9 +178,23 @@ export function Footer({ language }: FooterProps) {
             <p className="text-slate-500 text-sm" data-testid="footer-copyright">
               &copy; {new Date().getFullYear()} Felicity Global Capital Pte. Ltd. {c.allRightsReserved}
             </p>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="text-slate-600 hover:text-slate-400 text-xs transition-colors"
+              data-testid="footer-admin-login"
+            >
+              {language === 'jp' ? '管理者ログイン' : 'Admin Login'}
+            </button>
           </div>
         </div>
       </div>
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => window.location.href = "/management"}
+        language={language}
+      />
     </footer>
   );
 }
