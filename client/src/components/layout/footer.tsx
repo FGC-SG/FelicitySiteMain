@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { LoginModal } from "@/components/auth/login-modal";
+import { useAuth } from "@/hooks/useAuth";
+import { User } from "lucide-react";
 
 interface FooterProps {
   language: Language;
@@ -11,6 +13,7 @@ export function Footer({ language }: FooterProps) {
   const t = useTranslation(language);
   const [, navigate] = useLocation();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleNavClick = (path: string) => {
     if (path.startsWith('#')) {
@@ -178,13 +181,25 @@ export function Footer({ language }: FooterProps) {
             <p className="text-slate-500 text-sm" data-testid="footer-copyright">
               &copy; {new Date().getFullYear()} Felicity Global Capital Pte. Ltd. {c.allRightsReserved}
             </p>
-            <button
-              onClick={() => setShowLoginModal(true)}
-              className="text-slate-600 hover:text-slate-400 text-xs transition-colors"
-              data-testid="footer-admin-login"
-            >
-              {language === 'jp' ? '管理者ログイン' : 'Admin Login'}
-            </button>
+            {isAuthenticated ? (
+              <Link href="/management">
+                <button
+                  className="flex items-center gap-1 text-slate-500 hover:text-slate-300 text-xs transition-colors"
+                  data-testid="footer-admin-portal"
+                >
+                  <User className="h-3 w-3" />
+                  {language === 'jp' ? '管理ポータル' : 'Admin Portal'}
+                </button>
+              </Link>
+            ) : (
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="text-slate-600 hover:text-slate-400 text-xs transition-colors"
+                data-testid="footer-admin-login"
+              >
+                {language === 'jp' ? '管理者ログイン' : 'Admin Login'}
+              </button>
+            )}
           </div>
         </div>
       </div>

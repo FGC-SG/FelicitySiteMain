@@ -101,17 +101,6 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
             />
             {!isLoading && isAuthenticated && (
               <div className="flex items-center space-x-3">
-                <Link href="/management">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center space-x-1"
-                    data-testid="button-management"
-                  >
-                    <User className="h-4 w-4" />
-                    <span>{language === 'jp' ? '管理' : 'Admin'}</span>
-                  </Button>
-                </Link>
                 <Button
                   onClick={handleLogout}
                   className="felicity-bg text-white hover:opacity-90 shadow-md"
@@ -182,21 +171,9 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
                 />
               </div>
               
-              {/* Admin/Logout (only shown when authenticated) */}
+              {/* Logout (only shown when authenticated) */}
               {!isLoading && isAuthenticated && (
                 <div className="space-y-1 px-3 py-2">
-                  <Link href="/management">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full flex items-center justify-center space-x-1"
-                      data-testid="mobile-button-management"
-                      onClick={handleNavClick}
-                    >
-                      <User className="h-4 w-4" />
-                      <span>{language === 'jp' ? '管理' : 'Admin'}</span>
-                    </Button>
-                  </Link>
                   <Button
                     onClick={() => {
                       handleLogout();
