@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { Contact as ContactSection } from "@/components/sections/contact";
@@ -7,6 +7,10 @@ import { type Language } from "@/lib/i18n";
 
 export default function ContactPage() {
   const [language, setLanguage] = useState<Language>('en');
+
+  useEffect(() => {
+    document.title = "Contact Us | Felicity Global Capital";
+  }, []);
 
   return (
     <div className="min-h-screen bg-background font-sans">

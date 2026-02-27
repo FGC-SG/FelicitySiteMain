@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
@@ -16,6 +16,10 @@ export default function FundPage() {
   const urlLanguage = urlParams.get('lang') as Language;
   const [language, setLanguage] = useState<Language>(urlLanguage === 'jp' ? 'jp' : 'en');
   const [sortBy, setSortBy] = useState<'alphabetical' | 'vintage'>('alphabetical');
+
+  useEffect(() => {
+    document.title = "Investment Funds | Felicity Global Capital";
+  }, []);
 
   // Fetch funds data
   const { data: allFunds = [], isLoading } = useQuery({
@@ -104,14 +108,53 @@ export default function FundPage() {
               <p className="text-gray-600">Loading funds...</p>
             </div>
           ) : (funds as FundType[]).length === 0 ? (
-            <div className="text-center py-16">
-              <PieChart className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noFunds}</h3>
-              <p className="text-gray-600">
-                {language === 'jp' 
-                  ? "ファンド情報は近日公開予定です。" 
-                  : "Fund information will be available soon."}
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {[
+                {
+                  id: "static-1",
+                  name: language === 'jp' ? "フェリシティ・アジア成長ファンド" : "Felicity Asia Growth Fund",
+                  type: "Private Equity",
+                  focus: language === 'jp' ? "アジア太平洋全域の成長投資" : "Growth Investments across Asia-Pacific",
+                  status: language === 'jp' ? "運用中" : "Active",
+                  description: language === 'jp'
+                    ? "テクノロジー、ヘルスケア、消費者セクターを中心に、アジア太平洋地域の高成長企業への投資機会を追求する多様化されたプライベートエクイティファンドです。"
+                    : "A diversified private equity fund targeting high-growth companies across technology, healthcare, and consumer sectors in Asia-Pacific markets.",
+                },
+                {
+                  id: "static-2",
+                  name: language === 'jp' ? "大和ACA APACグロースファンドII" : "Daiwa ACA APAC Growth Fund II",
+                  type: "Private Equity",
+                  focus: language === 'jp' ? "日本・東南アジアのバイアウト" : "Japan & Southeast Asia Buyouts",
+                  status: language === 'jp' ? "運用中" : "Active",
+                  description: language === 'jp'
+                    ? "日本および東南アジアの主要市場における事業承継および成長バイアウト取引を専門とするバイアウトファンドです。"
+                    : "A buyout-focused fund specializing in business succession and growth buyout transactions in Japan and across key Southeast Asian markets.",
+                },
+              ].map((fund) => (
+                <Card key={fund.id} className="h-full bg-white/80 backdrop-blur-sm border-blue-100 hover:bg-white/90 transition-all duration-300 hover:shadow-lg" data-testid={`card-fund-${fund.id}`}>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                        <TrendingUp className="w-6 h-6 text-white" />
+                      </div>
+                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">{fund.status}</span>
+                    </div>
+                    <CardTitle className="text-xl font-bold text-gray-900 mb-1">{fund.name}</CardTitle>
+                    <CardDescription className="text-sm text-blue-600 font-medium">{fund.focus}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-700 text-sm leading-relaxed mb-4">{fund.description}</p>
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <span className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 font-medium">{fund.type}</span>
+                      <Link href="/contact">
+                        <button className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                          {language === 'jp' ? 'お問い合わせ →' : 'Enquire →'}
+                        </button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">

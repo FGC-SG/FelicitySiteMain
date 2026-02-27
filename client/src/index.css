@@ -283,6 +283,25 @@
   }
 
   
+  /* Cookie consent banner */
+  .cookie-consent-banner {
+    background: #ffffff;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    animation: slide-up-fade 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  @keyframes slide-up-fade {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
   /* Force logo to always display in dark mode */
   .logo-dark-mode {
     background-color: hsl(0 0% 0%);

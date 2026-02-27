@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { useLocation, Link } from "wouter";
-import { LoginModal } from "@/components/auth/login-modal";
+import { useLocation } from "wouter";
 
 interface FooterProps {
   language: Language;
@@ -10,7 +8,6 @@ interface FooterProps {
 export function Footer({ language }: FooterProps) {
   const t = useTranslation(language);
   const [, navigate] = useLocation();
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleNavClick = (path: string) => {
     if (path.startsWith('#')) {
@@ -34,7 +31,7 @@ export function Footer({ language }: FooterProps) {
       termsOfUse: "Terms of Use",
       address: "6 Temasek Blvd #29-04 Suntec Tower Four Singapore 038986",
       allRightsReserved: "All rights reserved.",
-      adminLogin: "Admin Login"
+      followUs: "Follow Us"
     },
     jp: {
       companyDescription: "フェリシティ・グローバル・キャピタルは、シンガポールを拠点とする投資運用会社であり、アジア太平洋市場における越境プライベートエクイティおよびコーポレートファイナンスソリューションを専門としています。",
@@ -45,7 +42,7 @@ export function Footer({ language }: FooterProps) {
       termsOfUse: "利用規約",
       address: "6 Temasek Blvd #29-04 Suntec Tower Four Singapore 038986",
       allRightsReserved: "All rights reserved.",
-      adminLogin: "管理者ログイン"
+      followUs: "フォローする"
     }
   };
 
@@ -140,6 +137,22 @@ export function Footer({ language }: FooterProps) {
               <p data-testid="footer-tokyo-phone">Tokyo: +81-3-5375-1025</p>
               <p data-testid="footer-email">info@fgcsg.com</p>
             </div>
+            <div className="mt-5">
+              <p className="text-sm text-slate-400 mb-3">{c.followUs}</p>
+              <a
+                href="https://www.linkedin.com/company/felicity-global-capital"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-slate-400 hover:text-felicity-gold transition-colors"
+                aria-label="LinkedIn"
+                data-testid="footer-linkedin"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                <span className="text-sm">LinkedIn</span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -162,24 +175,9 @@ export function Footer({ language }: FooterProps) {
             <p className="text-slate-500 text-sm" data-testid="footer-copyright">
               &copy; {new Date().getFullYear()} Felicity Global Capital Pte. Ltd. {c.allRightsReserved}
             </p>
-            <button
-              onClick={() => setShowLoginModal(true)}
-              className="text-slate-600 hover:text-slate-400 text-xs transition-colors"
-              data-testid="footer-admin-login"
-            >
-              {c.adminLogin}
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onSuccess={() => window.location.href = "/management"}
-        language={language}
-      />
     </footer>
   );
 }

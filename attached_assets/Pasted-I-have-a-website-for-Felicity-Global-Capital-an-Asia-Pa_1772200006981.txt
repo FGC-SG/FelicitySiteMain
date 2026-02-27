@@ -1,0 +1,270 @@
+I have a website for Felicity Global Capital (an Asia-Pacific private equity / 
+investment management firm based in Singapore). Please audit the existing codebase 
+and apply the following fixes and improvements in order of priority.
+
+---
+
+## 🔴 CRITICAL FIXES (Do These First)
+
+### 1. Fix Broken Dynamic Content Loading
+Multiple pages fetch data dynamically but are permanently stuck on loading spinners 
+and never render content. Investigate and fix the following:
+
+- /portfolio → stuck on spinner, portfolio companies never load
+- /fund → stuck on "Loading funds...", fund data never appears
+- /news → stuck on "Loading...", articles/news never appear
+- /about → "Our Leadership Team" section stuck on "Loading team members..."
+
+Steps to fix:
+a) Check all fetch/axios/useEffect calls on these pages for broken API endpoints,
+   incorrect URLs, or missing environment variables.
+b) If data is fetched from a CMS or external API, verify the API base URL is 
+   correctly set in the .env file and accessible.
+c) Add proper error handling: if the API call fails, show a fallback static 
+   content block instead of an infinite spinner.
+d) Add a timeout: if data hasn't loaded in 8 seconds, display an error message 
+   like "Content temporarily unavailable. Please try again later." with a Retry button.
+e) If the CMS/API is not yet set up, replace all dynamic fetches with hardcoded 
+   static placeholder data so the pages render something meaningful.
+
+### 2. Remove "Admin Login" from Public Footer
+Find the footer component and remove the "Admin Login" link entirely. 
+Admin access should NOT be visible to public visitors.
+If an admin panel is needed, it should be accessed via a separate, 
+non-linked URL only known internally (e.g., /mgmt-login or similar).
+
+### 3. Fix Missing Images on Contact Page
+On the /contact page, the Singapore and Tokyo company profile cards 
+show blank grey image placeholders. 
+- Either add real office photos (place image files in /public/images/ and 
+  reference them correctly), OR
+- Replace the broken image areas with a styled card using the company color 
+  (#1a237e navy blue) with the city name as a text overlay, 
+  until real photos are available.
+
+---
+
+## 🟠 HIGH PRIORITY IMPROVEMENTS
+
+### 4. Add Hero Visual to Homepage
+The homepage hero section currently has only a plain navy gradient background.
+Replace it with a more engaging visual:
+- Option A (Preferred): Add a fullscreen looping background video. 
+  Use a royalty-free stock video of Singapore's financial district skyline 
+  (e.g., from Pexels or Pixabay) placed as a video background with a 
+  semi-transparent dark navy overlay (rgba(10,20,80,0.65)) so text remains readable.
+- Option B: Use a high-quality background image of a cityscape 
+  (Singapore or Tokyo) with the same dark overlay.
+Keep all existing hero text and CTA buttons exactly as they are.
+
+### 5. Add Social Media Links to Footer
+Add a social media icons row to the footer (bottom section). Include:
+- LinkedIn icon → link to https://www.linkedin.com/company/felicity-global-capital 
+  (or a placeholder # if the page doesn't exist yet)
+- Use clean SVG icons (Font Awesome or Heroicons)
+- Style them in white/light color to match the dark footer
+- Place them in the Contact Us column of the footer, below the email address
+
+### 6. Fix Leadership Team — Add Static Fallback Team Profiles
+On the /about page, the "Our Leadership Team" section currently never loads.
+Until the CMS is fixed, replace the loading spinner with 3 static placeholder 
+team member cards using this structure:
+
+Team Member 1:
+- Name: [Managing Director]
+- Title: Managing Director & CEO
+- Description: Seasoned investment professional with 20+ years of experience 
+  in Asia-Pacific private equity and corporate finance.
+- Photo: Use a professional silhouette SVG placeholder avatar
+
+Team Member 2:
+- Name: [Investment Director]  
+- Title: Director, Investments
+- Description: Specialist in cross-border M&A and business succession 
+  transactions across Japan and Southeast Asia.
+- Photo: Use a professional silhouette SVG placeholder avatar
+
+Team Member 3:
+- Name: [Fund Operations]
+- Title: Head of Fund Operations
+- Description: Expert in fund administration, investor relations, 
+  and regulatory compliance under MAS framework.
+- Photo: Use a professional silhouette SVG placeholder avatar
+
+Style: Clean card layout with white background, subtle border, 
+circular avatar placeholder, name in bold navy (#1a237e), 
+title in medium grey, description in small grey text.
+
+### 7. Add a News/Insights Static Fallback
+On the /news page, add 3 static placeholder news cards while the CMS is being 
+fixed. Each card should follow this format:
+
+Article 1:
+- Date: January 2026
+- Tag: Market Insights
+- Title: "Felicity Global Capital Expands Asia-Pacific Investment Mandate"
+- Excerpt: "Felicity Global Capital announces an expanded investment mandate 
+  targeting high-growth opportunities across Southeast Asia and Japan, 
+  with a focus on technology-enabled businesses and succession deals."
+- CTA: "Read More" (links to #)
+
+Article 2:
+- Date: November 2025
+- Tag: Portfolio News
+- Title: "Portfolio Company Achieves Significant Growth Milestone"
+- Excerpt: "One of Felicity Global Capital's portfolio companies has achieved 
+  a major revenue milestone, reflecting the firm's hands-on value creation 
+  approach and deep operational expertise."
+- CTA: "Read More" (links to #)
+
+Article 3:
+- Date: September 2025
+- Tag: Company Update
+- Title: "Felicity Global Capital Strengthens Singapore-Japan Investment Bridge"
+- Excerpt: "Following the establishment of its dual-entity structure across 
+  Singapore and Tokyo, Felicity Global Capital continues to deepen its 
+  cross-border deal origination capabilities."
+- CTA: "Read More" (links to #)
+
+Style: Grid layout (3 columns on desktop, 1 on mobile), card with date badge, 
+colored tag pill, bold title, excerpt text, and "Read More" link with arrow.
+
+---
+
+## 🟡 MEDIUM PRIORITY IMPROVEMENTS
+
+### 8. Improve Contact Form UX
+On the /contact page, update the contact form with these enhancements:
+a) Add a helper text below the form: 
+   "We typically respond within 2 business days."
+b) Add a loading state to the "Send Message" button when the form is submitted 
+   (show a spinner inside the button and disable it to prevent double submission).
+c) After successful submission, show a success message panel:
+   "Thank you for reaching out! A member of our team will be in touch with you 
+   within 2 business days."
+   Style it with a green (#2e7d32) background, white text, and a checkmark icon.
+d) Add basic form validation:
+   - Name: minimum 2 characters
+   - Email: valid email format
+   - Message: minimum 10 characters
+   - Show inline red error messages below each field on invalid submission.
+
+### 9. Add Cookie Consent Banner
+Add a GDPR/PDPA-compliant cookie consent banner that appears at the bottom 
+of the screen on first visit:
+
+Content: "We use cookies to improve your experience on our website. 
+By continuing to browse, you agree to our use of cookies."
+Buttons: "Accept" (filled navy button) | "Learn More" (text link to Privacy Policy)
+Behavior: 
+- Store consent in localStorage so it doesn't reappear after acceptance
+- Banner should slide in from the bottom with a smooth animation
+- Style: White background, subtle top shadow, full-width bar
+
+### 10. SEO Meta Tags
+Add/update the following meta tags in the <head> of each page:
+
+Homepage:
+- title: "Felicity Global Capital | Strategic Investment Value Across Asia-Pacific"
+- description: "Felicity Global Capital is a Singapore-based private equity and 
+  fund management firm specializing in growth investments, business succession, 
+  and cross-border deals across Asia-Pacific markets."
+- og:title, og:description, og:image (use the Felicity logo or a placeholder)
+- Canonical URL tag
+
+About:
+- title: "About Us | Felicity Global Capital"
+- description: "Learn about Felicity Global Capital's 15+ year history, $500M+ 
+  AUM, and our experienced leadership team driving value across Asia-Pacific."
+
+Portfolio:
+- title: "Portfolio Companies | Felicity Global Capital"
+
+Fund:
+- title: "Investment Funds | Felicity Global Capital"
+
+News:
+- title: "News & Insights | Felicity Global Capital"
+
+Contact:
+- title: "Contact Us | Felicity Global Capital"
+
+### 11. Add Static Portfolio Fallback Content
+On the /portfolio page, until the CMS is fixed, show 4 static portfolio 
+company placeholder cards in a responsive grid:
+
+Portfolio Card Structure:
+- Company logo placeholder (grey rounded square with company initial)
+- Sector badge (e.g., "Technology", "Manufacturing", "Healthcare", "Consumer")
+- Company name (bold)
+- Short description (1–2 lines)
+- Country flag emoji + country name
+
+Example cards:
+1. "TechCo Japan" | Technology | Japan | 
+   "A Tokyo-based SaaS company enabling digital transformation for mid-sized enterprises."
+2. "MediGroup Asia" | Healthcare | Singapore | 
+   "A Singapore-headquartered healthcare services platform operating across Southeast Asia."
+3. "Pacific Manufacturing" | Manufacturing | Japan | 
+   "A specialist industrial manufacturer with 40+ years heritage undergoing 
+   strategic succession and modernization."
+4. "RetailEdge SEA" | Consumer | Southeast Asia | 
+   "A multi-brand retail operator expanding across ASEAN markets 
+   with Felicity's operational and capital support."
+
+Add a sector filter bar above the cards: All | Technology | Healthcare | 
+Manufacturing | Consumer
+Implement basic JavaScript filtering so clicking a sector shows only 
+relevant cards.
+
+### 12. Add Fund Static Fallback Content
+On the /fund page, show 2 static fund cards until the CMS is fixed:
+
+Fund 1:
+- Name: "Felicity Asia Growth Fund"
+- Type: Private Equity
+- Focus: Growth Investments across Asia-Pacific
+- Status: Active
+- Description: "A diversified private equity fund targeting high-growth 
+  companies across technology, healthcare, and consumer sectors in 
+  Asia-Pacific markets."
+
+Fund 2:
+- Name: "Daiwa ACA APAC Growth Fund II"  
+- Type: Private Equity
+- Focus: Japan & Southeast Asia Buyouts
+- Status: Active
+- Description: "A buyout-focused fund specializing in business succession 
+  and growth buyout transactions in Japan and across key Southeast Asian markets."
+
+Style: Clean card layout with fund icon, name in bold, type badge, 
+description text, and an "Enquire" button linking to /contact.
+
+---
+
+## ✅ FINAL CHECKS
+
+After making all changes above, please:
+
+1. Verify all pages render without any console errors
+2. Test on mobile viewport (375px width) — ensure all pages are properly 
+   responsive with no horizontal overflow
+3. Confirm the footer no longer shows "Admin Login" link
+4. Confirm the cookie consent banner appears on first load
+5. Confirm all navigation links work correctly
+6. Check that the EN/JP language toggle still functions properly
+7. Ensure all existing styling (navy color scheme, fonts, spacing) is preserved 
+   and new additions match the existing design system
+
+---
+
+## Design System Reference (keep consistent):
+- Primary color: #1a237e (deep navy blue)  
+- Accent blue: #283593
+- Text dark: #1a1a2e
+- Text grey: #6b7280
+- White: #ffffff
+- Background light: #f8fafc
+- Font: Use whatever font is already set in the project (likely Inter or similar sans-serif)
+- Border radius: consistent with existing cards (likely 8px or 12px)
+- Shadows: subtle box-shadow as used in existing cards

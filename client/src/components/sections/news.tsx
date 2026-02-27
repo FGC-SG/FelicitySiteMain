@@ -254,20 +254,58 @@ export function News({ language }: NewsProps) {
               })}
           </div>
         ) : (
-          <Card>
-            <CardContent className="text-center py-12">
-              <Newspaper className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-lg font-semibold mb-2" data-testid="text-no-news">
-                {language === "en" ? "No news articles available" : "利用可能なニュース記事がありません"}
-              </h3>
-              <p className="text-muted-foreground">
-                {language === "en" 
-                  ? "Check back later for the latest updates from Felicity Global Capital"
-                  : "フェリシティグローバルキャピタルからの最新情報は後でご確認ください"
-                }
-              </p>
-            </CardContent>
-          </Card>
+          <div className="space-y-2" data-testid="text-no-news">
+            {[
+              {
+                id: "sn1",
+                date: language === "en" ? "January 2026" : "2026年1月",
+                tag: language === "en" ? "Market Insights" : "市場インサイト",
+                tagColor: "bg-blue-100 text-blue-700",
+                title: language === "en"
+                  ? "Felicity Global Capital Expands Asia-Pacific Investment Mandate"
+                  : "フェリシティ・グローバル・キャピタル、アジア太平洋投資範囲を拡大",
+                excerpt: language === "en"
+                  ? "Felicity Global Capital announces an expanded investment mandate targeting high-growth opportunities across Southeast Asia and Japan, with a focus on technology-enabled businesses and succession deals."
+                  : "フェリシティ・グローバル・キャピタルは、東南アジアおよび日本における高成長機会を対象とした投資範囲の拡大を発表しました。テクノロジー関連ビジネスおよび事業承継案件に注力します。",
+              },
+              {
+                id: "sn2",
+                date: language === "en" ? "November 2025" : "2025年11月",
+                tag: language === "en" ? "Portfolio News" : "ポートフォリオニュース",
+                tagColor: "bg-green-100 text-green-700",
+                title: language === "en"
+                  ? "Portfolio Company Achieves Significant Growth Milestone"
+                  : "ポートフォリオ企業が重要な成長マイルストーンを達成",
+                excerpt: language === "en"
+                  ? "One of Felicity Global Capital's portfolio companies has achieved a major revenue milestone, reflecting the firm's hands-on value creation approach and deep operational expertise."
+                  : "フェリシティ・グローバル・キャピタルのポートフォリオ企業の一社が、重要な収益マイルストーンを達成しました。これは当社のハンズオン型価値創造アプローチと深い運営専門知識を反映しています。",
+              },
+              {
+                id: "sn3",
+                date: language === "en" ? "September 2025" : "2025年9月",
+                tag: language === "en" ? "Company Update" : "会社アップデート",
+                tagColor: "bg-orange-100 text-orange-700",
+                title: language === "en"
+                  ? "Felicity Global Capital Strengthens Singapore-Japan Investment Bridge"
+                  : "フェリシティ・グローバル・キャピタル、シンガポール-日本投資架け橋を強化",
+                excerpt: language === "en"
+                  ? "Following the establishment of its dual-entity structure across Singapore and Tokyo, Felicity Global Capital continues to deepen its cross-border deal origination capabilities."
+                  : "シンガポールと東京にまたがる二拠点体制の確立を経て、フェリシティ・グローバル・キャピタルはクロスボーダーの案件組成能力をさらに強化しています。",
+              },
+            ].map((article) => (
+              <div key={article.id} className="flex items-start gap-4 p-3 hover:bg-muted/50 rounded-lg transition-colors border-b last:border-b-0">
+                <div className="flex-shrink-0 w-28 text-sm text-muted-foreground pt-0.5">{article.date}</div>
+                <div className="flex-shrink-0 pt-0.5">
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${article.tagColor}`}>{article.tag}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground mb-1 line-clamp-1">{article.title}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

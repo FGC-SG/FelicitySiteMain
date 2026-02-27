@@ -39,11 +39,16 @@ The website is structured as a multi-page application.
 ### Feature Specifications
 - **Bilingual Capabilities**: Supports English and Japanese for all public and administrative content.
 - **Management Message**: Dedicated section on home page displaying message from Group Representative Tomohiro Fujita, dated July 31, 2025, explaining company restructuring and vision. Fully bilingual with comprehensive content.
-- **User Authentication**: Secure login/logout, user creation, role assignment, and password management.
+- **User Authentication**: Secure login/logout, user creation, role assignment, and password management. Admin portal accessible directly via /management (no public footer link).
 - **Content Management Systems**: Dedicated modules for News, Members, and Portfolio data.
+- **Static Fallback Content**: All dynamic data pages (Portfolio, Fund, News, Members/About) display meaningful static placeholder content when the database is empty, ensuring pages always render something useful.
 - **Responsive Design**: Optimized for various devices using TailwindCSS and shadcn/ui.
 - **Administrative Portals**: Streamlined management interfaces for Team Management and Content Management.
 - **Cross-company Navigation**: Hero section includes a prominent button linking to Felicity Capital Inc. (Japan) website at https://felicitycapital.jp/ for seamless navigation between related entities.
+- **Cookie Consent**: GDPR/PDPA-compliant cookie consent banner with localStorage persistence, slide-up animation, bilingual text.
+- **SEO**: Meta tags on index.html, dynamic page titles per route (About, Portfolio, Fund, News, Contact).
+- **Social Media**: LinkedIn link in footer Contact Us column.
+- **Contact Form**: Inline validation (name ≥ 2 chars, valid email, message ≥ 10 chars), loading spinner on submit, styled green success panel, helper text about 2-business-day response time.
 
 ## External Dependencies
 - **Database**: PostgreSQL

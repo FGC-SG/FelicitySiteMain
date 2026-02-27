@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
@@ -13,11 +13,130 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Building2, Globe, MapPin, Search, Plus } from "lucide-react";
 import type { Portfolio } from "@shared/schema";
 
+const STATIC_PORTFOLIOS = [
+  {
+    id: "s1",
+    sector: "Technology",
+    sectorJa: "テクノロジー",
+    name: "TechCo Japan",
+    nameJa: "テックコ・ジャパン",
+    description: "A Tokyo-based SaaS company enabling digital transformation for mid-sized enterprises.",
+    descriptionJa: "中堅企業のデジタルトランスフォーメーションを支援する東京拠点のSaaS企業。",
+    country: "🇯🇵 Japan",
+  },
+  {
+    id: "s2",
+    sector: "Healthcare",
+    sectorJa: "ヘルスケア",
+    name: "MediGroup Asia",
+    nameJa: "メディグループ・アジア",
+    description: "A Singapore-headquartered healthcare services platform operating across Southeast Asia.",
+    descriptionJa: "シンガポールを拠点に東南アジア全域で展開するヘルスケアサービスプラットフォーム。",
+    country: "🇸🇬 Singapore",
+  },
+  {
+    id: "s3",
+    sector: "Manufacturing",
+    sectorJa: "製造業",
+    name: "Pacific Manufacturing",
+    nameJa: "パシフィック・マニュファクチャリング",
+    description: "A specialist industrial manufacturer with 40+ years heritage undergoing strategic succession and modernization.",
+    descriptionJa: "40年以上の歴史を持つ専門産業メーカーが戦略的な事業承継と近代化を推進。",
+    country: "🇯🇵 Japan",
+  },
+  {
+    id: "s4",
+    sector: "Consumer",
+    sectorJa: "消費財",
+    name: "RetailEdge SEA",
+    nameJa: "リテールエッジ・SEA",
+    description: "A multi-brand retail operator expanding across ASEAN markets with Felicity's operational and capital support.",
+    descriptionJa: "フェリシティの運営支援と資本サポートのもと、ASEANに拡大するマルチブランド小売業者。",
+    country: "🌏 Southeast Asia",
+  },
+];
+
+const SECTOR_COLORS: Record<string, string> = {
+  Technology: "bg-blue-100 text-blue-700",
+  Healthcare: "bg-green-100 text-green-700",
+  Manufacturing: "bg-orange-100 text-orange-700",
+  Consumer: "bg-purple-100 text-purple-700",
+};
+
+function StaticPortfolioFallback({ language }: { language: Language }) {
+  const [activeFilter, setActiveFilter] = useState("All");
+  const sectors = ["All", "Technology", "Healthcare", "Manufacturing", "Consumer"];
+  const sectorLabels: Record<string, string> = {
+    All: language === 'jp' ? "すべて" : "All",
+    Technology: language === 'jp' ? "テクノロジー" : "Technology",
+    Healthcare: language === 'jp' ? "ヘルスケア" : "Healthcare",
+    Manufacturing: language === 'jp' ? "製造業" : "Manufacturing",
+    Consumer: language === 'jp' ? "消費財" : "Consumer",
+  };
+
+  const filtered = activeFilter === "All"
+    ? STATIC_PORTFOLIOS
+    : STATIC_PORTFOLIOS.filter(p => p.sector === activeFilter);
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-10 justify-center">
+        {sectors.map((s) => (
+          <button
+            key={s}
+            onClick={() => setActiveFilter(s)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
+              activeFilter === s
+                ? "bg-blue-900 text-white border-blue-900"
+                : "bg-white text-gray-600 border-gray-300 hover:border-blue-900 hover:text-blue-900"
+            }`}
+          >
+            {sectorLabels[s]}
+          </button>
+        ))}
+      </div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filtered.map((p) => (
+          <Card key={p.id} className="hover:shadow-lg transition-shadow" data-testid={`card-portfolio-${p.id}`}>
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center text-xl font-bold text-white"
+                  style={{ backgroundColor: "#1a237e" }}>
+                  {p.name.charAt(0)}
+                </div>
+                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${SECTOR_COLORS[p.sector] || "bg-gray-100 text-gray-700"}`}>
+                  {language === 'jp' ? p.sectorJa : p.sector}
+                </span>
+              </div>
+              <CardTitle className="text-lg" style={{ color: "#1a237e" }}>
+                {language === 'jp' ? p.nameJa : p.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                {language === 'jp' ? p.descriptionJa : p.description}
+              </p>
+              <div className="flex items-center gap-1 text-sm text-gray-500">
+                <MapPin className="h-3 w-3" />
+                <span>{p.country}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PortfolioPage() {
   // Check for language parameter in URL, otherwise default to 'en'
   const urlParams = new URLSearchParams(window.location.search);
   const urlLanguage = urlParams.get('lang') as Language;
   const [language, setLanguage] = useState<Language>(urlLanguage === 'jp' ? 'jp' : 'en');
+
+  useEffect(() => {
+    document.title = "Portfolio Companies | Felicity Global Capital";
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterCountry, setFilterCountry] = useState<string>("all");
@@ -294,7 +413,9 @@ function PortfolioPage() {
       {/* Portfolio Grid */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredPortfolios.length === 0 ? (
+          {!portfolios || portfolios.length === 0 ? (
+            <StaticPortfolioFallback language={language} />
+          ) : filteredPortfolios.length === 0 ? (
             <div className="text-center py-12">
               <Building2 className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>

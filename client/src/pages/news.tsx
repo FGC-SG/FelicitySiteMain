@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
 import { AdminRoute } from "@/components/auth/admin-route";
@@ -7,6 +7,10 @@ import { type Language } from "@/lib/i18n";
 
 export default function NewsPage() {
   const [language, setLanguage] = useState<Language>('en');
+
+  useEffect(() => {
+    document.title = "News & Insights | Felicity Global Capital";
+  }, []);
 
   return (
     <AdminRoute allowPublicAccess={true}>

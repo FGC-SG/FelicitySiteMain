@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
+import { CookieConsent } from "@/components/cookie-consent";
 import { Hero } from "@/components/sections/hero";
 import { ProofPoints } from "@/components/sections/proof-points";
 import { WhatWeDo } from "@/components/sections/what-we-do";
@@ -168,6 +169,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background font-sans">
       <Navigation language={language} onLanguageChange={setLanguage} />
+      <CookieConsent language={language} />
       
       {user && (
         <div className="bg-felicity-primary text-white py-2 px-4 text-center text-sm">
