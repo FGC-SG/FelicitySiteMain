@@ -24,8 +24,8 @@ export function CTABand({ language }: CTABandProps) {
           <Link href="/contact">
             <Button 
               size="lg" 
-              variant="secondary"
-              className="gap-2"
+              variant="ghost"
+              className="gap-2 bg-transparent border border-white/40 text-white hover:bg-white/10 hover:text-white"
               data-testid="button-cta-contact"
             >
               <Mail className="h-5 w-5" />
