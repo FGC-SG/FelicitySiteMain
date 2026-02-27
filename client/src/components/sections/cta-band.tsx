@@ -35,8 +35,8 @@ export function CTABand({ language }: CTABandProps) {
           <Link href="/about">
             <Button 
               size="lg" 
-              variant="outline"
-              className="gap-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+              variant="ghost"
+              className="gap-2 bg-transparent border border-white/40 text-white hover:bg-white/10 hover:text-white"
               data-testid="button-cta-learn-more"
             >
               {content.ctaBand.ctaSecondary}
