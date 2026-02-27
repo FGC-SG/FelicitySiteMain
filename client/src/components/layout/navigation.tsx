@@ -7,10 +7,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LayoutToggle } from "@/components/layout-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { Grip, User, Gamepad2 } from "lucide-react";
+import { Grip, User, Gamepad2, Gem } from "lucide-react";
 import logoPath from "@assets/logo_color_1756362140059.jpg";
 import { hasAdminPrivileges } from "@/lib/roles";
 import { TetrisGame } from "@/components/tetris-game";
+import { CandyCrushGame } from "@/components/candy-crush-game";
 
 interface NavigationProps {
   language: Language;
@@ -23,6 +24,7 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showTetris, setShowTetris] = useState(false);
+  const [showCandyCrush, setShowCandyCrush] = useState(false);
   const t = useTranslation(language);
 
   // Check if user has admin privileges (admin or superadmin)
@@ -95,6 +97,16 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Desktop: Language & Auth */}
           <div className="hidden md:flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCandyCrush(true)}
+              title="Play Candy Crush"
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-candy-crush"
+            >
+              <Gem className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -214,6 +226,9 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
       {/* Tetris Game */}
       <TetrisGame open={showTetris} onClose={() => setShowTetris(false)} />
+
+      {/* Candy Crush Game */}
+      <CandyCrushGame open={showCandyCrush} onClose={() => setShowCandyCrush(false)} />
     </nav>
   );
 }

@@ -254,7 +254,12 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-sm p-0 overflow-hidden border-slate-700" style={{ background: "linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 100%)" }}>
+      <DialogContent
+        className="max-w-sm p-0 overflow-hidden border-slate-700"
+        style={{ background: "linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 100%)" }}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle className="text-white text-center text-lg tracking-widest font-mono">TETRIS</DialogTitle>
         </DialogHeader>
