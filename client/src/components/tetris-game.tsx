@@ -5,7 +5,7 @@ import { RotateCcw, ChevronDown, ChevronLeft, ChevronRight, RotateCw, Home } fro
 
 const COLS = 10;
 const ROWS = 20;
-const CELL = 28;
+const CELL = 24;
 
 type Board = (string | null)[][];
 type Piece = { shape: number[][]; color: string };
@@ -255,11 +255,12 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <DialogContent
-        className="max-w-sm p-0 overflow-hidden [&>button]:text-cyan-300 [&>button]:opacity-70 [&>button:hover]:opacity-100"
+        className="max-w-sm p-0 overflow-y-auto [&>button]:text-cyan-300 [&>button]:opacity-70 [&>button:hover]:opacity-100"
         style={{
           background: "linear-gradient(160deg, #050d1a 0%, #061428 40%, #0a0a2e 100%)",
           border: "2px solid #00d4ff",
           boxShadow: "0 0 30px rgba(0,212,255,0.4), 0 0 60px rgba(0,100,200,0.2), inset 0 0 30px rgba(0,50,100,0.15)",
+          maxHeight: "calc(100dvh - 2rem)",
         }}
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
