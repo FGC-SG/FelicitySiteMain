@@ -242,7 +242,7 @@ export function CandyCrushGame({ open, onClose }: Props) {
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <DialogContent
-        className="max-w-md p-0 overflow-hidden border-pink-700"
+        className="max-w-md p-0 overflow-hidden border-pink-600 [&>button]:text-white [&>button]:opacity-60 [&>button:hover]:opacity-100"
         style={{ background: "linear-gradient(135deg, #1a0030 0%, #2d0050 50%, #1a002a 100%)" }}
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
@@ -322,7 +322,7 @@ export function CandyCrushGame({ open, onClose }: Props) {
           </div>
         )}
 
-        <p className="text-pink-900 text-xs text-center pb-3">
+        <p className="text-pink-300 text-xs text-center pb-3 opacity-60">
           Click a candy, then click an adjacent one to swap
         </p>
       </DialogContent>

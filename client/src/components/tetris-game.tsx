@@ -255,7 +255,7 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <DialogContent
-        className="max-w-sm p-0 overflow-hidden border-slate-700"
+        className="max-w-sm p-0 overflow-hidden border-slate-600 [&>button]:text-white [&>button]:opacity-60 [&>button:hover]:opacity-100"
         style={{ background: "linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 100%)" }}
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
@@ -339,7 +339,7 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
           </Button>
         </div>
 
-        <p className="text-slate-600 text-xs font-mono text-center pb-3">
+        <p className="text-slate-400 text-xs font-mono text-center pb-3">
           ← → move &nbsp;↑ rotate &nbsp;↓ drop &nbsp;space hard drop
         </p>
       </DialogContent>
