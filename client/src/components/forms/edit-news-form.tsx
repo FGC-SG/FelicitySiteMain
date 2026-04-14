@@ -24,6 +24,7 @@ const editNewsSchema = z.object({
   category: z.string().min(1, "Category is required"),
   language: z.enum(["en", "ja"]),
   publishedAt: z.string().min(1, "Announcement date is required"),
+  releaseTime: z.string().min(1, "Release time is required"),
 });
 
 type EditNewsFormData = z.infer<typeof editNewsSchema>;
@@ -55,6 +56,14 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
       category: article.category,
       language: article.language as "en" | "ja",
       publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      releaseTime: (() => {
+        if (!article.publishedAt) return "09:00";
+        // Convert stored UTC time to SGT (UTC+8)
+        const d = new Date(article.publishedAt);
+        const sgtHours = String((d.getUTCHours() + 8) % 24).padStart(2, "0");
+        const sgtMinutes = String(d.getUTCMinutes()).padStart(2, "0");
+        return `${sgtHours}:${sgtMinutes}`;
+      })(),
     },
   });
 
@@ -304,7 +313,9 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
   };
 
   const handleSubmit = (data: EditNewsFormData) => {
-    onSave(data);
+    const { releaseTime, publishedAt, ...rest } = data;
+    const combinedPublishedAt = `${publishedAt}T${releaseTime}:00+08:00`;
+    onSave({ ...rest, publishedAt: combinedPublishedAt, releaseTime });
   };
 
   const categories = [
@@ -396,6 +407,31 @@ export function EditNewsForm({ article, language, onSave, onCancel, isLoading }:
                       data-testid="input-published-at"
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="releaseTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel data-testid="label-release-time">
+                    {language === "en" ? "Release Time (Singapore Time)" : "公開時刻（シンガポール時間）"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      {...field}
+                      data-testid="input-release-time"
+                    />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    {language === "en"
+                      ? "Article visible on website at this time (SGT, UTC+8)"
+                      : "この時刻以降に公開（シンガポール時間、UTC+8）"}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

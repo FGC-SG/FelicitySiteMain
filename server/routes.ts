@@ -289,11 +289,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/news', async (req, res) => {
+  app.get('/api/news', async (req: any, res) => {
     try {
       console.log("Fetching news articles...");
-      const news = await storage.getNewsArticles();
-      console.log(`Retrieved ${news.length} news articles`);
+      const allNews = await storage.getNewsArticles();
+      // Admins with ?includeScheduled=true get all articles (including future-dated)
+      const includeScheduled = req.query.includeScheduled === 'true' && req.session?.userId;
+      const now = new Date();
+      const news = includeScheduled
+        ? allNews
+        : allNews.filter(a => !a.publishedAt || new Date(a.publishedAt) <= now);
+      console.log(`Retrieved ${news.length} news articles (${allNews.length - news.length} scheduled/hidden)`);
       res.json(news);
     } catch (error) {
       console.error("Error fetching news articles:", error);
@@ -304,7 +310,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get news with AI translations
   app.get('/api/news-with-translations', async (req, res) => {
     try {
-      const news = await storage.getNewsArticles();
+      const rawNews = await storage.getNewsArticles();
+      // Only show published articles (publishedAt <= now)
+      const nowTime = new Date();
+      const news = rawNews.filter(a => !a.publishedAt || new Date(a.publishedAt) <= nowTime);
       const englishNews = news.filter(article => article.language === 'en');
       const japaneseNews = news.filter(article => article.language === 'ja');
       
@@ -316,8 +325,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Combine original articles with translations
-      const allNews = [...news, ...translatedNews];
-      res.json(allNews);
+      const allNewsWithTranslations = [...news, ...translatedNews];
+      res.json(allNewsWithTranslations);
     } catch (error) {
       console.error("Error fetching news with translations:", error);
       res.status(500).json({ message: "Failed to fetch news with translations" });

@@ -25,6 +25,7 @@ const addNewsSchema = z.object({
   category: z.string().min(1, "Category is required"),
   felicityCompany: z.enum(["felicity-singapore", "felicity-japan"]),
   publishedAt: z.string().min(1, "Announcement date is required"),
+  releaseTime: z.string().min(1, "Release time is required"),
 });
 
 type AddNewsForm = z.infer<typeof addNewsSchema>;
@@ -132,14 +133,25 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       category: "",
       felicityCompany: "felicity-singapore",
       publishedAt: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+      releaseTime: "09:00", // Default 9:00 AM Singapore time
     },
   });
 
+  // Helper: combine YYYY-MM-DD date + HH:MM time in Singapore time (UTC+8) → UTC ISO string
+  const toSGTUtcIso = (date: string, time: string): string => {
+    return `${date}T${time}:00+08:00`;
+  };
+
   const addNewsMutation = useMutation({
     mutationFn: async (data: AddNewsForm) => {
+      const { releaseTime, publishedAt, ...rest } = data;
+      const payload = {
+        ...rest,
+        publishedAt: toSGTUtcIso(publishedAt, releaseTime),
+      };
       const response = await fetch("/api/news", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
         headers: {
           "Content-Type": "application/json",
         },
@@ -472,6 +484,31 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
                         data-testid="input-news-published-at"
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="releaseTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel data-testid="label-news-release-time">
+                      {language === "en" ? "Release Time (Singapore Time)" : "公開時刻（シンガポール時間）"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="time"
+                        {...field}
+                        data-testid="input-news-release-time"
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      {language === "en"
+                        ? "Article becomes visible on the website at this time (SGT, UTC+8)"
+                        : "この時刻以降にウェブサイトに公開されます（シンガポール時間、UTC+8）"}
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -33,10 +33,32 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                        currentUser?.role === "superadmin" || 
                        currentUser?.role === "admin";
 
-  // Fetch news articles
+  // Fetch ALL news articles including scheduled (management view)
   const { data: newsArticles, isLoading } = useQuery({
-    queryKey: ["/api/news"],
+    queryKey: ["/api/news", "includeScheduled"],
+    queryFn: async () => {
+      const res = await fetch("/api/news?includeScheduled=true", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch news");
+      return res.json();
+    },
   });
+
+  const isScheduled = (article: NewsArticle) =>
+    !!article.publishedAt && new Date(article.publishedAt) > new Date();
+
+  // Format date+time in Singapore time (UTC+8)
+  const formatSGTDateTime = (date: string | Date) => {
+    const d = new Date(date);
+    return d.toLocaleString(language === "en" ? "en-SG" : "ja-JP", {
+      timeZone: "Asia/Singapore",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }) + " SGT";
+  };
 
   const deleteNewsMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -385,11 +407,23 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                         </Badge>
                       </div>
                       
+                      {isScheduled(article) && (
+                        <Badge
+                          className="bg-amber-100 text-amber-800 border border-amber-300 text-xs"
+                          data-testid={`badge-scheduled-${article.id}`}
+                        >
+                          🕐 {language === "en" ? "Scheduled" : "予約済み"}
+                        </Badge>
+                      )}
                       <div className="flex items-center text-xs text-muted-foreground gap-1">
                         <Calendar className="h-3 w-3" />
                         <span data-testid={`text-announcement-date-${article.id}`}>
-                          {language === "en" ? "Announced: " : "発表日: "}
-                          {formatDate(article.publishedAt || article.createdAt || new Date())}
+                          {isScheduled(article)
+                            ? (language === "en" ? "Publishes: " : "公開日時: ")
+                            : (language === "en" ? "Announced: " : "発表日: ")}
+                          {article.publishedAt
+                            ? formatSGTDateTime(article.publishedAt)
+                            : formatDate(article.createdAt || new Date())}
                         </span>
                       </div>
                     </div>
@@ -404,7 +438,7 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1" data-testid={`text-news-date-${article.id}`}>
                       <Calendar className="h-4 w-4" />
-                      {article.publishedAt ? formatDate(article.publishedAt) : 'N/A'}
+                      {article.publishedAt ? formatSGTDateTime(article.publishedAt) : 'N/A'}
                     </div>
                   </div>
                   <div className="flex gap-2">
