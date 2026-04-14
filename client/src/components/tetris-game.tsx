@@ -255,67 +255,103 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <DialogContent
-        className="max-w-sm p-0 overflow-hidden border-slate-600 [&>button]:text-white [&>button]:opacity-60 [&>button:hover]:opacity-100"
-        style={{ background: "linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 100%)" }}
+        className="max-w-sm p-0 overflow-hidden [&>button]:text-cyan-300 [&>button]:opacity-70 [&>button:hover]:opacity-100"
+        style={{
+          background: "linear-gradient(160deg, #050d1a 0%, #061428 40%, #0a0a2e 100%)",
+          border: "2px solid #00d4ff",
+          boxShadow: "0 0 30px rgba(0,212,255,0.4), 0 0 60px rgba(0,100,200,0.2), inset 0 0 30px rgba(0,50,100,0.15)",
+        }}
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="px-4 pt-4 pb-2">
-          <DialogTitle className="text-white text-center text-lg tracking-widest font-mono">TETRIS</DialogTitle>
+        <DialogHeader className="px-4 pt-4 pb-1">
+          <DialogTitle
+            className="text-center text-xl tracking-[0.3em] font-mono font-bold"
+            style={{ color: "#00eeff", textShadow: "0 0 10px #00d4ff, 0 0 20px #00aaff, 0 0 40px #0066ff" }}
+          >
+            TETRIS
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="flex justify-center pb-1">
+        <div className="flex justify-center pb-2">
           <Button
             size="sm"
             variant="ghost"
             onClick={onClose}
-            className="text-slate-400 hover:text-white text-xs flex items-center gap-1.5"
+            className="text-cyan-400 hover:text-white text-xs flex items-center gap-1.5 hover:bg-cyan-900/30"
           >
             <Home className="h-3.5 w-3.5" />
             Return to home
           </Button>
         </div>
 
-        <div className="flex gap-3 px-4 pb-4">
+        <div className="flex gap-3 px-4 pb-3">
           {/* Board */}
-          <div style={{ border: "2px solid rgba(255,255,255,0.15)", borderRadius: 4, overflow: "hidden", background: "rgba(0,0,0,0.4)" }}>
+          <div style={{
+            border: "2px solid #00d4ff",
+            borderRadius: 4,
+            overflow: "hidden",
+            background: "rgba(0,0,0,0.6)",
+            boxShadow: "0 0 12px rgba(0,212,255,0.3), inset 0 0 10px rgba(0,0,0,0.5)",
+          }}>
             {renderBoard()}
           </div>
 
           {/* Side Panel */}
-          <div className="flex flex-col gap-3 min-w-[90px]">
+          <div className="flex flex-col gap-2 min-w-[90px]">
             <div className="text-center">
-              <p className="text-slate-400 text-xs font-mono mb-1">NEXT</p>
-              <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: 6 }}>
+              <p className="text-xs font-mono mb-1" style={{ color: "#00d4ff" }}>NEXT</p>
+              <div style={{
+                background: "rgba(0,10,30,0.7)",
+                border: "1px solid rgba(0,212,255,0.4)",
+                borderRadius: 4,
+                padding: 6,
+                boxShadow: "0 0 8px rgba(0,212,255,0.15)",
+              }}>
                 {renderNextPiece()}
               </div>
             </div>
-            <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 4, padding: 8 }}>
-              <p className="text-slate-400 text-xs font-mono">SCORE</p>
-              <p className="text-white text-sm font-mono font-bold">{score.toLocaleString()}</p>
-              <p className="text-slate-400 text-xs font-mono mt-2">LINES</p>
-              <p className="text-white text-sm font-mono font-bold">{lines}</p>
-              <p className="text-slate-400 text-xs font-mono mt-2">LEVEL</p>
-              <p className="text-white text-sm font-mono font-bold">{level}</p>
+            <div style={{
+              background: "rgba(0,10,30,0.7)",
+              border: "1px solid rgba(0,212,255,0.35)",
+              borderRadius: 4,
+              padding: 8,
+              boxShadow: "0 0 8px rgba(0,212,255,0.1)",
+            }}>
+              <p className="text-xs font-mono" style={{ color: "#00aacc" }}>SCORE</p>
+              <p className="text-sm font-mono font-bold" style={{ color: "#ffffff", textShadow: "0 0 6px #00d4ff" }}>{score.toLocaleString()}</p>
+              <p className="text-xs font-mono mt-2" style={{ color: "#00aacc" }}>LINES</p>
+              <p className="text-sm font-mono font-bold" style={{ color: "#ffffff", textShadow: "0 0 6px #00d4ff" }}>{lines}</p>
+              <p className="text-xs font-mono mt-2" style={{ color: "#00aacc" }}>LEVEL</p>
+              <p className="text-sm font-mono font-bold" style={{ color: "#ffffff", textShadow: "0 0 6px #00d4ff" }}>{level}</p>
             </div>
 
             {/* Controls */}
             <div className="flex flex-col gap-1.5 mt-auto">
               {!started && !gameOver && (
-                <Button size="sm" onClick={start} className="w-full text-xs font-mono bg-blue-600 hover:bg-blue-500 text-white">
+                <Button size="sm" onClick={start} className="w-full text-xs font-mono font-bold text-black"
+                  style={{ background: "linear-gradient(135deg, #00d4ff, #0088cc)", boxShadow: "0 0 10px rgba(0,212,255,0.5)" }}>
                   START
                 </Button>
               )}
               {gameOver && (
                 <>
-                  <p className="text-red-400 text-xs font-mono text-center">GAME OVER</p>
-                  <Button size="sm" onClick={start} className="w-full text-xs font-mono bg-blue-600 hover:bg-blue-500 text-white">
+                  <p className="text-xs font-mono text-center font-bold" style={{ color: "#ff4444", textShadow: "0 0 8px #ff0000" }}>GAME OVER</p>
+                  <Button size="sm" onClick={start} className="w-full text-xs font-mono font-bold text-black"
+                    style={{ background: "linear-gradient(135deg, #00d4ff, #0088cc)", boxShadow: "0 0 10px rgba(0,212,255,0.5)" }}>
                     RETRY
                   </Button>
                 </>
               )}
               {started && !gameOver && (
-                <Button size="sm" onClick={() => setPaused(p => !p)} className="w-full text-xs font-mono bg-slate-700 hover:bg-slate-600 text-white">
+                <Button size="sm" onClick={() => setPaused(p => !p)}
+                  className="w-full text-xs font-mono font-bold"
+                  style={{
+                    background: paused ? "linear-gradient(135deg, #00d4ff, #0088cc)" : "rgba(0,30,60,0.8)",
+                    border: "1px solid rgba(0,212,255,0.5)",
+                    color: paused ? "#000" : "#00d4ff",
+                    boxShadow: "0 0 8px rgba(0,212,255,0.2)",
+                  }}>
                   {paused ? "RESUME" : "PAUSE"}
                 </Button>
               )}
@@ -324,22 +360,30 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
         </div>
 
         {/* Mobile Controls */}
-        <div className="px-4 pb-4 grid grid-cols-3 gap-2">
-          <Button variant="ghost" size="sm" onClick={rotatePiece} disabled={!started || gameOver || paused} className="text-white border border-slate-700 col-start-2">
+        <div className="px-4 pb-3 grid grid-cols-3 gap-2">
+          <Button variant="ghost" size="sm" onClick={rotatePiece} disabled={!started || gameOver || paused}
+            className="col-start-2 disabled:opacity-20"
+            style={{ color: "#00d4ff", border: "1px solid rgba(0,212,255,0.5)", boxShadow: "0 0 6px rgba(0,212,255,0.2)" }}>
             <RotateCw className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={moveLeft} disabled={!started || gameOver || paused} className="text-white border border-slate-700 col-start-1 row-start-2">
+          <Button variant="ghost" size="sm" onClick={moveLeft} disabled={!started || gameOver || paused}
+            className="col-start-1 row-start-2 disabled:opacity-20"
+            style={{ color: "#00d4ff", border: "1px solid rgba(0,212,255,0.5)", boxShadow: "0 0 6px rgba(0,212,255,0.2)" }}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={hardDrop} disabled={!started || gameOver || paused} className="text-white border border-slate-700 col-start-2 row-start-2">
+          <Button variant="ghost" size="sm" onClick={hardDrop} disabled={!started || gameOver || paused}
+            className="col-start-2 row-start-2 disabled:opacity-20"
+            style={{ color: "#00d4ff", border: "1px solid rgba(0,212,255,0.5)", boxShadow: "0 0 6px rgba(0,212,255,0.2)" }}>
             <ChevronDown className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={moveRight} disabled={!started || gameOver || paused} className="text-white border border-slate-700 col-start-3 row-start-2">
+          <Button variant="ghost" size="sm" onClick={moveRight} disabled={!started || gameOver || paused}
+            className="col-start-3 row-start-2 disabled:opacity-20"
+            style={{ color: "#00d4ff", border: "1px solid rgba(0,212,255,0.5)", boxShadow: "0 0 6px rgba(0,212,255,0.2)" }}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
 
-        <p className="text-slate-400 text-xs font-mono text-center pb-3">
+        <p className="text-xs font-mono text-center pb-3 opacity-50" style={{ color: "#00aacc" }}>
           ← → move &nbsp;↑ rotate &nbsp;↓ drop &nbsp;space hard drop
         </p>
       </DialogContent>
