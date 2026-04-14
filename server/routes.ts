@@ -305,7 +305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Admin-only endpoint — returns ALL articles including scheduled future ones
   app.get('/api/news/admin', async (req: any, res) => {
-    if (!req.session?.userId) {
+    if (!req.session?.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
     try {
