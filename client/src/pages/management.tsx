@@ -366,6 +366,7 @@ export default function ManagementPage() {
 
       // Refresh the news list
       queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/news/admin"] });
     } catch (error) {
       console.error('Error importing news:', error);
       toast({

@@ -33,11 +33,11 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
                        currentUser?.role === "superadmin" || 
                        currentUser?.role === "admin";
 
-  // Fetch ALL news articles including scheduled (management view)
+  // Fetch ALL news articles including scheduled (management-only endpoint)
   const { data: newsArticles, isLoading } = useQuery({
-    queryKey: ["/api/news", "includeScheduled"],
+    queryKey: ["/api/news/admin"],
     queryFn: async () => {
-      const res = await fetch("/api/news?includeScheduled=true", { credentials: "include" });
+      const res = await fetch("/api/news/admin", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch news");
       return res.json();
     },
@@ -66,6 +66,7 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/news/admin"] });
       toast({
         title: language === "en" ? "Success" : "成功",
         description: language === "en" 
@@ -106,6 +107,7 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/news/admin"] });
       setEditingArticle(null);
       toast({
         title: language === "en" ? "Success" : "成功",
@@ -143,6 +145,7 @@ export function NewsManagement({ language, onClose, currentUser, handleExportNew
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/news/admin"] });
       toast({
         title: language === "en" ? "Success" : "成功",
         description: language === "en" 

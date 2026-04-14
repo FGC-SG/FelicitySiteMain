@@ -289,20 +289,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint — always filters out future-dated articles regardless of auth status
   app.get('/api/news', async (req: any, res) => {
     try {
-      console.log("Fetching news articles...");
       const allNews = await storage.getNewsArticles();
-      // Admins with ?includeScheduled=true get all articles (including future-dated)
-      const includeScheduled = req.query.includeScheduled === 'true' && req.session?.userId;
       const now = new Date();
-      const news = includeScheduled
-        ? allNews
-        : allNews.filter(a => !a.publishedAt || new Date(a.publishedAt) <= now);
-      console.log(`Retrieved ${news.length} news articles (${allNews.length - news.length} scheduled/hidden)`);
+      const news = allNews.filter(a => !a.publishedAt || new Date(a.publishedAt) <= now);
+      console.log(`Public news: ${news.length} published (${allNews.length - news.length} scheduled/hidden)`);
       res.json(news);
     } catch (error) {
       console.error("Error fetching news articles:", error);
+      res.status(500).json({ message: "Failed to fetch news articles" });
+    }
+  });
+
+  // Admin-only endpoint — returns ALL articles including scheduled future ones
+  app.get('/api/news/admin', async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    try {
+      const news = await storage.getNewsArticles();
+      res.json(news);
+    } catch (error) {
+      console.error("Error fetching all news articles:", error);
       res.status(500).json({ message: "Failed to fetch news articles" });
     }
   });

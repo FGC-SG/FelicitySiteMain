@@ -170,6 +170,7 @@ export function AddNewsForm({ language, onSuccess, onCancel }: AddNewsFormProps)
       });
       form.reset();
       queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/news/admin"] });
       onSuccess?.();
     },
     onError: (error: Error) => {
