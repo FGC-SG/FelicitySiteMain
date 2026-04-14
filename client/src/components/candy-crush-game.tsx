@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Home } from "lucide-react";
 
 const COLS = 8;
 const ROWS = 8;
@@ -253,6 +253,18 @@ export function CandyCrushGame({ open, onClose }: Props) {
             🍬 CANDY CRUSH
           </DialogTitle>
         </DialogHeader>
+
+        <div className="flex justify-center pb-1">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onClose}
+            className="text-pink-400 hover:text-white text-xs flex items-center gap-1.5"
+          >
+            <Home className="h-3.5 w-3.5" />
+            Return to home
+          </Button>
+        </div>
 
         {/* Score bar */}
         <div className="flex justify-between items-center px-5 pb-2">

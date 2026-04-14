@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, ChevronDown, ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
+import { RotateCcw, ChevronDown, ChevronLeft, ChevronRight, RotateCw, Home } from "lucide-react";
 
 const COLS = 10;
 const ROWS = 20;
@@ -263,6 +263,18 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
         <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle className="text-white text-center text-lg tracking-widest font-mono">TETRIS</DialogTitle>
         </DialogHeader>
+
+        <div className="flex justify-center pb-1">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onClose}
+            className="text-slate-400 hover:text-white text-xs flex items-center gap-1.5"
+          >
+            <Home className="h-3.5 w-3.5" />
+            Return to home
+          </Button>
+        </div>
 
         <div className="flex gap-3 px-4 pb-4">
           {/* Board */}
