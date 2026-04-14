@@ -3,7 +3,10 @@ import { useTranslation, type Language } from "@/lib/i18n";
 import { useLocation, Link } from "wouter";
 import { LoginModal } from "@/components/auth/login-modal";
 import { useAuth } from "@/hooks/useAuth";
-import { User } from "lucide-react";
+import { User, Ghost, Gem, Gamepad2 } from "lucide-react";
+import { TetrisGame } from "@/components/tetris-game";
+import { CandyCrushGame } from "@/components/candy-crush-game";
+import { PacmanGame } from "@/components/pacman-game";
 
 interface FooterProps {
   language: Language;
@@ -13,6 +16,9 @@ export function Footer({ language }: FooterProps) {
   const t = useTranslation(language);
   const [, navigate] = useLocation();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showTetris, setShowTetris] = useState(false);
+  const [showCandyCrush, setShowCandyCrush] = useState(false);
+  const [showPacman, setShowPacman] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const handleNavClick = (path: string) => {
@@ -37,7 +43,8 @@ export function Footer({ language }: FooterProps) {
       termsOfUse: "Terms of Use",
       address: "6 Temasek Blvd #29-04 Suntec Tower Four Singapore 038986",
       allRightsReserved: "All rights reserved.",
-      followUs: "Follow Us"
+      followUs: "Follow Us",
+      games: "Mini Games",
     },
     jp: {
       companyDescription: "フェリシティ・グローバル・キャピタルは、シンガポールを拠点とする投資運用会社であり、アジア太平洋市場における越境プライベートエクイティおよびコーポレートファイナンスソリューションを専門としています。",
@@ -48,7 +55,8 @@ export function Footer({ language }: FooterProps) {
       termsOfUse: "利用規約",
       address: "6 Temasek Blvd #29-04 Suntec Tower Four Singapore 038986",
       allRightsReserved: "All rights reserved.",
-      followUs: "フォローする"
+      followUs: "フォローする",
+      games: "ミニゲーム",
     }
   };
 
@@ -66,7 +74,7 @@ export function Footer({ language }: FooterProps) {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links + Mini Games */}
           <div>
             <h4 className="font-semibold text-white mb-4">{c.quickLinks}</h4>
             <ul className="space-y-3 text-sm">
@@ -107,6 +115,37 @@ export function Footer({ language }: FooterProps) {
                 </button>
               </li>
             </ul>
+
+            {/* Mini Games — below Quick Links */}
+            <div className="mt-6">
+              <p className="text-slate-500 text-xs mb-3 uppercase tracking-wider">{c.games}</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowPacman(true)}
+                  title="Play Pac-Man"
+                  className="text-slate-500 hover:text-felicity-gold transition-colors"
+                  data-testid="footer-button-pacman"
+                >
+                  <Ghost className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setShowCandyCrush(true)}
+                  title="Play Candy Crush"
+                  className="text-slate-500 hover:text-felicity-gold transition-colors"
+                  data-testid="footer-button-candy-crush"
+                >
+                  <Gem className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setShowTetris(true)}
+                  title="Play Tetris"
+                  className="text-slate-500 hover:text-felicity-gold transition-colors"
+                  data-testid="footer-button-tetris"
+                >
+                  <Gamepad2 className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Legal */}
@@ -210,6 +249,10 @@ export function Footer({ language }: FooterProps) {
         onSuccess={() => window.location.href = "/management"}
         language={language}
       />
+
+      <TetrisGame open={showTetris} onClose={() => setShowTetris(false)} />
+      <CandyCrushGame open={showCandyCrush} onClose={() => setShowCandyCrush(false)} />
+      <PacmanGame open={showPacman} onClose={() => setShowPacman(false)} />
     </footer>
   );
 }

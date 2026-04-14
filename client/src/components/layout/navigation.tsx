@@ -7,12 +7,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LayoutToggle } from "@/components/layout-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation, type Language } from "@/lib/i18n";
-import { Grip, User, Gamepad2, Gem, Ghost } from "lucide-react";
+import { Grip, User } from "lucide-react";
 import logoPath from "@assets/logo_color_1756362140059.jpg";
 import { hasAdminPrivileges } from "@/lib/roles";
-import { TetrisGame } from "@/components/tetris-game";
-import { CandyCrushGame } from "@/components/candy-crush-game";
-import { PacmanGame } from "@/components/pacman-game";
 
 interface NavigationProps {
   language: Language;
@@ -24,9 +21,6 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showTetris, setShowTetris] = useState(false);
-  const [showCandyCrush, setShowCandyCrush] = useState(false);
-  const [showPacman, setShowPacman] = useState(false);
   const t = useTranslation(language);
 
   // Check if user has admin privileges (admin or superadmin)
@@ -99,36 +93,6 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
 
           {/* Desktop: Language & Auth */}
           <div className="hidden md:flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPacman(true)}
-              title="Play Pac-Man"
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-pacman"
-            >
-              <Ghost className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowCandyCrush(true)}
-              title="Play Candy Crush"
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-candy-crush"
-            >
-              <Gem className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowTetris(true)}
-              title="Play Tetris"
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-tetris"
-            >
-              <Gamepad2 className="h-4 w-4" />
-            </Button>
             <LayoutToggle />
             <ThemeToggle />
             <LanguageSwitcher
@@ -236,14 +200,6 @@ export function Navigation({ language, onLanguageChange }: NavigationProps) {
         language={language}
       />
 
-      {/* Tetris Game */}
-      <TetrisGame open={showTetris} onClose={() => setShowTetris(false)} />
-
-      {/* Candy Crush Game */}
-      <CandyCrushGame open={showCandyCrush} onClose={() => setShowCandyCrush(false)} />
-
-      {/* Pac-Man Game */}
-      <PacmanGame open={showPacman} onClose={() => setShowPacman(false)} />
     </nav>
   );
 }
