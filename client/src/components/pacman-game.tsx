@@ -7,8 +7,8 @@ const CELL = 18;
 const COLS = 19;
 const ROWS = 21;
 const TUNNEL_ROW = 9;
-const PAC_MS = 185;
-const GHOST_MS = 240;
+const PAC_MS = 280;
+const GHOST_MS = 350;
 const POWER_MS = 8000;
 
 type Dir = "U" | "D" | "L" | "R" | null;
