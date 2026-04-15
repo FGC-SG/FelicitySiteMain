@@ -53,8 +53,10 @@ export function News({ language }: NewsProps) {
   };
 
   const getActiveAttachmentUrl = (article: NewsArticle): string | undefined => {
-    if (language === "jp" && article.attachmentUrlJa) return article.attachmentUrlJa;
-    return article.attachmentUrl || undefined;
+    if (language === "jp") {
+      return article.attachmentUrlJa || article.attachmentUrl || undefined;
+    }
+    return article.attachmentUrl || article.attachmentUrlJa || undefined;
   };
 
   const articleHasAttachment = (article: NewsArticle): boolean => {
