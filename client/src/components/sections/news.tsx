@@ -313,14 +313,40 @@ export function News({ language }: NewsProps) {
                 </DialogHeader>
 
                 <div className="space-y-6 mt-6">
-                  {/* Article Meta */}
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b pb-4">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
+                  {/* Article Meta — with download button if attachment exists */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      {selectedArticle.category && (
+                        <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
+                      )}
                     </div>
-                    {selectedArticle.category && (
-                      <Badge variant="secondary">{getCategoryLabel(selectedArticle.category)}</Badge>
+                    {/* Download button — always visible at top when attachment exists */}
+                    {activeAttachmentUrl && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-shrink-0 gap-1.5"
+                        onClick={() => {
+                          if (isPdfFile(activeAttachmentUrl)) {
+                            const link = document.createElement('a');
+                            link.href = `/public-objects${activeAttachmentUrl}`;
+                            link.download = activeAttachmentUrl.split('/').pop() || 'document.pdf';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          } else {
+                            window.open(activeAttachmentUrl, '_blank');
+                          }
+                        }}
+                        data-testid="button-download-top"
+                      >
+                        <Download className="h-4 w-4" />
+                        {language === "en" ? "Download File" : "ファイルをダウンロード"}
+                      </Button>
                     )}
                   </div>
 
