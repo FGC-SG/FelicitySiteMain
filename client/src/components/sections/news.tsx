@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Newspaper, Calendar, Eye, ArrowRight, X, FileText, Share2, Copy, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Newspaper, Calendar, Eye, ArrowRight, X, FileText, Share2, Copy, Check, Paperclip, Download, ExternalLink } from "lucide-react";
 import { shortenUrl, copyToClipboard } from "@/lib/urlShortener";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,6 +20,7 @@ interface NewsArticle {
   titleJa?: string;
   contentJa?: string;
   attachmentUrl?: string;
+  attachmentUrlJa?: string;
   language: string;
   category: string;
   authorId: string;
@@ -36,7 +37,6 @@ export function News({ language }: NewsProps) {
   const [isGeneratingUrl, setIsGeneratingUrl] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Helper function to check if attachmentUrl is a valid URL
   const isValidUrl = (urlString: string | null | undefined): boolean => {
     if (!urlString) return false;
     try {
@@ -47,27 +47,35 @@ export function News({ language }: NewsProps) {
     }
   };
 
-  // Helper function to check if attachment is a PDF file
   const isPdfFile = (urlString: string | null | undefined): boolean => {
     if (!urlString) return false;
     return urlString.endsWith('.pdf') || urlString.startsWith('/news-attachments/');
   };
 
+  const getActiveAttachmentUrl = (article: NewsArticle): string | undefined => {
+    if (language === "jp" && article.attachmentUrlJa) return article.attachmentUrlJa;
+    return article.attachmentUrl || undefined;
+  };
+
+  const articleHasAttachment = (article: NewsArticle): boolean => {
+    return !!(article.attachmentUrl || article.attachmentUrlJa);
+  };
+
   const handleReadMore = (article: NewsArticle) => {
     setSelectedArticle(article);
     setIsModalOpen(true);
-    setShortUrl(""); // Reset short URL when opening new article
+    setShortUrl("");
     setIsCopied(false);
   };
 
   const handleGenerateShortUrl = async () => {
-    if (!selectedArticle || !selectedArticle.attachmentUrl) return;
-    
+    if (!selectedArticle) return;
+    const url = getActiveAttachmentUrl(selectedArticle);
+    if (!url) return;
+
     setIsGeneratingUrl(true);
-    
-    // Generate short URL from SharePoint file URL
-    const result = await shortenUrl(selectedArticle.attachmentUrl);
-    
+    const result = await shortenUrl(url);
+
     if (result.success) {
       setShortUrl(result.shortUrl);
       toast({
@@ -81,23 +89,18 @@ export function News({ language }: NewsProps) {
         variant: "destructive"
       });
     }
-    
     setIsGeneratingUrl(false);
   };
 
   const handleCopyUrl = async () => {
     if (!shortUrl) return;
-    
     const success = await copyToClipboard(shortUrl);
-    
     if (success) {
       setIsCopied(true);
       toast({
         title: language === "en" ? "Copied!" : "コピーしました！",
         description: language === "en" ? "Short URL copied to clipboard" : "短縮URLをクリップボードにコピーしました"
       });
-      
-      // Reset copied state after 2 seconds
       setTimeout(() => setIsCopied(false), 2000);
     } else {
       toast({
@@ -111,12 +114,8 @@ export function News({ language }: NewsProps) {
   const { data: newsArticles, isLoading, error } = useQuery({
     queryKey: ["/api/news"],
     queryFn: async () => {
-      const response = await fetch("/api/news", {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch news articles");
-      }
+      const response = await fetch("/api/news", { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to fetch news articles");
       return await response.json();
     },
   });
@@ -157,11 +156,7 @@ export function News({ language }: NewsProps) {
     const date = new Date(dateString);
     return date.toLocaleDateString(
       language === "en" ? "en-US" : "ja-JP",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
+      { year: "numeric", month: "long", day: "numeric" }
     );
   };
 
@@ -202,10 +197,9 @@ export function News({ language }: NewsProps) {
                 {language === "en" ? "Error loading news" : "ニュースの読み込みエラー"}
               </CardTitle>
               <CardDescription>
-                {language === "en" 
+                {language === "en"
                   ? "Unable to fetch news articles. Please try again later."
-                  : "ニュース記事を取得できません。後でもう一度お試しください。"
-                }
+                  : "ニュース記事を取得できません。後でもう一度お試しください。"}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -213,43 +207,43 @@ export function News({ language }: NewsProps) {
           <div className="space-y-2">
             {newsArticles
               .filter((article: NewsArticle) => {
-                if ((article as any).isVisible === false) {
-                  return false;
-                }
-                if (language === "jp") {
-                  return article.titleJa || article.title;
-                } else {
-                  return true;
-                }
+                if ((article as any).isVisible === false) return false;
+                // JP mode: only show articles that have a Japanese title
+                if (language === "jp") return !!article.titleJa;
+                return true;
               })
-              .sort((a: NewsArticle, b: NewsArticle) => {
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-              })
+              .sort((a: NewsArticle, b: NewsArticle) =>
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+              )
               .map((article: NewsArticle) => {
                 const displayTitle = language === "jp" && article.titleJa ? article.titleJa : article.title;
-                
+                const hasAttachment = articleHasAttachment(article);
+
                 return (
-                <div 
-                  key={article.id} 
-                  className="flex items-center gap-4 p-3 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer border-b last:border-b-0"
-                  onClick={() => handleReadMore(article)}
-                  data-testid={`news-row-${article.id}`}
-                >
-                  <div className="flex-shrink-0 w-28 text-sm text-muted-foreground" data-testid={`news-date-${article.id}`}>
-                    {formatDate(article.createdAt)}
+                  <div
+                    key={article.id}
+                    className="flex items-center gap-4 p-3 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer border-b last:border-b-0"
+                    onClick={() => handleReadMore(article)}
+                    data-testid={`news-row-${article.id}`}
+                  >
+                    <div className="flex-shrink-0 w-28 text-sm text-muted-foreground" data-testid={`news-date-${article.id}`}>
+                      {formatDate(article.createdAt)}
+                    </div>
+                    <div className="flex-shrink-0">
+                      <Badge className={getCategoryColor(article.category)} data-testid={`news-category-${article.id}`}>
+                        {getCategoryLabel(article.category)}
+                      </Badge>
+                    </div>
+                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                      <span className="text-foreground hover:text-primary transition-colors line-clamp-1" data-testid={`news-title-${article.id}`}>
+                        {displayTitle}
+                      </span>
+                      {hasAttachment && (
+                        <Paperclip className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" title={language === "en" ? "Has attachment" : "添付ファイルあり"} />
+                      )}
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   </div>
-                  <div className="flex-shrink-0">
-                    <Badge className={getCategoryColor(article.category)} data-testid={`news-category-${article.id}`}>
-                      {getCategoryLabel(article.category)}
-                    </Badge>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-foreground hover:text-primary transition-colors line-clamp-1" data-testid={`news-title-${article.id}`}>
-                      {displayTitle}
-                    </span>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                </div>
                 );
               })}
           </div>
@@ -264,9 +258,6 @@ export function News({ language }: NewsProps) {
                 title: language === "en"
                   ? "Felicity Global Capital Expands Asia-Pacific Investment Mandate"
                   : "フェリシティ・グローバル・キャピタル、アジア太平洋投資範囲を拡大",
-                excerpt: language === "en"
-                  ? "Felicity Global Capital announces an expanded investment mandate targeting high-growth opportunities across Southeast Asia and Japan, with a focus on technology-enabled businesses and succession deals."
-                  : "フェリシティ・グローバル・キャピタルは、東南アジアおよび日本における高成長機会を対象とした投資範囲の拡大を発表しました。テクノロジー関連ビジネスおよび事業承継案件に注力します。",
               },
               {
                 id: "sn2",
@@ -276,9 +267,6 @@ export function News({ language }: NewsProps) {
                 title: language === "en"
                   ? "Portfolio Company Achieves Significant Growth Milestone"
                   : "ポートフォリオ企業が重要な成長マイルストーンを達成",
-                excerpt: language === "en"
-                  ? "One of Felicity Global Capital's portfolio companies has achieved a major revenue milestone, reflecting the firm's hands-on value creation approach and deep operational expertise."
-                  : "フェリシティ・グローバル・キャピタルのポートフォリオ企業の一社が、重要な収益マイルストーンを達成しました。これは当社のハンズオン型価値創造アプローチと深い運営専門知識を反映しています。",
               },
               {
                 id: "sn3",
@@ -288,9 +276,6 @@ export function News({ language }: NewsProps) {
                 title: language === "en"
                   ? "Felicity Global Capital Strengthens Singapore-Japan Investment Bridge"
                   : "フェリシティ・グローバル・キャピタル、シンガポール-日本投資架け橋を強化",
-                excerpt: language === "en"
-                  ? "Following the establishment of its dual-entity structure across Singapore and Tokyo, Felicity Global Capital continues to deepen its cross-border deal origination capabilities."
-                  : "シンガポールと東京にまたがる二拠点体制の確立を経て、フェリシティ・グローバル・キャピタルはクロスボーダーの案件組成能力をさらに強化しています。",
               },
             ].map((article) => (
               <div key={article.id} className="flex items-start gap-4 p-3 hover:bg-muted/50 rounded-lg transition-colors border-b last:border-b-0">
@@ -300,7 +285,6 @@ export function News({ language }: NewsProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground mb-1 line-clamp-1">{article.title}</p>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p>
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
               </div>
@@ -313,9 +297,9 @@ export function News({ language }: NewsProps) {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedArticle && (() => {
-            // Use appropriate language content for the modal
             const modalTitle = language === "jp" && selectedArticle.titleJa ? selectedArticle.titleJa : selectedArticle.title;
             const modalContent = language === "jp" && selectedArticle.contentJa ? selectedArticle.contentJa : selectedArticle.content;
+            const activeAttachmentUrl = getActiveAttachmentUrl(selectedArticle);
 
             return (
               <>
@@ -327,7 +311,7 @@ export function News({ language }: NewsProps) {
                     {language === "en" ? "Full article content" : "完全な記事内容"}
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="space-y-6 mt-6">
                   {/* Article Meta */}
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-b pb-4">
@@ -342,62 +326,68 @@ export function News({ language }: NewsProps) {
 
                   {/* Article Content */}
                   <div className="prose prose-lg max-w-none">
-                    <div 
-                      className="leading-relaxed"
-                      style={{ whiteSpace: 'pre-wrap' }}
-                    >
+                    <div className="leading-relaxed" style={{ whiteSpace: 'pre-wrap' }}>
                       {modalContent}
                     </div>
                   </div>
 
-                  {/* Attached File - PDF or Embed URL */}
-                  {selectedArticle.attachmentUrl && (
+                  {/* Attached File */}
+                  {activeAttachmentUrl && (
                     <div className="mt-6 border-t pt-6">
-                      {isPdfFile(selectedArticle.attachmentUrl) ? (
-                        // PDF File Viewer
-                        <>
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-semibold text-muted-foreground">
-                              {language === "en" ? "Attached PDF Document" : "添付PDFドキュメント"}
-                            </h4>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  if (!selectedArticle.attachmentUrl) return;
-                                  const link = document.createElement('a');
-                                  link.href = `/public-objects${selectedArticle.attachmentUrl}`;
-                                  link.download = selectedArticle.attachmentUrl.split('/').pop() || 'document.pdf';
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  document.body.removeChild(link);
-                                }}
-                                data-testid="button-download-pdf"
-                              >
-                                <FileText className="h-4 w-4 mr-1" />
-                                {language === "en" ? "Download PDF" : "PDFダウンロード"}
-                              </Button>
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => window.open(`/public-objects${selectedArticle.attachmentUrl}`, '_blank')}
-                                data-testid="button-open-pdf"
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                {language === "en" ? "View PDF" : "PDFを表示"}
-                              </Button>
-                            </div>
+                      {isPdfFile(activeAttachmentUrl) ? (
+                        // PDF File
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold text-muted-foreground">
+                            {language === "en" ? "Attached PDF Document" : "添付PDFドキュメント"}
+                          </h4>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = `/public-objects${activeAttachmentUrl}`;
+                                link.download = activeAttachmentUrl.split('/').pop() || 'document.pdf';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              }}
+                              data-testid="button-download-pdf"
+                            >
+                              <Download className="h-4 w-4 mr-1" />
+                              {language === "en" ? "Download PDF" : "PDFダウンロード"}
+                            </Button>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => window.open(`/public-objects${activeAttachmentUrl}`, '_blank')}
+                              data-testid="button-open-pdf"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              {language === "en" ? "View PDF" : "PDFを表示"}
+                            </Button>
                           </div>
-                        </>
-                      ) : isValidUrl(selectedArticle.attachmentUrl) ? (
-                        // Embed URL Viewer (SharePoint, etc.)
+                        </div>
+                      ) : isValidUrl(activeAttachmentUrl) ? (
+                        // Embed URL (SharePoint, etc.)
                         <>
                           <div className="flex items-center justify-between mb-3">
                             <h4 className="text-sm font-semibold text-muted-foreground">
                               {language === "en" ? "Attached Document" : "添付ドキュメント"}
                             </h4>
                             <div className="flex items-center gap-2">
+                              {/* Download / open button */}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(activeAttachmentUrl, '_blank')}
+                                data-testid="button-download-attachment"
+                              >
+                                <Download className="h-4 w-4 mr-1" />
+                                {language === "en" ? "Download" : "ダウンロード"}
+                              </Button>
+
+                              {/* Share Link button */}
                               {!shortUrl ? (
                                 <Button
                                   variant="outline"
@@ -407,10 +397,9 @@ export function News({ language }: NewsProps) {
                                   data-testid="button-generate-sharepoint-short-url"
                                 >
                                   <Share2 className="h-4 w-4 mr-1" />
-                                  {isGeneratingUrl 
-                                    ? (language === "en" ? "Generating..." : "生成中...") 
-                                    : (language === "en" ? "Share Link" : "共有リンク")
-                                  }
+                                  {isGeneratingUrl
+                                    ? (language === "en" ? "Generating..." : "生成中...")
+                                    : (language === "en" ? "Share Link" : "共有リンク")}
                                 </Button>
                               ) : (
                                 <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
@@ -432,10 +421,10 @@ export function News({ language }: NewsProps) {
                               )}
                             </div>
                           </div>
-                          
+
                           <div className="w-full rounded-lg overflow-hidden border bg-muted/50">
                             <iframe
-                              src={selectedArticle.attachmentUrl}
+                              src={activeAttachmentUrl}
                               className="w-full h-[500px]"
                               frameBorder="0"
                               title={language === "en" ? "Document Viewer" : "ドキュメントビューアー"}
@@ -443,15 +432,14 @@ export function News({ language }: NewsProps) {
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
-                            {language === "en" 
-                              ? "Document viewer - your SharePoint URL is not exposed to visitors" 
-                              : "ドキュメントビューアー - SharePoint URLは訪問者に公開されません"}
+                            {language === "en"
+                              ? "Document viewer — your SharePoint URL is not exposed to visitors"
+                              : "ドキュメントビューアー — SharePoint URLは訪問者に公開されません"}
                           </p>
                         </>
                       ) : null}
                     </div>
                   )}
-
                 </div>
               </>
             );
