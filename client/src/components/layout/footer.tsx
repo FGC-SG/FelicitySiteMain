@@ -122,7 +122,7 @@ export function Footer({ language }: FooterProps) {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowPacman(true)}
-                  title="Play Pac-Man"
+                  title="Play Dot Muncher"
                   className="text-slate-500 hover:text-felicity-gold transition-colors"
                   data-testid="footer-button-pacman"
                 >
@@ -130,7 +130,7 @@ export function Footer({ language }: FooterProps) {
                 </button>
                 <button
                   onClick={() => setShowCandyCrush(true)}
-                  title="Play Candy Crush"
+                  title="Play Gem Blast"
                   className="text-slate-500 hover:text-felicity-gold transition-colors"
                   data-testid="footer-button-candy-crush"
                 >
@@ -138,7 +138,7 @@ export function Footer({ language }: FooterProps) {
                 </button>
                 <button
                   onClick={() => setShowTetris(true)}
-                  title="Play Tetris"
+                  title="Play Block Drop"
                   className="text-slate-500 hover:text-felicity-gold transition-colors"
                   data-testid="footer-button-tetris"
                 >

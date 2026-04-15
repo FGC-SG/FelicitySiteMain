@@ -224,7 +224,7 @@ export function PacmanGame({ open, onClose }: { open: boolean; onClose: () => vo
       ctx.textAlign = "center";
       ctx.fillStyle = "#ffee00";
       ctx.font = "bold 18px monospace";
-      ctx.fillText("PAC-MAN", COLS * CELL / 2, ROWS * CELL / 2 - 14);
+      ctx.fillText("DOT MUNCHER", COLS * CELL / 2, ROWS * CELL / 2 - 14);
       ctx.fillStyle = "#aaaaff";
       ctx.font = "11px monospace";
       ctx.fillText("Press START to play", COLS * CELL / 2, ROWS * CELL / 2 + 6);
@@ -428,7 +428,7 @@ export function PacmanGame({ open, onClose }: { open: boolean; onClose: () => vo
             className="text-center text-xl tracking-[0.3em] font-mono font-bold"
             style={{ color: "#ffee00", textShadow: "0 0 10px #ffee00, 0 0 22px #ffaa00, 0 0 40px #ff6600" }}
           >
-            PAC-MAN
+            DOT MUNCHER
           </DialogTitle>
         </DialogHeader>
 

@@ -250,7 +250,7 @@ export function CandyCrushGame({ open, onClose }: Props) {
         <DialogHeader className="px-4 pt-4 pb-1">
           <DialogTitle className="text-white text-center text-lg tracking-widest font-bold"
             style={{ textShadow: "0 0 12px #ff88ff, 0 0 24px #cc44cc" }}>
-            🍬 CANDY CRUSH
+            💎 GEM BLAST
           </DialogTitle>
         </DialogHeader>
 

@@ -270,7 +270,7 @@ export function TetrisGame({ open, onClose }: TetrisGameProps) {
             className="text-center text-xl tracking-[0.3em] font-mono font-bold"
             style={{ color: "#00eeff", textShadow: "0 0 10px #00d4ff, 0 0 20px #00aaff, 0 0 40px #0066ff" }}
           >
-            TETRIS
+            BLOCK DROP
           </DialogTitle>
         </DialogHeader>
 
